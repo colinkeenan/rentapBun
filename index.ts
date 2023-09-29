@@ -8,8 +8,7 @@ const server = Bun.serve({
     if (url.pathname === "/")
       return new Response(Bun.file("index.html"));
 
-    // parse formdata at /action
-
+    // push formdata at /save into file store.json
     if (url.pathname === "/save") {
       const ap = await req.formData();
       aps.push(ap);
