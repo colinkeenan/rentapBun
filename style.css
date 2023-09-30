@@ -1,0 +1,8 @@
+label { display: inline-block; text-align: right; font-size: 10px; width: 90px; }
+input { width: 320px; }
+input[type=submit] { background-color: lightgreen; width: 4em; }
+.halfwidth, input[type=date] { width: 152px }
+textarea { width: 420px; }
+fieldset { display: inline-block; width: 425px; border: none; }
+body { background-color: lightgray; }
+h1 { display: inline-block; }
