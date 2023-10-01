@@ -5,4 +5,4 @@ input[type=submit] { background-color: lightgreen; width: 4em; }
 textarea { width: 420px; }
 fieldset { display: inline-block; width: 425px; border: none; }
 body { background-color: lightgray; }
-h1 { display: inline-block; }
+h1, div { display: inline-block; }
