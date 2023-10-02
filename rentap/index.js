@@ -23477,7 +23477,7 @@ var client = __toESM(require_client(), 1);
 // rentap.tsx
 var import_react = __toESM(require_react(), 1);
 var jsx_dev_runtime = __toESM(require_jsx_dev_runtime(), 1);
-function Rentap() {
+function Rentap({ icon, css }) {
   const [edited, setEdited] = import_react.useState(false);
   const markFormEdited = (event) => {
     setEdited(true);
@@ -23490,19 +23490,27 @@ function Rentap() {
       jsx_dev_runtime.jsxDEV("title", {
         children: "Rental Application"
       }, undefined, false, undefined, this),
-      jsx_dev_runtime.jsxDEV("link", {
+      icon ? jsx_dev_runtime.jsxDEV("link", {
+        rel: "icon",
+        href: `data:image/x-icon;base64,${icon}`
+      }, undefined, false, undefined, this) : jsx_dev_runtime.jsxDEV("link", {
         rel: "icon",
         type: "image/png",
-        href: "favicon.png"
+        href: "icon.png"
       }, undefined, false, undefined, this),
-      jsx_dev_runtime.jsxDEV("link", {
+      css ? jsx_dev_runtime.jsxDEV("style", {
+        dangerouslySetInnerHTML: { __html: css }
+      }, undefined, false, undefined, this) : jsx_dev_runtime.jsxDEV("link", {
         rel: "stylesheet",
         type: "text/css",
         href: "styles.css"
       }, undefined, false, undefined, this),
       jsx_dev_runtime.jsxDEV("header", {
         children: [
-          jsx_dev_runtime.jsxDEV("img", {
+          icon ? jsx_dev_runtime.jsxDEV("link", {
+            rel: "icon",
+            href: `data:image/x-icon;base64,${icon}`
+          }, undefined, false, undefined, this) : jsx_dev_runtime.jsxDEV("img", {
             src: "icon.png",
             alt: "Rental Application Icon"
           }, undefined, false, undefined, this),
@@ -23526,38 +23534,33 @@ function Rentap() {
                 htmlFor: "fullname",
                 children: " Full Name "
               }, undefined, false, undefined, this),
-              " ",
               "       ",
               jsx_dev_runtime.jsxDEV("input", {
                 type: "text",
                 name: "FullName",
                 id: "fullname",
-                placeholder: "Full Name"
+                placeholder: "First Middle Last"
               }, undefined, false, undefined, this),
               jsx_dev_runtime.jsxDEV("label", {
                 htmlFor: "ssnumber",
                 children: " Social Security "
               }, undefined, false, undefined, this),
               " ",
-              " ",
               jsx_dev_runtime.jsxDEV("input", {
                 type: "text",
                 name: "SSN",
                 id: "ssnumber",
-                placeholder: "555-55-5555",
-                pattern: "\d{3}-\d{2}-\d{4}"
+                placeholder: "555-55-5555"
               }, undefined, false, undefined, this),
               jsx_dev_runtime.jsxDEV("label", {
                 htmlFor: "birthdate",
                 children: " Birth Date "
               }, undefined, false, undefined, this),
-              " ",
               "     ",
               jsx_dev_runtime.jsxDEV("input", {
                 type: "date",
                 name: "BirthDate",
-                id: "birthdate",
-                placeholder: "Birth Date"
+                id: "birthdate"
               }, undefined, false, undefined, this),
               jsx_dev_runtime.jsxDEV("input", {
                 type: "text",
@@ -23570,31 +23573,28 @@ function Rentap() {
                 htmlFor: "email",
                 children: " Email "
               }, undefined, false, undefined, this),
-              " ",
               "             ",
               jsx_dev_runtime.jsxDEV("input", {
                 type: "email",
                 name: "Email",
                 id: "email",
-                placeholder: "Email"
+                placeholder: "youremail@provider.com"
               }, undefined, false, undefined, this),
               jsx_dev_runtime.jsxDEV("label", {
                 htmlFor: "stateid",
                 children: " State ID# "
               }, undefined, false, undefined, this),
-              " ",
               "        ",
               jsx_dev_runtime.jsxDEV("input", {
                 type: "text",
                 name: "StateID",
                 id: "stateid",
-                placeholder: "State ID"
+                placeholder: "MO 123456789 1/2/2034"
               }, undefined, false, undefined, this),
               jsx_dev_runtime.jsxDEV("label", {
                 htmlFor: "phone1",
                 children: " Phones "
               }, undefined, false, undefined, this),
-              " ",
               "             ",
               jsx_dev_runtime.jsxDEV("input", {
                 type: "tel",
@@ -23607,7 +23607,7 @@ function Rentap() {
                 type: "tel",
                 name: "Phone2",
                 id: "phone2",
-                className: "halfwidth",
+                className: "halfwidth right",
                 placeholder: "Phone 2"
               }, undefined, false, undefined, this),
               jsx_dev_runtime.jsxDEV("textarea", {
@@ -23642,21 +23642,21 @@ function Rentap() {
                 rows: 3,
                 name: "ProposedPets",
                 id: "proposedpets",
-                placeholder: "Proposed Pets",
+                placeholder: "Proposed Pets, names, types, ages, weights",
                 defaultValue: ""
               }, undefined, false, undefined, this),
               jsx_dev_runtime.jsxDEV("textarea", {
                 rows: 6,
                 name: "Income",
                 id: "income",
-                placeholder: "Income",
+                placeholder: "Income amount and source",
                 defaultValue: ""
               }, undefined, false, undefined, this),
               jsx_dev_runtime.jsxDEV("textarea", {
                 rows: 15,
                 name: "Employment",
                 id: "employment",
-                placeholder: "Employment: address, job, dates, hours, supervisor name and phone number",
+                placeholder: "Employment: address, job/position, dates, hours, supervisor name and phone number",
                 defaultValue: ""
               }, undefined, false, undefined, this)
             ]
@@ -23685,10 +23685,8 @@ function Rentap() {
           jsx_dev_runtime.jsxDEV("br", {}, undefined, false, undefined, this),
           jsx_dev_runtime.jsxDEV("label", {
             htmlFor: "dateapplied",
-            className: "personalinfo",
             children: " Date Applied "
           }, undefined, false, undefined, this),
-          " ",
           " ",
           jsx_dev_runtime.jsxDEV("input", {
             type: "date",
@@ -23697,10 +23695,8 @@ function Rentap() {
           }, undefined, false, undefined, this),
           jsx_dev_runtime.jsxDEV("label", {
             htmlFor: "dateguested",
-            className: "personalinfo",
             children: " Date Guested "
           }, undefined, false, undefined, this),
-          " ",
           " ",
           jsx_dev_runtime.jsxDEV("input", {
             type: "date",
@@ -23709,27 +23705,25 @@ function Rentap() {
           }, undefined, false, undefined, this),
           jsx_dev_runtime.jsxDEV("label", {
             htmlFor: "daterented",
-            className: "personalinfo",
-            children: " Date Rented "
+            children: " Date Rented   "
           }, undefined, false, undefined, this),
-          " ",
           " ",
           jsx_dev_runtime.jsxDEV("input", {
             type: "date",
             name: "dateRented",
             id: "daterented"
           }, undefined, false, undefined, this),
+          jsx_dev_runtime.jsxDEV("label", {}, undefined, false, undefined, this),
           jsx_dev_runtime.jsxDEV("input", {
             type: "text",
             name: "headerName",
-            id: "headerName",
+            id: "headername",
             placeholder: "Header Name"
           }, undefined, false, undefined, this),
-          jsx_dev_runtime.jsxDEV("div", {
-            children: edited && jsx_dev_runtime.jsxDEV("input", {
-              type: "submit",
-              defaultValue: "Save"
-            }, undefined, false, undefined, this)
+          jsx_dev_runtime.jsxDEV("label", {}, undefined, false, undefined, this),
+          edited && jsx_dev_runtime.jsxDEV("input", {
+            type: "submit",
+            defaultValue: "Save"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this)
@@ -23740,4 +23734,7 @@ function Rentap() {
 // index.tsx
 var jsx_dev_runtime2 = __toESM(require_jsx_dev_runtime(), 1);
 var root = client.createRoot(document.getElementById("root"));
-root.render(jsx_dev_runtime2.jsxDEV(Rentap, {}, undefined, false, undefined, this));
+root.render(jsx_dev_runtime2.jsxDEV(Rentap, {
+  icon: "",
+  css: ""
+}, undefined, false, undefined, this));
