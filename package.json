@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "bunx serve rentap"
+    "start": "bun run back.tsx& xdg-open http://localhost:3000/ && bunx serve rentap"
   },
   "devDependencies": {
     "@types/react-dom": "^18.2.8",

@@ -17,7 +17,7 @@ export default function Rentap({icon, css}: {icon: string, css: string}) {
       { icon ? <link rel="icon" href={`data:image/x-icon;base64,${icon}`} /> : <link rel="icon" type="image/png" href="icon.png" /> }
       { css ? <style dangerouslySetInnerHTML={{ __html: css }} /> : <link rel="stylesheet" type="text/css" href="styles.css" /> }
       <header>
-        { icon ? <link rel="icon" href={`data:image/x-icon;base64,${icon}`} /> : <img src="icon.png" alt="Rental Application Icon" /> }
+        { icon ? <img src={`data:image/png;base64,${icon}`} alt="Rental Application Icon" /> : <img src="icon.png" alt="Rental Application Icon" /> }
         <h1>Rental Application</h1>
       </header>
       <form action="/save" method="post" encType="multipart/form-data" onChange={markFormEdited} >

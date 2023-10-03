@@ -23471,7 +23471,7 @@ var require_jsx_dev_runtime = __commonJS((exports, module) => {
   }
 });
 
-// index.tsx
+// front.tsx
 var client = __toESM(require_client(), 1);
 
 // rentap.tsx
@@ -23507,9 +23507,9 @@ function Rentap({ icon, css }) {
       }, undefined, false, undefined, this),
       jsx_dev_runtime.jsxDEV("header", {
         children: [
-          icon ? jsx_dev_runtime.jsxDEV("link", {
-            rel: "icon",
-            href: `data:image/x-icon;base64,${icon}`
+          icon ? jsx_dev_runtime.jsxDEV("img", {
+            src: `data:image/png;base64,${icon}`,
+            alt: "Rental Application Icon"
           }, undefined, false, undefined, this) : jsx_dev_runtime.jsxDEV("img", {
             src: "icon.png",
             alt: "Rental Application Icon"
@@ -23731,10 +23731,9 @@ function Rentap({ icon, css }) {
   }, undefined, true, undefined, this);
 }
 
-// index.tsx
+// front.tsx
 var jsx_dev_runtime2 = __toESM(require_jsx_dev_runtime(), 1);
-var root = client.createRoot(document.getElementById("root"));
-root.render(jsx_dev_runtime2.jsxDEV(Rentap, {
+var root = client.hydrateRoot(document.getElementById("root"), jsx_dev_runtime2.jsxDEV(Rentap, {
   icon: "",
   css: ""
 }, undefined, false, undefined, this));

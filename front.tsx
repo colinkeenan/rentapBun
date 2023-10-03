@@ -1,5 +1,4 @@
-import { createRoot } from 'react-dom/client';
+import { hydrateRoot } from 'react-dom/client';
 import Rentap from "./rentap.tsx"
 
-const root = createRoot(document.getElementById('root'));
-root.render(<Rentap icon={""} css={""} />);
+const root = hydrateRoot(document.getElementById('root'), <Rentap icon={""} css={""} />);
