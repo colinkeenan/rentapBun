@@ -3,7 +3,7 @@ import Rentap from "./rentap"
 
 const iconfile = Bun.file("icon.txt");
 const base64icon = await iconfile.text();
-const cssfile = Bun.file("./rentap/styles.css");
+const cssfile = Bun.file("styles.css");
 const css = await cssfile.text();
 const aps = [new FormData()];
 
@@ -26,9 +26,7 @@ const server = Bun.serve({
       const ap = await req.formData();
       aps.push(ap);
 
-      //putting store.json in ./rentap/ so both back.tsx and front.tsx have access
-
-      await Bun.write("./rentap/store.json", JSON.stringify(aps));
+      await Bun.write("./store.json", JSON.stringify(aps));
       return new Response(JSON.stringify(aps));
     }
 

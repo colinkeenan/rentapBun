@@ -1,26 +1,16 @@
-import React, { useState } from "react";
-
-//Passing icon and css as workaround because I can't seem to import icon.png or figure out css in React
 export default function Rentap({icon, css}: {icon: string, css: string}) {
-
-  const [edited, setEdited] = useState(false);
-
-  const markFormEdited = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setEdited(true);
-  }
 
   return (
     <>
       <meta charSet="utf-8" />
       <title>Rental Application</title>
-      {/* for some reason, the below favicon only shows up when served from back.tsx (icon ? is true), not front.tsx */}
-      { icon ? <link rel="icon" href={`data:image/x-icon;base64,${icon}`} /> : <link rel="icon" type="image/png" href="icon.png" /> }
-      { css ? <style dangerouslySetInnerHTML={{ __html: css }} /> : <link rel="stylesheet" type="text/css" href="styles.css" /> }
+      <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
+      <style dangerouslySetInnerHTML={{ __html: css }} />
       <header>
-        { icon ? <img src={`data:image/png;base64,${icon}`} alt="Rental Application Icon" /> : <img src="icon.png" alt="Rental Application Icon" /> }
+        <img src={`data:image/png;base64,${icon}`} alt="Rental Application Icon" />
         <h1>Rental Application</h1>
       </header>
-      <form action="/save" method="post" encType="multipart/form-data" onChange={markFormEdited} >
+      <form action="/save" method="post" encType="multipart/form-data" >
         <fieldset>
           <legend>Identity</legend>
           <label htmlFor="fullname"> Full Name </label>       <input type="text" name="FullName"      id="fullname" placeholder="First Middle Last" />
@@ -53,7 +43,7 @@ export default function Rentap({icon, css}: {icon: string, css: string}) {
         <label></label>
         <input type="text" name="headerName" id="headername" placeholder="Header Name" />
         <label></label>
-        {edited && <input type="submit" defaultValue="Save" />}
+        <input type="submit" defaultValue="Save" />
       </form>
     </>
   );

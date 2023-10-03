@@ -1,9 +1,10 @@
 {
   "name": "rentap",
-  "module": "index.ts",
+  "module": "back.tsx",
   "type": "module",
   "scripts": {
-    "start": "bun run back.tsx& xdg-open http://localhost:3000/ && bunx serve rentap"
+    "start": "bun run back.tsx& xdg-open http://localhost:3000/",
+    "stop": "kill $(pidof bun)"
   },
   "devDependencies": {
     "@types/react-dom": "^18.2.8",
