@@ -16,13 +16,13 @@ export default function Rentap({icon}: {icon: string}) {
         <fieldset style={fieldsetStyle}>
           <legend>Identity</legend>
           <Label forId="fullname"  labelText="Full Name" />       <IdField type="text"  name="FullName"      placeholder="First Middle Last" />
-          <Label forId="ssnumber"  labelText="Social Security" /> <IdField type="text"  name="SSN"           placeholder="555-55-5555" />
+          <Label forId="ssn"  labelText="Social Security" />      <IdField type="text"  name="SSN"           placeholder="555-55-5555" />
           <Label forId="birthdate" labelText="Birth Date" />    <HalfField type="date"  name="BirthDate"     placeholder=""/>
-                                                                  <HalfField type="text"  name="MaritalStatus" placeholder="Marital Status" />
+                                                                <HalfField type="text"  name="MaritalStatus" placeholder="Marital Status" />
           <Label forId="email" labelText="Email" />               <IdField type="email" name="Email"         placeholder="youremail@provider.com" />
           <Label forId="stateid" labelText="State ID#" />         <IdField type="text"  name="StateID"       placeholder="MO 123456789 1/2/2034" />
           <Label forId="phone1" labelText="Phones" />           <HalfField type="tel"   name="Phone1"        placeholder="Phone 1" />
-                                                                  <HalfField type="tel"   name="Phone2"        placeholder="Phone 2" />
+                                                                <HalfField type="tel"   name="Phone2"        placeholder="Phone 2" />
           <TextArea rows={5}  name="CurrentAddress"    placeholder="Address, City, State, Zip, Dates, Rent, Landlord name and phone number" />
           <TextArea rows={17} name="PriorAddresses"    placeholder="Prior Addresses, Cities, States, Zips, Dates, Rents, Landlords" />
         </fieldset>
