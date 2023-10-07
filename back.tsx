@@ -14,7 +14,7 @@ const server = Bun.serve({
 
     // render rentap.tsx for root path
     if (url.pathname === "/") {
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} css={css}/>);
+      const stream = await renderToReadableStream(<Rentap icon={base64icon} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
