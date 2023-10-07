@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "bun run back.tsx& xdg-open http://localhost:3000/",
-    "stop": "kill $(pidof bun)"
+    "stop": "pkill bun"
   },
   "devDependencies": {
     "@types/react-dom": "^18.2.8",
