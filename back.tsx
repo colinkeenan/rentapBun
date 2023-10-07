@@ -3,8 +3,6 @@ import Rentap from "./rentap"
 
 const iconfile = Bun.file("icon.txt");
 const base64icon = await iconfile.text();
-const cssfile = Bun.file("styles.css");
-const css = await cssfile.text();
 const aps = [new FormData()];
 
 const server = Bun.serve({
