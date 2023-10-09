@@ -5,8 +5,17 @@ const iconfile = Bun.file("icon.txt");
 const base64icon = await iconfile.text();
 const storefile = Bun.file("store.json");
 const storeJSONfileText = storefile.size ? await storefile.text() : "";
-const aps = storeJSONfileText ? JSON.parse(storeJSONfileText)
-  : [{"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateGuested":"","dateRented":"","headerName":""}];
+let aps = [{"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateGuested":"","dateRented":"","headerName":""}];
+let headers = [{"StreetAddress":"","CityStateZip":"","Title":"","Name":""}];
+let trash = [{"discardedRow":0}];
+let deleted = [{"deletedRow":0}];
+if (storeJSONfileText) {
+  const storeArray = JSON.parse(storeJSONfileText);
+  if (storeArray.aps) aps = storeArray.aps;
+  if (storeArray.headers) headers = storeArray.headers;
+  if (storeArray.trash) trash = storeArray.trash;
+  if (storeArray.deleted) deleted = storeArray.deleted;
+}
 
 let apID = 0;
 
@@ -40,13 +49,15 @@ const server = Bun.serve({
       const apSaveIsEdited = apID && JSON.stringify(apSave) != JSON.stringify(aps[apID]);
       if (apSaveIsNew) { aps.push(apSave); apID = aps.length -1; }
       if (apSaveIsEdited) aps[apID] = apSave;
-      // write each ap on it's own line if there's more than one ap
-      const [a0, ...aRest] = aps;
-      const formattedAps = aps.length > 1 ?
-        `[${JSON.stringify(a0)},${aRest.map( (a) => "\n" + JSON.stringify(a) )}]`
-        : JSON.stringify(aps);
       // write to the file if there's something new to write or if the file doesn't exist
-      if (apSaveIsNew || apSaveIsEdited || !storeJSONfileText) await Bun.write("./store.json", formattedAps);
+      if (apSaveIsNew || apSaveIsEdited || !storeJSONfileText) {
+        const fAps = formatArray(aps);
+        const fHeaders = formatArray(headers);
+        const fTrash = formatArray(trash);
+        const fDeleted = formatArray(deleted);
+        const formattedStore = `\{"aps":${fAps}, "headers":${fHeaders}, "trash":${fTrash}, "deleted":${fDeleted}\}`;
+        await Bun.write("./store.json", formattedStore);
+      }
       const message = apSaveIsNew || apSaveIsEdited ? "Saved" : "Nothing to save";
       const color = apSaveIsNew || apSaveIsEdited ? "green" : "red";
       const stream = await renderToReadableStream(<Rentap icon={base64icon} message={message} color={color} ap={aps[apID]} viewOnly={true} />);
@@ -58,5 +69,13 @@ const server = Bun.serve({
     return new Response("Not Found", { status: 404 });
   },
 });
+
+function formatArray(arrObj:Array<Object>) {
+  // write each array element on it's own line if there's more than one
+  const [a0, ...aRest] = arrObj;
+  return arrObj.length > 1 ?
+  `[${JSON.stringify(a0)},${aRest.map( (a) => "\n" + JSON.stringify(a) )}]\n`
+  : JSON.stringify(arrObj) + "\n";
+};
 
 console.log(`Listening on http://localhost:${server.port}`);
