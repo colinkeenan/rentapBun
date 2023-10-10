@@ -4,18 +4,14 @@ import Rentap from "./rentap"
 const iconfile = Bun.file("icon.txt");
 const base64icon = await iconfile.text();
 const storefile = Bun.file("store.json");
-const storeJSONfileText = storefile.size ? await storefile.text() : "";
-let aps = [{"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateGuested":"","dateRented":"","headerName":""}];
-let headers = [{"StreetAddress":"","CityStateZip":"","Title":"","Name":""}];
-let trash = [{"discardedRow":0}];
-let deleted = [{"deletedRow":0}];
-if (storeJSONfileText) {
-  const storeArray = JSON.parse(storeJSONfileText);
-  if (storeArray.aps) aps = storeArray.aps;
-  if (storeArray.headers) headers = storeArray.headers;
-  if (storeArray.trash) trash = storeArray.trash;
-  if (storeArray.deleted) deleted = storeArray.deleted;
-}
+//sJfT short for storeJSONfileText.
+const sJfT = storefile.size ? await storefile.text() : "";
+const storeArray = sJfT ? JSON.parse(sJfT) : {};
+// Setting up aps, headers, trash, deleted using ? : instead of just defining them and then if() to change because would have to use "let" to be able to change them in if()
+const aps = sJfT ? storeArray.aps : [{"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateGuested":"","dateRented":"","headerName":""}];
+const headers = sJfT ? storeArray.headers : [{"StreetAddress":"","CityStateZip":"","Title":"","Name":""}];
+const trash = sJfT ? storeArray.trash : [{"discardedRow":0}];
+const deleted = sJfT ? storeArray.deleted : [{"deletedRow":0}];
 
 let apID = 0;
 
@@ -27,7 +23,7 @@ const server = Bun.serve({
     // render rentap.tsx with blank ap for root path (got here through New link or bun start)
     if (url.pathname === "/") {
       apID = 0;
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="New" color="red" ap={aps[0]} viewOnly={false} />);
+      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="New" color="red" ap={aps[0]} viewOnly={false} apID={apID} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -35,7 +31,25 @@ const server = Bun.serve({
 
     // render rentap.tsx with current ap for edit path (got here through Edit link)
     if (url.pathname === "/edit") {
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="Edit" color="red" ap={aps[apID]} viewOnly={false} />);
+      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="Edit" color="red" ap={aps[apID]} viewOnly={false} apID={apID} />);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    // render rentap.tsx with prev ap for prev path (got here through Prev link)
+    if (url.pathname === "/prev") {
+      apID>0? apID-- : apID = aps.length-1;
+      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="View" color="Green" ap={aps[apID]} viewOnly={true} apID={apID} />);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    // render rentap.tsx with next ap for next path (got here through Next link)
+    if (url.pathname === "/next") {
+      apID < aps.length-1 ? apID++ : apID=0;
+      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="View" color="Green" ap={aps[apID]} viewOnly={true} apID={apID} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -50,7 +64,7 @@ const server = Bun.serve({
       if (apSaveIsNew) { aps.push(apSave); apID = aps.length -1; }
       if (apSaveIsEdited) aps[apID] = apSave;
       // write to the file if there's something new to write or if the file doesn't exist
-      if (apSaveIsNew || apSaveIsEdited || !storeJSONfileText) {
+      if (apSaveIsNew || apSaveIsEdited || !sJfT) {
         const fAps = formatArray(aps);
         const fHeaders = formatArray(headers);
         const fTrash = formatArray(trash);
@@ -60,7 +74,7 @@ const server = Bun.serve({
       }
       const message = apSaveIsNew || apSaveIsEdited ? "Saved" : "Nothing to save";
       const color = apSaveIsNew || apSaveIsEdited ? "green" : "red";
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message={message} color={color} ap={aps[apID]} viewOnly={true} />);
+      const stream = await renderToReadableStream(<Rentap icon={base64icon} message={message} color={color} ap={aps[apID]} viewOnly={true} apID={apID}/>);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });

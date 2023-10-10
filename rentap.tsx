@@ -3,7 +3,7 @@
 const fieldsetStyle={display:'inline-block', width:'425px', border:'none'}
 //other styles defined inline or in functions that follow this Rentap function
 
-export default function Rentap({icon, message, color, ap, viewOnly}: { icon: string, message: string, color: string, ap: {[key: string]: any}, viewOnly: boolean } ) {
+export default function Rentap({icon, message, color, ap, viewOnly, apID }: { icon: string, message: string, color: string, ap: {[key: string]: any}, viewOnly: boolean, apID: number } ) {
 
 
   return (
@@ -12,12 +12,27 @@ export default function Rentap({icon, message, color, ap, viewOnly}: { icon: str
       <title>Rental Application</title>
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
       <header>
-        <img src={`data:image/png;base64,${icon}`} alt="Rental Application Icon" />
-        <h1 style={{display:'inline-block'}}>Rental Application</h1>
-        <Space />
-        <h3 style={{display:'inline-block', color:color}}>{message}</h3>
-        <GiantSpace /> <a href="/edit" ><button type="button" style={{backgroundColor:'orange', color:'white'}} >Edit</button></a>
-        <GiantSpace /> <a href="/"     ><button type="button" style={{backgroundColor:'orange', color:'white'}} >New</button></a>
+        <fieldset style={fieldsetStyle}>
+          <legend>Header & Actions</legend>
+          Header selector/creator
+          <br />EnterTrash Discard
+          <Space /><a href="/edit" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit</button></a>
+          <Space /><a href="/"     ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >New</button></a>
+        </fieldset>
+        <fieldset style={fieldsetStyle}>
+          <legend></legend>
+          <img src={`data:image/png;base64,${icon}`} alt="Rental Application Icon" />
+          <h2 style={{display:'inline-block', marginTop:'0', marginBottom:'0'}}>Rental Application</h2>
+          <br /> <Space /> Row: ?
+          <Space /> ID: {apID}
+          <Space /> <h4 style={{display:'inline-block', color:color, marginTop:'0', marginBottom:'0'}}>{message}</h4>
+        </fieldset>
+        <fieldset style={fieldsetStyle}>
+          <legend>Navigation</legend>
+          <Space /><a href="/prev" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Prev</button></a>
+          <Space /><a href="/next"     ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Next</button></a>
+          Search etc
+        </fieldset>
       </header>
       <body style={{backgroundColor:'paleturquoise'}} >
       <form action="/save" method="post" encType="multipart/form-data" >
@@ -32,7 +47,7 @@ export default function Rentap({icon, message, color, ap, viewOnly}: { icon: str
           <Label forId="phone1" labelText="Phones" />           <Field type="tel"   name="Phone1"        placeholder="Phone 1" width='38%' ap={ap} viewOnly={viewOnly} />
                                                                 <Field type="tel"   name="Phone2"        placeholder="Phone 2" width='38%' ap={ap} viewOnly={viewOnly} />
           <TextArea rows={5}  name="CurrentAddress"    placeholder="Address, City, State, Zip, Dates, Rent, Landlord name and phone number" ap={ap} viewOnly={viewOnly} />
-          <TextArea rows={17} name="PriorAddresses"    placeholder="Prior Addresses, Cities, States, Zips, Dates, Rents, Landlords" ap={ap} viewOnly={viewOnly} />
+          <TextArea rows={16} name="PriorAddresses"    placeholder="Prior Addresses, Cities, States, Zips, Dates, Rents, Landlords" ap={ap} viewOnly={viewOnly} />
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend>Living Situation</legend>
@@ -50,10 +65,8 @@ export default function Rentap({icon, message, color, ap, viewOnly}: { icon: str
         <Label forId="dateapplied" labelText="Date Applied"/> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         <Label forId="dateguested" labelText="Date Guested"/> <Field type="date" name="dateGuested" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         <Label forId="daterented" labelText="Date Rented"  /> <Field type="date" name="dateRented"  placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
-        <Space />
-        <Field type="text" name="headerName" placeholder="Header Name" width='auto' ap={ap} viewOnly={viewOnly} />
-        <Space />
-        <input type="submit" defaultValue="Save" style={{backgroundColor:'lightgreen'}} />
+        <Space /> <Field type="text" name="headerName" placeholder="Header Name" width='auto' ap={ap} viewOnly={viewOnly} />
+        <Space /> <input type="submit" defaultValue="Save" style={{backgroundColor:'lightgreen'}} />
       </form>
       </body>
     </>
@@ -70,13 +83,13 @@ function Label({forId, labelText}: {forId:string, labelText:string}) {
 
 function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, name: string, placeholder: string, width: string, ap: {[key:string]: any}, viewOnly: boolean }) {
   return (
-    <input type={type} name={name} id={name.toLowerCase()} placeholder={placeholder} style={{width:width}} value={ap[name]} readOnly={viewOnly} onChange={function(){}} />
+    <input type={type} name={name} id={name.toLowerCase()} placeholder={placeholder} style={{width:width, marginBottom:2}} value={ap[name]} readOnly={viewOnly} onChange={function(){}} />
   )
 }
 
 function TextArea({rows, name, placeholder, ap, viewOnly}: { rows:number, name:string, placeholder:string, ap: {[key:string]: any}, viewOnly: boolean }) {
   return (
-    <textarea rows={rows} name={name} placeholder={placeholder} style={{width:'100%'}} defaultValue={ap[name]} readOnly={viewOnly} onChange={function(){}} />
+    <textarea rows={rows} name={name} placeholder={placeholder} style={{width:'100%', marginBottom:2}} defaultValue={ap[name]} readOnly={viewOnly} onChange={function(){}} />
   )
 }
 
