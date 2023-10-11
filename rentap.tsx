@@ -32,6 +32,7 @@ export default function Rentap({icon, message, color, ap, viewOnly, apID, header
             <a href="/editheaders" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit "Applying for:" options</button></a>
             <a href="/edit" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit</button></a>
           </div>
+          Header Name will be dropdown
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend>Navigation</legend>
@@ -40,7 +41,7 @@ export default function Rentap({icon, message, color, ap, viewOnly, apID, header
             <div style={{backgroundColor:'gray', float:'left', color:'white', paddingLeft:'4', paddingRight:'4' }}>{apID}</div>
             <a href="/next" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Next&gt;</button></a>
           </div>
-          Search form and dropdown select option  ntertrash /klauncherTJ3563.1.slave-socket of names - still have to figure this out in React
+         Here will be search form and dropdown select option of names
         </fieldset>
       </header>
       <body style={{backgroundColor:'paleturquoise'}} >
@@ -59,7 +60,7 @@ export default function Rentap({icon, message, color, ap, viewOnly, apID, header
           <TextArea rows={16} name="PriorAddresses"    placeholder="Prior Addresses, Cities, States, Zips, Dates, Rents, Landlords" ap={ap} viewOnly={viewOnly} />
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend>Living Situation</legend> /* headerName needs to be a dropdown select option: still need to figure out how to do it with React */
+          <legend>Living Situation</legend>
           <Label forId="headername" labelText="Applying for: " /> <Field type="text" name="headerName" placeholder="Header Name" width='76%' ap={ap} viewOnly={viewOnly} />
           <TextArea rows={5}  name="ProposedOccupants" placeholder="Proposed Occupants: self+age, other+age" ap={ap} viewOnly={viewOnly} />
           <TextArea rows={3}  name="ProposedPets"      placeholder="Proposed Pets, names, types, ages, weights" ap={ap} viewOnly={viewOnly} />
