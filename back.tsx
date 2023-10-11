@@ -89,6 +89,8 @@ const server = Bun.serve({
   },
 });
 
+//other paths that need to be completed: /trash /discard /editheaders
+
 function formatArray(arrObj:Array<Object>) {
   // write each array element on it's own line if there's more than one
   const [a0, ...aRest] = arrObj;

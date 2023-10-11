@@ -22,18 +22,25 @@ export default function Rentap({icon, message, color, ap, viewOnly, apID, header
           <div style={{display:'inline-block', fontWeight:'bold', color:color}}>{message}</div>
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend>Header & Actions</legend>
-          Header selector/creator
-          <br />EnterTrash Discard
-          <Space /><a href="/edit" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit</button></a>
-          <Space /><a href="/"     ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >New</button></a>
+          <legend>Actions</legend>
+          <div style={{width:'100%', marginBottom:'5px', display:'flex', justifyContent:'space-between'}}>
+            <a href="/discard" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >Trash This</button></a>
+            <a href="/trash" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >View Trash</button></a>
+            <a href="/"     ><button type="button" style={{backgroundColor:'#a87a23', color:'white', marginLeft:'15px'}} >New</button></a>
+          </div>
+          <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
+            <a href="/editheaders" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit "Applying for:" options</button></a>
+            <a href="/edit" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit</button></a>
+          </div>
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend>Navigation</legend>
-          <div style={{backgroundColor:'gray', float:'left', color:'white', paddingLeft:'4', paddingRight:'4' }}>{apID}</div>
-          <Space /><a href="/prev"     ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >&lt;Prev</button></a>
-          <Space /><a href="/next"     ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Next&gt;</button></a>
-          Search etc
+          <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
+            <a href="/prev" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >&lt;Prev</button></a>
+            <div style={{backgroundColor:'gray', float:'left', color:'white', paddingLeft:'4', paddingRight:'4' }}>{apID}</div>
+            <a href="/next" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Next&gt;</button></a>
+          </div>
+          Search form and dropdown select option  ntertrash /klauncherTJ3563.1.slave-socket of names - still have to figure this out in React
         </fieldset>
       </header>
       <body style={{backgroundColor:'paleturquoise'}} >
@@ -52,11 +59,12 @@ export default function Rentap({icon, message, color, ap, viewOnly, apID, header
           <TextArea rows={16} name="PriorAddresses"    placeholder="Prior Addresses, Cities, States, Zips, Dates, Rents, Landlords" ap={ap} viewOnly={viewOnly} />
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend>Living Situation</legend>
+          <legend>Living Situation</legend> /* headerName needs to be a dropdown select option: still need to figure out how to do it with React */
+          <Label forId="headername" labelText="Applying for: " /> <Field type="text" name="headerName" placeholder="Header Name" width='76%' ap={ap} viewOnly={viewOnly} />
           <TextArea rows={5}  name="ProposedOccupants" placeholder="Proposed Occupants: self+age, other+age" ap={ap} viewOnly={viewOnly} />
           <TextArea rows={3}  name="ProposedPets"      placeholder="Proposed Pets, names, types, ages, weights" ap={ap} viewOnly={viewOnly} />
           <TextArea rows={6}  name="Income"            placeholder="Income amount and source" ap={ap} viewOnly={viewOnly} />
-          <TextArea rows={15} name="Employment"        placeholder="Employment: address, job/position, dates, hours, supervisor name and phone number" ap={ap} viewOnly={viewOnly} />
+          <TextArea rows={14} name="Employment"        placeholder="Employment: address, job/position, dates, hours, supervisor name and phone number" ap={ap} viewOnly={viewOnly} />
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend>Criminal &amp; Civil Record | Notes</legend>
@@ -67,7 +75,6 @@ export default function Rentap({icon, message, color, ap, viewOnly, apID, header
         <Label forId="dateapplied" labelText="Date Applied"/> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         <Label forId="dateguested" labelText="Date Guested"/> <Field type="date" name="dateGuested" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         <Label forId="daterented" labelText="Date Rented"  /> <Field type="date" name="dateRented"  placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
-        <Space /> <Field type="text" name="headerName" placeholder="Header Name" width='auto' ap={ap} viewOnly={viewOnly} />
         <Space /> <input type="submit" defaultValue="Save" style={{backgroundColor:'lightgreen'}} />
       </form>
       </body>
