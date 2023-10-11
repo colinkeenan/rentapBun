@@ -3,8 +3,9 @@
 const fieldsetStyle={display:'inline-block', width:'425px', border:'none'}
 //other styles defined inline or in functions that follow this Rentap function
 
-export default function Rentap({icon, message, color, ap, viewOnly, apID }: { icon: string, message: string, color: string, ap: {[key: string]: any}, viewOnly: boolean, apID: number } ) {
-
+export default function Rentap({icon, message, color, ap, viewOnly, apID, header }:
+  { icon: string, message: string, color: string, ap: {[key: string]: any},
+    viewOnly: boolean, apID: number, header: {[key: string]: any} } ) {
 
   return (
     <>
@@ -13,6 +14,14 @@ export default function Rentap({icon, message, color, ap, viewOnly, apID }: { ic
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
       <header>
         <fieldset style={fieldsetStyle}>
+          <legend></legend>
+          <h3 style={{margin:'0'}}>{header.Title}</h3>
+          {header.StreetAddress}
+          <br/> {header.CityStateZip}
+          <br/> <img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" />
+          <div style={{display:'inline-block', fontWeight:'bold', color:color}}>{message}</div>
+        </fieldset>
+        <fieldset style={fieldsetStyle}>
           <legend>Header & Actions</legend>
           Header selector/creator
           <br />EnterTrash Discard
@@ -20,17 +29,10 @@ export default function Rentap({icon, message, color, ap, viewOnly, apID }: { ic
           <Space /><a href="/"     ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >New</button></a>
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend></legend>
-          <img src={`data:image/png;base64,${icon}`} alt="Rental Application Icon" />
-          <h2 style={{display:'inline-block', marginTop:'0', marginBottom:'0'}}>Rental Application</h2>
-          <br /> <Space /> Row: ?
-          <Space /> ID: {apID}
-          <Space /> <h4 style={{display:'inline-block', color:color, marginTop:'0', marginBottom:'0'}}>{message}</h4>
-        </fieldset>
-        <fieldset style={fieldsetStyle}>
           <legend>Navigation</legend>
-          <Space /><a href="/prev" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Prev</button></a>
-          <Space /><a href="/next"     ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Next</button></a>
+          <div style={{backgroundColor:'gray', float:'left', color:'white', paddingLeft:'4', paddingRight:'4' }}>{apID}</div>
+          <Space /><a href="/prev"     ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >&lt;Prev</button></a>
+          <Space /><a href="/next"     ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Next&gt;</button></a>
           Search etc
         </fieldset>
       </header>

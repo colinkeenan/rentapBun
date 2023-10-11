@@ -23,7 +23,8 @@ const server = Bun.serve({
     // render rentap.tsx with blank ap for root path (got here through New link or bun start)
     if (url.pathname === "/") {
       apID = 0;
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="New" color="red" ap={aps[0]} viewOnly={false} apID={apID} />);
+      const headerID = 0;
+      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="New" color="red" ap={aps[0]} viewOnly={false} apID={apID} header={headers[headerID]} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -31,7 +32,8 @@ const server = Bun.serve({
 
     // render rentap.tsx with current ap for edit path (got here through Edit link)
     if (url.pathname === "/edit") {
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="Edit" color="red" ap={aps[apID]} viewOnly={false} apID={apID} />);
+      const headerID = matchHeader(aps[apID].headerName);
+      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="Edit" color="red" ap={aps[apID]} viewOnly={false} apID={apID} header={headers[headerID]} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -40,7 +42,8 @@ const server = Bun.serve({
     // render rentap.tsx with prev ap for prev path (got here through Prev link)
     if (url.pathname === "/prev") {
       apID>0? apID-- : apID = aps.length-1;
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="View" color="Green" ap={aps[apID]} viewOnly={true} apID={apID} />);
+      const headerID = matchHeader(aps[apID].headerName);
+      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="View" color="Green" ap={aps[apID]} viewOnly={true} apID={apID} header={headers[headerID]} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -49,7 +52,8 @@ const server = Bun.serve({
     // render rentap.tsx with next ap for next path (got here through Next link)
     if (url.pathname === "/next") {
       apID < aps.length-1 ? apID++ : apID=0;
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="View" color="Green" ap={aps[apID]} viewOnly={true} apID={apID} />);
+      const headerID = matchHeader(aps[apID].headerName);
+      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="View" color="Green" ap={aps[apID]} viewOnly={true} apID={apID} header={headers[headerID]} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -74,7 +78,8 @@ const server = Bun.serve({
       }
       const message = apSaveIsNew || apSaveIsEdited ? "Saved" : "Nothing to save";
       const color = apSaveIsNew || apSaveIsEdited ? "green" : "red";
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message={message} color={color} ap={aps[apID]} viewOnly={true} apID={apID}/>);
+      const headerID = matchHeader(aps[apID].headerName);
+      const stream = await renderToReadableStream(<Rentap icon={base64icon} message={message} color={color} ap={aps[apID]} viewOnly={true} apID={apID} header={headers[headerID]} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -91,5 +96,10 @@ function formatArray(arrObj:Array<Object>) {
   `[${JSON.stringify(a0)},${aRest.map( (a) => "\n" + JSON.stringify(a) )}]\n`
   : JSON.stringify(arrObj) + "\n";
 };
+
+function matchHeader(name:string) {
+  const headerID = headers.map(h => h.Name).indexOf(name);
+  return headerID > 0 ? headerID : 0;
+}
 
 console.log(`Listening on http://localhost:${server.port}`);
