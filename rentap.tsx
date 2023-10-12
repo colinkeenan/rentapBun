@@ -3,9 +3,10 @@
 const fieldsetStyle={display:'inline-block', width:'425px', border:'none'}
 //other styles defined inline or in functions that follow this Rentap function
 
-export default function Rentap({icon, message, color, ap, viewOnly, apID, header }:
-  { icon: string, message: string, color: string, ap: {[key: string]: any},
-    viewOnly: boolean, apID: number, header: {[key: string]: any} } ) {
+export default function Rentap({message, color, viewOnly, icon, ap, apFullNames, apID, header, headerNames }:
+  {message:string, color:string, viewOnly:boolean,
+   icon:string, ap:{[key:string]:any}, apFullNames:[string]
+   apID:number, header:{[key:string]:any}, headerNames:[string]} ) {
 
   return (
     <>
@@ -76,7 +77,7 @@ export default function Rentap({icon, message, color, ap, viewOnly, apID, header
         <Label forId="dateapplied" labelText="Date Applied"/> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         <Label forId="dateguested" labelText="Date Guested"/> <Field type="date" name="dateGuested" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         <Label forId="daterented" labelText="Date Rented"  /> <Field type="date" name="dateRented"  placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
-        <Space /> <input type="submit" defaultValue="Save" style={{backgroundColor:'lightgreen'}} />
+        <input type="submit" defaultValue="Save" style={{backgroundColor:'lightgreen', marginLeft:'15px'}} />
       </form>
       </body>
     </>
@@ -100,17 +101,5 @@ function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, n
 function TextArea({rows, name, placeholder, ap, viewOnly}: { rows:number, name:string, placeholder:string, ap: {[key:string]: any}, viewOnly: boolean }) {
   return (
     <textarea rows={rows} name={name} placeholder={placeholder} style={{width:'100%', marginBottom:2}} defaultValue={ap[name]} readOnly={viewOnly} onChange={function(){}} />
-  )
-}
-
-function Space() {
-  return (
-    <div style={{width:'15px', display:'inline-block'}}></div>
-  )
-}
-
-function GiantSpace() {
-  return (
-    <div style={{width:'310', display:'inline-block'}}></div>
   )
 }

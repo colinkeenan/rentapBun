@@ -9,11 +9,22 @@ const sJfT = storefile.size ? await storefile.text() : "";
 const storeArray = sJfT ? JSON.parse(sJfT) : {};
 // Setting up aps, headers, trash, deleted using ? : instead of just defining them and then if() to change because would have to use "let" to be able to change them in if()
 const aps = sJfT ? storeArray.aps : [{"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateGuested":"","dateRented":"","headerName":""}];
+const apFullNames = aps.map((ap) => ap.FullName);
 const headers = sJfT ? storeArray.headers : [{"StreetAddress":"","CityStateZip":"","Title":"","Name":""}];
+const headerNames = headers.map((header) => header.Name);
 const trash = sJfT ? storeArray.trash : [{"discardedRow":0}];
 const deleted = sJfT ? storeArray.deleted : [{"deletedRow":0}];
 
 let apID = 0;
+
+
+async function Stream (message:string, color:string, viewOnly:boolean) {
+  const headerID = apID ? matchHeader(aps[apID].headerName) : 0;
+  return await renderToReadableStream(<Rentap icon={base64icon}
+    message={message} color={color} viewOnly={viewOnly}
+    ap={aps[apID]} apFullNames={apFullNames} apID={apID}
+    header={headers[headerID]} headerNames={headerNames} />);
+}
 
 const server = Bun.serve({
   port: 3000,
@@ -24,7 +35,11 @@ const server = Bun.serve({
     if (url.pathname === "/") {
       apID = 0;
       const headerID = 0;
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="New" color="red" ap={aps[0]} viewOnly={false} apID={apID} header={headers[headerID]} />);
+      const stream =
+        await renderToReadableStream(<Rentap icon={base64icon}
+        message="New" color="red" viewOnly={false}
+        ap={aps[apID]} apFullNames={apFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -33,7 +48,11 @@ const server = Bun.serve({
     // render rentap.tsx with current ap for edit path (got here through Edit link)
     if (url.pathname === "/edit") {
       const headerID = matchHeader(aps[apID].headerName);
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="Edit" color="red" ap={aps[apID]} viewOnly={false} apID={apID} header={headers[headerID]} />);
+      const stream =
+        await renderToReadableStream(<Rentap icon={base64icon}
+        message="Edit" color="red" viewOnly={false}
+        ap={aps[apID]} apFullNames={apFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -43,7 +62,11 @@ const server = Bun.serve({
     if (url.pathname === "/prev") {
       apID>0? apID-- : apID = aps.length-1;
       const headerID = matchHeader(aps[apID].headerName);
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="View" color="Green" ap={aps[apID]} viewOnly={true} apID={apID} header={headers[headerID]} />);
+      const stream =
+        await renderToReadableStream(<Rentap icon={base64icon}
+        message="View" color="Green" viewOnly={true}
+        ap={aps[apID]} apFullNames={apFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -53,7 +76,11 @@ const server = Bun.serve({
     if (url.pathname === "/next") {
       apID < aps.length-1 ? apID++ : apID=0;
       const headerID = matchHeader(aps[apID].headerName);
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message="View" color="Green" ap={aps[apID]} viewOnly={true} apID={apID} header={headers[headerID]} />);
+      const stream =
+        await renderToReadableStream(<Rentap icon={base64icon}
+        message="View" color="Green" viewOnly={true}
+        ap={aps[apID]} apFullNames={apFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -79,7 +106,11 @@ const server = Bun.serve({
       const message = apSaveIsNew || apSaveIsEdited ? "Saved" : "Nothing to save";
       const color = apSaveIsNew || apSaveIsEdited ? "green" : "red";
       const headerID = matchHeader(aps[apID].headerName);
-      const stream = await renderToReadableStream(<Rentap icon={base64icon} message={message} color={color} ap={aps[apID]} viewOnly={true} apID={apID} header={headers[headerID]} />);
+      const stream =
+        await renderToReadableStream(<Rentap icon={base64icon}
+        message={message} color={color} viewOnly={true}
+        ap={aps[apID]} apFullNames={apFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
