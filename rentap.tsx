@@ -23,31 +23,41 @@ export default function Rentap({message, color, viewOnly, icon, ap, apFullNames,
           <div style={{display:'inline-block', fontWeight:'bold', color:color}}>{message}</div>
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend>Actions</legend>
+          <legend style={{color:'green'}}>Actions</legend>
           <div style={{width:'100%', marginBottom:'5px', display:'flex', justifyContent:'space-between'}}>
             <a href="/discard" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >Trash This</button></a>
             <a href="/trash" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >View Trash</button></a>
-            <a href="/"     ><button type="button" style={{backgroundColor:'#a87a23', color:'white', marginLeft:'15px'}} >New</button></a>
+            <a href="/"     ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >New</button></a>
           </div>
           <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
             <a href="/editheaders" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit "Applying for:" options</button></a>
-            <a href="/edit" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit</button></a>
+            <a href="/edit" ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >Edit</button></a>
           </div>
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend>Navigation</legend>
-          <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
-            <a href="/prev" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >&lt;Prev</button></a>
-            <div style={{backgroundColor:'gray', float:'left', color:'white', paddingLeft:'4', paddingRight:'4' }}>{apID}</div>
-            <a href="/next" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Next&gt;</button></a>
-          </div>
-         Here will be search form and dropdown select option of names
+          <legend style={{color:'green'}}>Navigation</legend>
+          <form action="/search" method="post" style={{display:'flex', justifyContent:'space-between', margin:'0', marginBottom:'5'}} >
+            <div>
+              <a href="/prev" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >&lt;</button></a>
+              <div style={{backgroundColor:'gray', color:'white', textAlign:'center', display:'inline-block', width:'80px' }}>{apID}</div>
+              <a href="/next" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >&gt;</button></a>
+            </div>
+            <input type="text" name="search" id="search" placeholder="search" style={{width:'65%'}} />
+          </form>
+          <form action="/select" method="post" style={{margin:'0'}}>
+            <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
+              <select name="select" id="select" value={ap.FullName} style={{width:'78%'}} onChange={function(){}} >
+                {apFullNames.map( (name) => <option value={name} key={name}>{name}</option> )}
+              </select>
+              <input type="submit" defaultValue="Display" style={{backgroundColor:'darkgreen', color:'white'}} />
+            </div>
+          </form>
         </fieldset>
       </header>
-      <body style={{backgroundColor:'paleturquoise'}} >
+      <body style={{backgroundColor:'lightskyblue'}} >
       <form action="/save" method="post" encType="multipart/form-data" >
         <fieldset style={fieldsetStyle}>
-          <legend>Identity</legend>
+          <legend style={{color:'green'}}>Identity</legend>
           <Label forId="fullname"  labelText="Full Name" />     <Field type="text"  name="FullName"      placeholder="First Middle Last" width='76%' ap={ap} viewOnly={viewOnly} />
           <Label forId="ssn"  labelText="Social Security" />    <Field type="text"  name="SSN"           placeholder="555-55-5555" width='76%' ap={ap} viewOnly={viewOnly} />
           <Label forId="birthdate" labelText="Birth Date" />    <Field type="date"  name="BirthDate"     placeholder="" width='38%' ap={ap} viewOnly={viewOnly} />
@@ -60,9 +70,9 @@ export default function Rentap({message, color, viewOnly, icon, ap, apFullNames,
           <TextArea rows={16} name="PriorAddresses"    placeholder="Prior Addresses, Cities, States, Zips, Dates, Rents, Landlords" ap={ap} viewOnly={viewOnly} />
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend>Living Situation</legend>
-          <Label forId="headername" labelText="Applying for: " />
-            <select name="headerName" style={{width:'76%', marginLeft:'8', marginBottom:'2'}}  value={header.Name} onChange={function(){}} >
+          <legend style={{color:'green'}}>Living Situation</legend>
+          <Label forId="headername" labelText="Applying for:" />
+            <select name="headerName" id="headername" style={{width:'76%', marginLeft:'8', marginBottom:'2'}}  value={header.Name} onChange={function(){}} >
               {headerNames.map( (name) => <option value={name} key={name}>{name}</option> )}
             </select>
           <TextArea rows={5}  name="ProposedOccupants" placeholder="Proposed Occupants: self+age, other+age" ap={ap} viewOnly={viewOnly} />
@@ -71,7 +81,7 @@ export default function Rentap({message, color, viewOnly, icon, ap, apFullNames,
           <TextArea rows={14} name="Employment"        placeholder="Employment: address, job/position, dates, hours, supervisor name and phone number" ap={ap} viewOnly={viewOnly} />
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend>Criminal &amp; Civil Record | Notes</legend>
+          <legend style={{color:'green'}}>Criminal &amp; Civil Record | Notes</legend>
           <TextArea rows={15} name="Evictions"         placeholder="Evictions Past 10 Years, or other notes" ap={ap} viewOnly={viewOnly} />
           <TextArea rows={15} name="Felonies"          placeholder="Felonies/Drug Convictions, or other notes" ap={ap} viewOnly={viewOnly} />
         </fieldset>
@@ -79,7 +89,7 @@ export default function Rentap({message, color, viewOnly, icon, ap, apFullNames,
         <Label forId="dateapplied" labelText="Date Applied"/> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         <Label forId="dateguested" labelText="Date Guested"/> <Field type="date" name="dateGuested" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         <Label forId="daterented" labelText="Date Rented"  /> <Field type="date" name="dateRented"  placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
-        <input type="submit" defaultValue="Save" style={{backgroundColor:'lightgreen', marginLeft:'15px'}} />
+        <input type="submit" defaultValue="Save" style={{backgroundColor:'darkgreen', color:'white', marginLeft:'15px'}} />
       </form>
       </body>
     </>
