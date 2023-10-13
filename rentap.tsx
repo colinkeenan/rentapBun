@@ -5,8 +5,8 @@ const fieldsetStyle={display:'inline-block', width:'425px', border:'none'}
 
 export default function Rentap({message, color, viewOnly, icon, ap, apFullNames, apID, header, headerNames }:
   {message:string, color:string, viewOnly:boolean,
-   icon:string, ap:{[key:string]:any}, apFullNames:[string]
-   apID:number, header:{[key:string]:any}, headerNames:[string]} ) {
+   icon:string, ap:{[key:string]:any}, apFullNames:Array<string>
+   apID:number, header:{[key:string]:any}, headerNames:Array<string>} ) {
 
   return (
     <>
@@ -33,7 +33,6 @@ export default function Rentap({message, color, viewOnly, icon, ap, apFullNames,
             <a href="/editheaders" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit "Applying for:" options</button></a>
             <a href="/edit" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit</button></a>
           </div>
-          Header Name will be dropdown
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend>Navigation</legend>
@@ -62,7 +61,10 @@ export default function Rentap({message, color, viewOnly, icon, ap, apFullNames,
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend>Living Situation</legend>
-          <Label forId="headername" labelText="Applying for: " /> <Field type="text" name="headerName" placeholder="Header Name" width='76%' ap={ap} viewOnly={viewOnly} />
+          <Label forId="headername" labelText="Applying for: " />
+            <select name="headerName" style={{width:'76%', marginLeft:'8', marginBottom:'2'}}  value={header.Name} onChange={function(){}} >
+              {headerNames.map( (name) => <option value={name} key={name}>{name}</option> )}
+            </select>
           <TextArea rows={5}  name="ProposedOccupants" placeholder="Proposed Occupants: self+age, other+age" ap={ap} viewOnly={viewOnly} />
           <TextArea rows={3}  name="ProposedPets"      placeholder="Proposed Pets, names, types, ages, weights" ap={ap} viewOnly={viewOnly} />
           <TextArea rows={6}  name="Income"            placeholder="Income amount and source" ap={ap} viewOnly={viewOnly} />
