@@ -86,6 +86,25 @@ const server = Bun.serve({
       });
     }
 
+//other paths that need to be completed: /trash /discard /editheaders /select
+
+    // render rentap.tsx with selected ap for select path (got here through search submited with Enter)
+    if (url.pathname === "/search") {
+      const searchSubmit = await req.text();
+      const search = searchSubmit.slice(7); // remove "search="
+      const foundFullNames = ["Search Results"];
+      for (const ap of aps) JSON.stringify(ap).includes(search) && foundFullNames.push(ap.FullName);
+      const headerID = matchHeader(aps[apID].headerName);
+      const stream =
+        await renderToReadableStream(<Rentap icon={base64icon}
+        message="View" color="Green" viewOnly={true}
+        ap={aps[apID]} apFullNames={foundFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} />);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
     // push formdata at /save into file store.json
     if (url.pathname === "/save") {
       const formData = await req.formData();
@@ -120,7 +139,6 @@ const server = Bun.serve({
   },
 });
 
-//other paths that need to be completed: /trash /discard /editheaders
 
 function formatArray(arrObj:Array<Object>) {
   // write each array element on it's own line if there's more than one

@@ -36,7 +36,7 @@ export default function Rentap({message, color, viewOnly, icon, ap, apFullNames,
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend style={{color:'green'}}>Navigation</legend>
-          <form action="/search" method="post" style={{display:'flex', justifyContent:'space-between', margin:'0', marginBottom:'5'}} >
+          <form action="/search" method="post"  style={{display:'flex', justifyContent:'space-between', margin:'0', marginBottom:'5'}} >
             <div>
               <a href="/prev" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >&lt;</button></a>
               <div style={{backgroundColor:'gray', color:'white', textAlign:'center', display:'inline-block', width:'80px' }}>{apID}</div>
