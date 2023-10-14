@@ -14,28 +14,32 @@ export default function Rentap({message, color, viewOnly, icon, ap, foundFullNam
       <title>Rental Application</title>
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
       <header>
+        <br/> <img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" />
+        <div style={{display:'inline-block', fontWeight:'bold', color:color}}>{message}</div>
+        <br/>
         <fieldset style={fieldsetStyle}>
-          <legend></legend>
-          <h3 style={{margin:'0'}}>{header.Title}</h3>
-          {header.StreetAddress}
-          <br/> {header.CityStateZip}
-          <br/> <img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" />
-          <div style={{display:'inline-block', fontWeight:'bold', color:color}}>{message}</div>
+          <legend style={{color:'darkgreen'}}>Applying for:</legend>
+          <h3 style={{margin:'0'}}>{header.Title ? header.Title : "Title"}</h3>
+          {header.StreetAddress ? header.StreetAddress : "Street Address"}
+          <br/> {header.CityStateZip ? header.CityStateZip : "City, ST Zip"}
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkgreen'}}>Actions</legend>
+          <legend style={{color:'#a87a23'}}>Actions</legend>
           <div style={{width:'100%', marginBottom:'5px', display:'flex', justifyContent:'space-between'}}>
-            <a href="/discard" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >Trash This</button></a>
-            <a href="/trash" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >View Trash</button></a>
+            <div>
+              <a href="/discard" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >Discard</button></a>
+              <div style={{backgroundColor:'gray', color:'white', textAlign:'center', display:'inline-block'}}>{'||'}</div>
+              <a href="/trash" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >View Discarded</button></a>
+            </div>
             <a href="/"     ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >New</button></a>
           </div>
           <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
-            <a href="/editheaders" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit "Applying for:" options</button></a>
+            <a href="/editheaders" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit 'Applying for:' Options</button></a>
             <a href="/edit" ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >Edit</button></a>
           </div>
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkgreen'}}>Navigation</legend>
+          <legend style={{color:'#a87a23'}}>Navigation</legend>
           <form action="/search" method="post"  style={{display:'flex', justifyContent:'space-between', margin:'0', marginBottom:'5'}} >
             <div>
               <a href="/prev" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >&lt;</button></a>
@@ -70,9 +74,9 @@ export default function Rentap({message, color, viewOnly, icon, ap, foundFullNam
           <TextArea rows={16} name="PriorAddresses"    placeholder="Prior Addresses, Cities, States, Zips, Dates, Rents, Landlords" ap={ap} viewOnly={viewOnly} />
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkgreen'}}>Living Situation</legend>
+          <legend style={{color:'darkgreen'}}>Situation</legend>
           <Label forId="headername" labelText="Applying for:" />
-            <select name="headerName" id="headername" style={{width:'76%', marginLeft:'8', marginBottom:'2'}}  value={header.Name} onChange={function(){}} >
+            <select name="headerName" id="headername" style={{width:'76%', marginLeft:'8', marginBottom:'2'}}  value={header.Name ? header.Name : headerNames[0]} onChange={function(){}} >
               {headerNames.map( (name) => <option value={name} key={name}>{name}</option> )}
             </select>
           <TextArea rows={5}  name="ProposedOccupants" placeholder="Proposed Occupants: self+age, other+age" ap={ap} viewOnly={viewOnly} />

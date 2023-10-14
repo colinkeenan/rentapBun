@@ -13,6 +13,7 @@ const apFullNames = aps.map((ap:any) => ap.FullName);
 let foundFullNames = ["All Names"];
 const headers = sJfT ? storeArray.headers : [{"StreetAddress":"","CityStateZip":"","Title":"","Name":""}];
 const headerNames = headers.map((header:any) => header.Name);
+headerNames[0] = "'Applying for:' Options";
 const trash = sJfT ? storeArray.trash : [{"discardedRow":0}];
 const deleted = sJfT ? storeArray.deleted : [{"deletedRow":0}];
 
@@ -135,14 +136,14 @@ const server = Bun.serve({
       });
     }
 
-//other paths that need to be completed: /trash /discard /editheaders /select
+//other paths that need to be completed: /trash /discard /delete /restore /exittrash /editheaders
 
     // push formdata at /save into file store.json
     if (url.pathname === "/save") {
       const formData = await req.formData();
       const apSave = Object.fromEntries(formData.entries());
-      const apSaveIsNew = !apID && JSON.stringify(apSave) != JSON.stringify(aps[0]);
-      const apSaveIsEdited = apID && JSON.stringify(apSave) != JSON.stringify(aps[apID]);
+      const apSaveIsNew = apIsNew(apSave);
+      const apSaveIsEdited = apIsEdited(apSave);
       if (apSaveIsNew) { aps.push(apSave); apID = aps.length -1; }
       if (apSaveIsEdited) aps[apID] = apSave;
       // write to the file if there's something new to write or if the file doesn't exist
@@ -198,6 +199,28 @@ function containsSubstring(obj:{[key:string]: any}, substring:string) {
   for (const key in obj)
     if (obj[key].toString().includes(substring)) return true;
   return false;
+}
+
+function apIsNew(obj:{[key:string]:any}) {
+  // if apID is not 0, we are editing an existing ap, not a new one
+  if (apID) return false;
+  for (const key in obj) {
+    if (obj[key].toString() != "" && key!='headerName')
+      return true; // there's something to save
+    if (key==='headerName' && obj[key]!=headerNames[0])
+      return true;
+  }
+  return false; // even though on a new ap, there was nothing entered
+}
+
+function apIsEdited(obj:{[key:string]:any}) {
+  // if apID is 0, we are editing an new ap, not an existing one
+  if (!apID) return false;
+  for (const key in obj) {
+    if (obj[key].toString() != aps[apID][key].toString())
+      return true; // there's something to save
+  }
+  return false; // even though on an existing ap, nothing was changed
 }
 
 console.log(`Listening on http://localhost:${server.port}`);
