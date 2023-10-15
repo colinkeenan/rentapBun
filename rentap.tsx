@@ -94,7 +94,7 @@ export default function Rentap({message, color, viewOnly, icon, ap, foundFullNam
         <Label forId="dateapplied" labelText="Date Applied"/> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         <Label forId="dateguested" labelText="Date Guested"/> <Field type="date" name="dateGuested" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         <Label forId="daterented" labelText="Date Rented"  /> <Field type="date" name="dateRented"  placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
-        <input type="submit" defaultValue="Save" style={{backgroundColor:'darkgreen', color:'white', marginLeft:'15px'}} />
+        {viewOnly ? "" : <input type="submit" defaultValue="Save" style={{backgroundColor:'darkgreen', color:'white', marginLeft:'15px'}} />}
       </form>
       </body>
     </>

@@ -98,17 +98,19 @@ const server = Bun.serve({
       const searchSubmit = await req.text();
       const search = searchSubmit.slice(7); // remove "search="
       foundFullNames = inTrash ? ["Search Results in Trash"] : ["Search Results (not Discarded)"];
-      for (const ap of aps) {
-        // containsSubstring seems to change the apID to aps.indexOf(ap), although it's not obvious to me why.
-        // So, comparing discardedRow with apID works. But then, why is apID left unchanged after exiting this for loop?
-        // Because it's mysterious, I'm not going to compare discardedRow to apID. Instead, comparing to aps.indexOf(ap)
-        if (containsSubstring(ap, search) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) {
-          if (trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
-            inTrash && foundFullNames.push(ap.FullName);
-          else !inTrash && foundFullNames.push(ap.FullName);
+      if (search) // no need to search if the search string is empty
+        for (const ap of aps) {
+          // containsSubstring seems to change the apID to aps.indexOf(ap), although it's not obvious to me why.
+          // So, comparing discardedRow with apID works. But then, why is apID left unchanged after exiting this for loop?
+          // Because it's mysterious, I'm not going to compare discardedRow to apID. Instead, comparing to aps.indexOf(ap)
+          if (containsSubstring(ap, search) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) {
+            if (trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
+              inTrash && foundFullNames.push(ap.FullName);
+            else !inTrash && foundFullNames.push(ap.FullName);
+          }
         }
-      }
-      if (foundFullNames.length === 1) populateAllNames();
+      else populateAllNames();
+      if (foundFullNames.length === 1) populateAllNames(); //if nothing found, just show everything
       else apID = matchFullName(foundFullNames[1]);
       const headerID = matchHeader(aps[apID].headerName);
       const stream =
