@@ -9,8 +9,7 @@ const sJfT = storefile.size ? await storefile.text() : "";
 const storeArray = sJfT ? JSON.parse(sJfT) : {};
 // Setting up aps, headers, trash, deleted using ? : instead of just defining them and then if() to change because would have to use "let" to be able to change them in if()
 const aps = sJfT ? storeArray.aps : [{"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateGuested":"","dateRented":"","headerName":""}];
-const apFullNames = aps.map((ap:any) => ap.FullName);
-let foundFullNames = ["All Names"];
+let foundFullNames = ["All Names (not Discarded)"];
 const headers = sJfT ? storeArray.headers : [{"StreetAddress":"","CityStateZip":"","Title":"","Name":""}];
 const headerNames = headers.map((header:any) => header.Name);
 headerNames[0] = "'Applying for:' Options";
@@ -31,10 +30,7 @@ const server = Bun.serve({
       apID = 0;
       inTrash = false;
       const headerID = 0;
-      if (foundFullNames.length === 1) {
-        foundFullNames = apFullNames;
-        foundFullNames[0] = "All Names";
-      }
+      populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message="New" color="red" viewOnly={false} inTrash={inTrash}
@@ -48,10 +44,7 @@ const server = Bun.serve({
     // render rentap.tsx with current ap for edit path (got here through Edit link)
     if (url.pathname === "/edit") {
       const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) {
-        foundFullNames = apFullNames;
-        foundFullNames[0] = "All Names";
-      }
+      if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message="Edit" color="red" viewOnly={false} inTrash={inTrash}
@@ -74,10 +67,7 @@ const server = Bun.serve({
           apID>0? apID-- : apID = aps.length-1;
 
       const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) {
-        foundFullNames = apFullNames;
-        foundFullNames[0] = "All Names";
-      }
+      if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Green"} viewOnly={true} inTrash={inTrash}
@@ -92,10 +82,7 @@ const server = Bun.serve({
     if (url.pathname === "/next") {
       gotoNextID();
       const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) {
-        foundFullNames = apFullNames;
-        foundFullNames[0] = "All Names";
-      }
+      if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Green"} viewOnly={true} inTrash={inTrash}
@@ -110,16 +97,23 @@ const server = Bun.serve({
     if (url.pathname === "/search") {
       const searchSubmit = await req.text();
       const search = searchSubmit.slice(7); // remove "search="
-      foundFullNames = ["Search Results"];
-      for (const ap of aps) ap.Email && containsSubstring(ap, search) && foundFullNames.push(ap.FullName);
-      if (foundFullNames.length === 1) {
-        foundFullNames = apFullNames;
-        foundFullNames[0] = "All Names";
+      foundFullNames = inTrash ? ["Search Results in Trash"] : ["Search Results (not Discarded)"];
+      for (const ap of aps) {
+        // containsSubstring seems to change the apID to aps.indexOf(ap), although it's not obvious to me why.
+        // So, comparing discardedRow with apID works. But then, why is apID left unchanged after exiting this for loop?
+        // Because it's mysterious, I'm not going to compare discardedRow to apID. Instead, comparing to aps.indexOf(ap)
+        if (containsSubstring(ap, search) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) {
+          if (trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
+            inTrash && foundFullNames.push(ap.FullName);
+          else !inTrash && foundFullNames.push(ap.FullName);
+        }
       }
+      if (foundFullNames.length === 1) populateAllNames();
+      else apID = matchFullName(foundFullNames[1]);
       const headerID = matchHeader(aps[apID].headerName);
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="View" color="Green" viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Green"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -133,10 +127,7 @@ const server = Bun.serve({
       const selectedFullName = selectSubmit.slice(7); // remove "select="
       apID = matchFullName(selectedFullName);
       const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) {
-        foundFullNames = apFullNames;
-        foundFullNames[0] = "All Names";
-      }
+      if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message="View" color="Green" viewOnly={true} inTrash={inTrash}
@@ -151,10 +142,7 @@ const server = Bun.serve({
       inTrash = true;
       gotoNextID();
       const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) {
-        foundFullNames = apFullNames;
-        foundFullNames[0] = "All Names";
-      }
+      populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={trashMessage} color="red" viewOnly={true} inTrash={inTrash}
@@ -169,10 +157,7 @@ const server = Bun.serve({
       inTrash = false;
       gotoNextID();
       const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) {
-        foundFullNames = apFullNames;
-        foundFullNames[0] = "All Names";
-      }
+      populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message="View" color="green" viewOnly={true} inTrash={inTrash}
@@ -191,10 +176,7 @@ const server = Bun.serve({
       }
       inTrash = true;
       const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) {
-        foundFullNames = apFullNames;
-        foundFullNames[0] = "All Names";
-      }
+      if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={trashMessage} color="red" viewOnly={true} inTrash={inTrash}
@@ -214,10 +196,7 @@ const server = Bun.serve({
       }
       inTrash = false;
       const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) {
-        foundFullNames = apFullNames;
-        foundFullNames[0] = "All Names";
-      }
+      if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message="Edit" color="red" viewOnly={false} inTrash={inTrash}
@@ -231,15 +210,16 @@ const server = Bun.serve({
     if (url.pathname === "/delete") {
       //put apID in deleted if not already there and delete the ap
       if (!deleted.some((e:any) => e.deletedRow === apID)) {
+        //add to deleted list and remove from trash list
         deleted.push({deletedRow:apID});
+        const trashApIDindex = trash.map((e:any) => e.discardedRow).indexOf(apID);
+        trash.splice(trashApIDindex,1);
+        //delete the information
         aps[apID] = {"FullName":"Deleted apID:" + apID,"SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateGuested":"","dateRented":"","headerName":""};
         saveAll();
       }
       const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) {
-        foundFullNames = apFullNames;
-        foundFullNames[0] = "All Names";
-      }
+      if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={trashMessage} color="red" viewOnly={true} inTrash={inTrash}
@@ -268,10 +248,7 @@ const server = Bun.serve({
       const message = apSaveIsNew || apSaveIsEdited ? "Saved" : "Nothing to save";
       const color = apSaveIsNew || apSaveIsEdited ? "green" : "red";
       const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) {
-        foundFullNames = apFullNames;
-        foundFullNames[0] = "All Names";
-      }
+      if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={message} color={color} viewOnly={true} inTrash={inTrash}
@@ -301,7 +278,9 @@ function matchHeader(name:string) {
 }
 
 function matchFullName(fullName:string) {
-  const matchingApID = aps.map((ap:any) => ap.FullName.replaceAll(' ', '+')).indexOf(fullName); //fullName from <select...> has spaces replaced by +
+  const matchingApID =
+    fullName.includes(' ') ? aps.map((ap:any) => ap.FullName).indexOf(fullName)
+    : aps.map((ap:any) => ap.FullName.replaceAll(' ', '+')).indexOf(fullName); //fullName from <select...> has spaces replaced by +
   return matchingApID > 0 ? matchingApID : 0;
 }
 
@@ -351,6 +330,16 @@ async function saveAll() {
   const fDeleted = formatArray(deleted);
   const formattedStore = `\{"aps":${fAps}, "headers":${fHeaders}, "trash":${fTrash}, "deleted":${fDeleted}\}`;
   await Bun.write("./store.json", formattedStore);
+}
+
+function populateAllNames() {
+  foundFullNames = inTrash ? ["All Discarded Names"] : ["All Names (not Discarded)"];
+  for (const ap of aps) {
+    if (inTrash && trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
+      foundFullNames.push(ap.FullName);
+    else if (!trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap)))
+      foundFullNames.push(ap.FullName);
+  }
 }
 
 console.log(`Listening on http://localhost:${server.port}`);
