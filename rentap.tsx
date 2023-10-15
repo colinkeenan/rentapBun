@@ -3,8 +3,8 @@
 const fieldsetStyle={display:'inline-block', width:'425px', border:'none'}
 //other styles defined inline or in functions that follow this Rentap function
 
-export default function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID, header, headerNames }:
-  {message:string, color:string, viewOnly:boolean,
+export default function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID, header, headerNames, inTrash }:
+  {message:string, color:string, viewOnly:boolean, inTrash:boolean
    icon:string, ap:{[key:string]:any}, foundFullNames:Array<string>
    apID:number, header:{[key:string]:any}, headerNames:Array<string>} ) {
 
