@@ -17,6 +17,7 @@ headerNames[0] = "'Applying for:' Options";
 const trash = sJfT ? storeArray.trash : [{"discardedRow":0}];
 const deleted = sJfT ? storeArray.deleted : [{"deletedRow":0}];
 let inTrash = false;
+const trashMessage="Viewing Discarded Applications in Trash"
 
 let apID = 0;
 
@@ -66,7 +67,7 @@ const server = Bun.serve({
       apID>0? apID-- : apID = aps.length-1;
       //check if apID was deleted or discarded and skip it unless we're in trash then skip it if not discarded
       if (inTrash)
-        while (deleted.some((e:any) => e.deletedRow === apID) || trash.some((e:any) => e.discardedRow != apID))
+        while (deleted.some((e:any) => e.deletedRow === apID) || !trash.some((e:any) => e.discardedRow === apID))
           apID>0? apID-- : apID = aps.length-1;
       else
         while (deleted.some((e:any) => e.deletedRow === apID) || trash.some((e:any) => e.discardedRow === apID))
@@ -79,7 +80,7 @@ const server = Bun.serve({
       }
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="View" color="Green" viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Green"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -92,7 +93,7 @@ const server = Bun.serve({
       apID < aps.length-1 ? apID++ : apID=0;
       //check if apID was deleted or discarded and skip it unless we're in trash then skip it if not discarded
       if (inTrash)
-        while (deleted.some((e:any) => e.deletedRow === apID) || trash.some((e:any) => e.discardedRow != apID))
+        while (deleted.some((e:any) => e.deletedRow === apID) || !trash.some((e:any) => e.discardedRow === apID))
           apID < aps.length-1 ? apID++ : apID=0;
       else
         while (deleted.some((e:any) => e.deletedRow === apID) || trash.some((e:any) => e.discardedRow === apID))
@@ -105,7 +106,7 @@ const server = Bun.serve({
       }
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="View" color="Green" viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Green"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -154,7 +155,25 @@ const server = Bun.serve({
       });
     }
 
-//other paths that need to be completed: /trash /discard /delete /restore /exittrash /editheaders
+    if (url.pathname === "/trash") {
+      inTrash = true;
+      const headerID = 0;
+      if (foundFullNames.length === 1) {
+        foundFullNames = apFullNames;
+        foundFullNames[0] = "All Names";
+      }
+      const stream =
+        await renderToReadableStream(<Rentap icon={base64icon}
+        message={trashMessage} color="red" viewOnly={true} inTrash={inTrash}
+        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} />);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+
+//other paths that need to be completed: /discard /delete /restore /exittrash /editheaders
 
     // push formdata at /save into file store.json
     if (url.pathname === "/save") {

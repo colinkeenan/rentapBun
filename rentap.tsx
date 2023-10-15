@@ -27,14 +27,14 @@ export default function Rentap({message, color, viewOnly, icon, ap, foundFullNam
           <legend style={{color:'#a87a23'}}>Actions</legend>
           <div style={{width:'100%', marginBottom:'5px', display:'flex', justifyContent:'space-between'}}>
             <div>
-              <a href="/discard" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >Discard</button></a>
+              <a href={inTrash ? "restore" : "discard"} ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >{inTrash ? "Restore" : "Discard"}</button></a>
               <div style={{backgroundColor:'gray', color:'white', textAlign:'center', display:'inline-block'}}>{'||'}</div>
-              <a href="/trash" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >View Discarded</button></a>
+              <a href={inTrash ? "/exittrash" : "/trash"} ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >{inTrash ? "Exit Trash" : "View Discarded"}</button></a>
             </div>
             <a href="/"     ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >New</button></a>
           </div>
           <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
-            <a href="/editheaders" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} >Edit 'Applying for:' Options</button></a>
+            <a href="/editheaders" ><button type="button" style={{backgroundColor:'#a87a23', color:'white'}} disabled={inTrash} >Edit 'Applying for:' Options</button></a>
             <a href="/edit" ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >Edit</button></a>
           </div>
         </fieldset>
