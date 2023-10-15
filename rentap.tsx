@@ -8,6 +8,8 @@ export default function Rentap({message, color, viewOnly, icon, ap, foundFullNam
    icon:string, ap:{[key:string]:any}, foundFullNames:Array<string>
    apID:number, header:{[key:string]:any}, headerNames:Array<string>} ) {
 
+  const sort = foundFullNames[0].substring(0,4) === "Sort";
+
   return (
     <>
       <meta charSet="utf-8" />
@@ -51,7 +53,8 @@ export default function Rentap({message, color, viewOnly, icon, ap, foundFullNam
           </form>
           <form action="/select" method="post" style={{margin:'0'}}>
             <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
-              <select name="select" id="select" value={ap.FullName ? ap.FullName : foundFullNames[0]} style={{width:'78%'}} onChange={function(){}} >
+              <a href="/sort" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >{sort ? "Unsort" : "Sort"}</button></a>
+              <select name="select" id="select" value={ap.FullName ? ap.FullName : foundFullNames[0]} style={{width:'58%'}} onChange={function(){}} >
                 {foundFullNames.map( (name:any) => <option value={name} key={name}>{name}</option> )}
               </select>
               <input type="submit" defaultValue="Display" style={{backgroundColor:'darkgreen', color:'white'}} />

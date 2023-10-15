@@ -17,6 +17,7 @@ const trash = sJfT ? storeArray.trash : [{"discardedRow":0}];
 const deleted = sJfT ? storeArray.deleted : [{"deletedRow":0}];
 let inTrash = false;
 const trashMessage="Viewing Discarded Applications in Trash"
+let sort = false;
 
 let apID = 0;
 
@@ -48,6 +49,25 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message="Edit" color="red" viewOnly={false} inTrash={inTrash}
+        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} />);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    // render rentap.tsx after toggling sort for select from foundFullNames (got here through Sort link)
+    if (url.pathname === "/sort") {
+      sort = !sort;
+      const headerID = matchHeader(aps[apID].headerName);
+      populateAllNames();
+      if (sort) { // sort, but don't include the first "name" which is actually a description of the list
+        const sortedNames = foundFullNames.slice(1).sort()
+        foundFullNames = [foundFullNames[0]].concat(sortedNames)
+      }
+      const stream =
+        await renderToReadableStream(<Rentap icon={base64icon}
+        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Green"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -132,7 +152,7 @@ const server = Bun.serve({
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="View" color="Green" viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Green"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -335,7 +355,9 @@ async function saveAll() {
 }
 
 function populateAllNames() {
-  foundFullNames = inTrash ? ["All Discarded Names"] : ["All Names (not Discarded)"];
+  foundFullNames = sort ?
+    inTrash ? ["Sorted: All Discarded Names"] : ["Sorted: All Names (not Discarded)"]
+    : inTrash ? ["All Discarded Names"] : ["All Names (not Discarded)"];
   for (const ap of aps) {
     if (inTrash && trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
       foundFullNames.push(ap.FullName);
