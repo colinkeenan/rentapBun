@@ -16,6 +16,7 @@ const headerNames = headers.map((header:any) => header.Name);
 headerNames[0] = "'Applying for:' Options";
 const trash = sJfT ? storeArray.trash : [{"discardedRow":0}];
 const deleted = sJfT ? storeArray.deleted : [{"deletedRow":0}];
+let inTrash = false;
 
 let apID = 0;
 
@@ -27,6 +28,7 @@ const server = Bun.serve({
     // render rentap.tsx with blank ap for root path (got here through New link or bun start)
     if (url.pathname === "/") {
       apID = 0;
+      inTrash = false;
       const headerID = 0;
       if (foundFullNames.length === 1) {
         foundFullNames = apFullNames;
@@ -34,7 +36,7 @@ const server = Bun.serve({
       }
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="New" color="red" viewOnly={false}
+        message="New" color="red" viewOnly={false} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -51,7 +53,7 @@ const server = Bun.serve({
       }
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="Edit" color="red" viewOnly={false}
+        message="Edit" color="red" viewOnly={false} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -62,6 +64,14 @@ const server = Bun.serve({
     // render rentap.tsx with prev ap for prev path (got here through Prev link)
     if (url.pathname === "/prev") {
       apID>0? apID-- : apID = aps.length-1;
+      //check if apID was deleted or discarded and skip it unless we're in trash then skip it if not discarded
+      if (inTrash)
+        while (deleted.some((e:any) => e.deletedRow === apID) || trash.some((e:any) => e.discardedRow != apID))
+          apID>0? apID-- : apID = aps.length-1;
+      else
+        while (deleted.some((e:any) => e.deletedRow === apID) || trash.some((e:any) => e.discardedRow === apID))
+          apID>0? apID-- : apID = aps.length-1;
+
       const headerID = matchHeader(aps[apID].headerName);
       if (foundFullNames.length === 1) {
         foundFullNames = apFullNames;
@@ -69,7 +79,7 @@ const server = Bun.serve({
       }
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="View" color="Green" viewOnly={true}
+        message="View" color="Green" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -80,6 +90,14 @@ const server = Bun.serve({
     // render rentap.tsx with next ap for next path (got here through Next link)
     if (url.pathname === "/next") {
       apID < aps.length-1 ? apID++ : apID=0;
+      //check if apID was deleted or discarded and skip it unless we're in trash then skip it if not discarded
+      if (inTrash)
+        while (deleted.some((e:any) => e.deletedRow === apID) || trash.some((e:any) => e.discardedRow != apID))
+          apID < aps.length-1 ? apID++ : apID=0;
+      else
+        while (deleted.some((e:any) => e.deletedRow === apID) || trash.some((e:any) => e.discardedRow === apID))
+          apID < aps.length-1 ? apID++ : apID=0;
+
       const headerID = matchHeader(aps[apID].headerName);
       if (foundFullNames.length === 1) {
         foundFullNames = apFullNames;
@@ -87,7 +105,7 @@ const server = Bun.serve({
       }
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="View" color="Green" viewOnly={true}
+        message="View" color="Green" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -108,7 +126,7 @@ const server = Bun.serve({
       const headerID = matchHeader(aps[apID].headerName);
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="View" color="Green" viewOnly={true}
+        message="View" color="Green" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -128,7 +146,7 @@ const server = Bun.serve({
       }
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="View" color="Green" viewOnly={true}
+        message="View" color="Green" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -164,7 +182,7 @@ const server = Bun.serve({
       }
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={message} color={color} viewOnly={true}
+        message={message} color={color} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {

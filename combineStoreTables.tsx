@@ -14,6 +14,7 @@ const aps = tbl ? JSON.parse(tbl) : [ap];
 if (tbl) {
   aps.unshift(ap); //put blank ap at aps[0];
 
+  //fix dates to be in format "YYYY-MM-DD" or ""
   for (const ap of aps) {
     ap.BirthDate = fixDatetxt(ap.BirthDate);
     ap.dateApplied = fixDatetxt(ap.dateApplied);
@@ -55,15 +56,19 @@ const header = {"StreetAddress":"","CityStateZip":"","Title":"","Name":""};
 const headers = oldheaders ? JSON.parse(oldheaders) : [header];
 if (oldheaders) headers.unshift(header);
 
-//put 0 for value at trash[0]
+//insert discardedRow:0 at trash[0]
 const aptrash = {"discardedRow":0};
 const trash = oldtrash ? JSON.parse(oldtrash) : [aptrash];
 if (oldtrash) trash.unshift(aptrash);
 
-//put 0 for value at deleted[0]
+//insert deletedRow:0 at deleted[0]
 const apdeleted = {"deletedRow":0};
 const deleted = olddeleted ? JSON.parse(olddeleted) : [apdeleted];
-if (olddeleted) trash.unshift(apdeleted);
+// Changing null in deleted aps to "" because null generates error.
+// Even though inserted blank app at aps[0], don't have to change aps[d+1] because old aps index started at 1
+if (olddeleted) for (const d of deleted) aps[d.deletedRow] =
+  {"FullName":"Deleted apID:" + d.deletedRow,"SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateGuested":"","dateRented":"","headerName":""};
+if (olddeleted) deleted.unshift(apdeleted);
 
 // write each element on it's own line if there's more than one
 const formattedAps = formatArray(aps);
