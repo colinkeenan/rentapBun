@@ -90,15 +90,7 @@ const server = Bun.serve({
 
     // render rentap.tsx with next ap for next path (got here through Next link)
     if (url.pathname === "/next") {
-      apID < aps.length-1 ? apID++ : apID=0;
-      //check if apID was deleted or discarded and skip it unless we're in trash then skip it if not discarded
-      if (inTrash)
-        while (deleted.some((e:any) => e.deletedRow === apID) || !trash.some((e:any) => e.discardedRow === apID))
-          apID < aps.length-1 ? apID++ : apID=0;
-      else
-        while (deleted.some((e:any) => e.deletedRow === apID) || trash.some((e:any) => e.discardedRow === apID))
-          apID < aps.length-1 ? apID++ : apID=0;
-
+      gotoNextID();
       const headerID = matchHeader(aps[apID].headerName);
       if (foundFullNames.length === 1) {
         foundFullNames = apFullNames;
@@ -157,7 +149,93 @@ const server = Bun.serve({
 
     if (url.pathname === "/trash") {
       inTrash = true;
-      const headerID = 0;
+      gotoNextID();
+      const headerID = matchHeader(aps[apID].headerName);
+      if (foundFullNames.length === 1) {
+        foundFullNames = apFullNames;
+        foundFullNames[0] = "All Names";
+      }
+      const stream =
+        await renderToReadableStream(<Rentap icon={base64icon}
+        message={trashMessage} color="red" viewOnly={true} inTrash={inTrash}
+        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} />);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    if (url.pathname === "/exittrash") {
+      inTrash = false;
+      gotoNextID();
+      const headerID = matchHeader(aps[apID].headerName);
+      if (foundFullNames.length === 1) {
+        foundFullNames = apFullNames;
+        foundFullNames[0] = "All Names";
+      }
+      const stream =
+        await renderToReadableStream(<Rentap icon={base64icon}
+        message="View" color="green" viewOnly={true} inTrash={inTrash}
+        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} />);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    if (url.pathname === "/discard") {
+      //put apID in trash if not already there
+      if (!trash.some((e:any) => e.discardedRow === apID)) {
+        trash.push({discardedRow:apID});
+        saveAll();
+      }
+      inTrash = true;
+      const headerID = matchHeader(aps[apID].headerName);
+      if (foundFullNames.length === 1) {
+        foundFullNames = apFullNames;
+        foundFullNames[0] = "All Names";
+      }
+      const stream =
+        await renderToReadableStream(<Rentap icon={base64icon}
+        message={trashMessage} color="red" viewOnly={true} inTrash={inTrash}
+        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} />);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    if (url.pathname === "/restore") {
+      //remove apID from trash if it's in there
+      if (trash.some((e:any) => e.discardedRow === apID)) {
+        const trashApIDindex = trash.map((e:any) => e.discardedRow).indexOf(apID);
+        trash.splice(trashApIDindex,1);
+        saveAll();
+      }
+      inTrash = false;
+      const headerID = matchHeader(aps[apID].headerName);
+      if (foundFullNames.length === 1) {
+        foundFullNames = apFullNames;
+        foundFullNames[0] = "All Names";
+      }
+      const stream =
+        await renderToReadableStream(<Rentap icon={base64icon}
+        message="Edit" color="red" viewOnly={false} inTrash={inTrash}
+        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} />);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    if (url.pathname === "/delete") {
+      //put apID in deleted if not already there and delete the ap
+      if (!deleted.some((e:any) => e.deletedRow === apID)) {
+        deleted.push({deletedRow:apID});
+        aps[apID] = {"FullName":"Deleted apID:" + apID,"SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateGuested":"","dateRented":"","headerName":""};
+        saveAll();
+      }
+      const headerID = matchHeader(aps[apID].headerName);
       if (foundFullNames.length === 1) {
         foundFullNames = apFullNames;
         foundFullNames[0] = "All Names";
@@ -173,7 +251,7 @@ const server = Bun.serve({
     }
 
 
-//other paths that need to be completed: /discard /delete /restore /exittrash /editheaders
+//other paths that need to be completed: /editheaders
 
     // push formdata at /save into file store.json
     if (url.pathname === "/save") {
@@ -185,12 +263,7 @@ const server = Bun.serve({
       if (apSaveIsEdited) aps[apID] = apSave;
       // write to the file if there's something new to write or if the file doesn't exist
       if (apSaveIsNew || apSaveIsEdited || !sJfT) {
-        const fAps = formatArray(aps);
-        const fHeaders = formatArray(headers);
-        const fTrash = formatArray(trash);
-        const fDeleted = formatArray(deleted);
-        const formattedStore = `\{"aps":${fAps}, "headers":${fHeaders}, "trash":${fTrash}, "deleted":${fDeleted}\}`;
-        await Bun.write("./store.json", formattedStore);
+        saveAll();
       }
       const message = apSaveIsNew || apSaveIsEdited ? "Saved" : "Nothing to save";
       const color = apSaveIsNew || apSaveIsEdited ? "green" : "red";
@@ -258,6 +331,26 @@ function apIsEdited(obj:{[key:string]:any}) {
       return true; // there's something to save
   }
   return false; // even though on an existing ap, nothing was changed
+}
+
+function gotoNextID() {
+    apID < aps.length-1 ? apID++ : apID=0;
+    //check if apID was deleted or discarded and skip it unless we're in trash then skip it if not discarded
+    if (inTrash)
+      while (deleted.some((e:any) => e.deletedRow === apID) || !trash.some((e:any) => e.discardedRow === apID))
+        apID < aps.length-1 ? apID++ : apID=0;
+    else
+      while (deleted.some((e:any) => e.deletedRow === apID) || trash.some((e:any) => e.discardedRow === apID))
+        apID < aps.length-1 ? apID++ : apID=0;
+}
+
+async function saveAll() {
+  const fAps = formatArray(aps);
+  const fHeaders = formatArray(headers);
+  const fTrash = formatArray(trash);
+  const fDeleted = formatArray(deleted);
+  const formattedStore = `\{"aps":${fAps}, "headers":${fHeaders}, "trash":${fTrash}, "deleted":${fDeleted}\}`;
+  await Bun.write("./store.json", formattedStore);
 }
 
 console.log(`Listening on http://localhost:${server.port}`);
