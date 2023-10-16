@@ -253,9 +253,22 @@ const server = Bun.serve({
     }
 
     if (url.pathname === "/delheader") {
-      const delIndex = await req.text();
+      const delText = await req.text();
+      const delIndex = delText.slice(4);
+      let message = "";
+      const dI = Number(delIndex);
+      if ( !isNaN(dI) && (0 < dI) && (dI < headers.length) &&
+        !aps.some((ap:any) => ap.headerName ===headers[dI].Name) )
+      {
+        const delName = headers[dI].Name;
+        headers.splice(dI,1);
+        saveAll();
+        message = "Deleted '" + delName + "' that was on row " + delIndex;
+      } else if ( !(!isNaN(dI) && (0 < dI) && (dI < headers.length)) )
+        message = "Please enter a valid row to be deleted"
+      else message = "Can't delete row " + delIndex + " because '" + headers[dI].Name + "' is in use."
       const stream =
-        await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={"Deleted " + delIndex}/>);
+        await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={message}/>);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });

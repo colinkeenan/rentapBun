@@ -4,20 +4,6 @@ const requiredFields = ["FullName","headerName"]; // possibilities: FullName, SS
 const fieldsetStyle={display:'inline-block', width:'425px', border:'none'};
 //other styles defined inline or in functions that follow this Rentap function
 
-const cellStyle={backgroundColor:'white', paddingLeft:'10', paddingRight:'10'}
-
-function Td({text}:{text:string}) {
-  return (
-    <td style={cellStyle}>{text}</td>
-  )
-}
-
-function Th({text}:{text:string}) {
-  return (
-    <th style={cellStyle}>{text}</th>
-  )
-}
-
 export function EditHeaders ({headers, icon, message}: {headers:{[key:string]:any}, icon:string, message:string}) {
   return (
     <>
@@ -29,18 +15,32 @@ export function EditHeaders ({headers, icon, message}: {headers:{[key:string]:an
         <div style={{display:'inline-block', fontWeight:'bold', color:'blue'}}> {message} </div>
       </header>
       <body style={{backgroundColor:'lightskyblue'}} >
-        <fieldset style={{width:'1400px', border:'none'}}>
-          <legend style={{color:'darkblue'}}>Edit Applying for: Options</legend>
-          <form action="/addheader" method="post" >
-            <input type="submit" defaultValue="+" style={{backgroundColor:'darkgreen', color:'white'}} />
-            <Field type= "text" name="Name" placeholder="Name" width="15%" viewOnly={false} />
-            <Field type= "text" name="StreetAddress" placeholder="Street Address" width="25%" viewOnly={false} />
-            <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="25%" viewOnly={false} />
-            <Field type= "text" name="Title" placeholder="Title" width="25%" viewOnly={false} />
-          </form>
+        <h3 style={{backgroundColor:'darkblue', color:'white', textAlign:'center', maxWidth:'1500'}}>'Applying for:' Options</h3>
+        <fieldset style={fieldsetStyle}>
+          <legend style={{color:'darkred'}}>Delete Option</legend>
           <form action="/delheader" method="post" >
             <input type="submit" defaultValue="X" style={{backgroundColor:'darkred', color:'white'}} />
-            <Field type= "number" name="Row" placeholder="Row" width="5%" viewOnly={false} />
+            <Field type= "number" name="Row" placeholder="Row" width="20%" viewOnly={false} />
+          </form>
+        </fieldset>
+        <fieldset style={fieldsetStyle}>
+          <legend style={{color:'darkblue'}}>Edit Option</legend>
+          <form action="/editheader" method="post" >
+            <input type="submit" defaultValue="Edit" style={{backgroundColor:'darkgreen', color:'white'}} />
+            <Field type= "text" name="Name" placeholder="Name" width="50%" viewOnly={false} />
+            <Field type= "text" name="StreetAddress" placeholder="Street Address" width="75%" viewOnly={false} />
+            <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="75%" viewOnly={false} />
+            <Field type= "text" name="Title" placeholder="Title" width="75%" viewOnly={false} />
+          </form>
+        </fieldset>
+        <fieldset style={fieldsetStyle}>
+          <legend style={{color:'darkgreen'}}>Add Option</legend>
+          <form action="/addheader" method="post" >
+            <input type="submit" defaultValue="+" style={{backgroundColor:'darkgreen', color:'white'}} />
+            <Field type= "text" name="Name" placeholder="Name" width="50%" viewOnly={false} />
+            <Field type= "text" name="StreetAddress" placeholder="Street Address" width="75%" viewOnly={false} />
+            <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="75%" viewOnly={false} />
+            <Field type= "text" name="Title" placeholder="Title" width="75%" viewOnly={false} />
           </form>
         </fieldset>
         <table style={{border:'1px solid black'}}>
@@ -49,9 +49,9 @@ export function EditHeaders ({headers, icon, message}: {headers:{[key:string]:an
           </thead>
           <tbody> {
             headers.map (
-              (h:any) =>
+              (h:any) => h.Name && //skip headers[0] which has all blank entries
               <tr key={h.Name}>
-                <Td text={headers.indexOf(h)} /> <Td text={h.Name} /> <Td text={h.StreetAddress} /> <Td text={h.CityStateZip} /> <Td text={h.Title} />
+                <TdR text={headers.indexOf(h)} /> <Td text={h.Name} /> <Td text={h.StreetAddress} /> <Td text={h.CityStateZip} /> <Td text={h.Title} />
               </tr>
             )
           } </tbody>
@@ -181,5 +181,25 @@ function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, n
 function TextArea({rows, name, placeholder, ap, viewOnly}: { rows:number, name:string, placeholder:string, ap: {[key:string]: any}, viewOnly: boolean }) {
   return (
     <textarea rows={rows} name={name} placeholder={placeholder} style={{width:'100%', marginBottom:2}} defaultValue={ap[name]} readOnly={viewOnly} onChange={function(){}} />
+  )
+}
+
+const cellStyle={backgroundColor:'white', paddingLeft:'10', paddingRight:'10'}
+
+function Td({text}:{text:string}) {
+  return (
+    <td style={cellStyle}>{text}</td>
+  )
+}
+
+function TdR({text}:{text:string}) {
+  return (
+    <td style={{backgroundColor:'white', paddingLeft:'10', paddingRight:'10', textAlign:'right'}}>{text}</td>
+  )
+}
+
+function Th({text}:{text:string}) {
+  return (
+    <th style={cellStyle}>{text}</th>
   )
 }
