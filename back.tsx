@@ -1,5 +1,5 @@
 import { renderToReadableStream } from "react-dom/server";
-import Rentap from "./rentap"
+import { Rentap, EditHeaders } from "./rentap"
 
 const iconfile = Bun.file("icon.txt");
 const base64icon = await iconfile.text();
@@ -252,8 +252,22 @@ const server = Bun.serve({
       });
     }
 
+    if (url.pathname === "/delheader") {
+      const delIndex = await req.text();
+      const stream =
+        await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={"Deleted " + delIndex}/>);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
 
-//other paths that need to be completed: /editheaders
+    if (url.pathname === "/editheaders") {
+      const stream =
+        await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={"Rentap"}/>);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
 
     // push formdata at /save into file store.json
     if (url.pathname === "/save") {

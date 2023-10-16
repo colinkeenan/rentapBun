@@ -1,9 +1,67 @@
+const requiredFields = ["FullName","headerName"]; // possibilities: FullName, SSN, BirthDate, Email, StateID, Phone1, Phone2, dateApplied, dateGuested, dateRented
 //each fieldset acts like a column
 //set all columns next to each other if possible
-const fieldsetStyle={display:'inline-block', width:'425px', border:'none'}
+const fieldsetStyle={display:'inline-block', width:'425px', border:'none'};
 //other styles defined inline or in functions that follow this Rentap function
 
-export default function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID, header, headerNames, inTrash }:
+const cellStyle={backgroundColor:'white', paddingLeft:'10', paddingRight:'10'}
+
+function Td({text}:{text:string}) {
+  return (
+    <td style={cellStyle}>{text}</td>
+  )
+}
+
+function Th({text}:{text:string}) {
+  return (
+    <th style={cellStyle}>{text}</th>
+  )
+}
+
+export function EditHeaders ({headers, icon, message}: {headers:{[key:string]:any}, icon:string, message:string}) {
+  return (
+    <>
+      <meta charSet="utf-8" />
+      <title>Rentap</title>
+      <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
+      <header>
+        <img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" />
+        <div style={{display:'inline-block', fontWeight:'bold', color:'blue'}}> {message} </div>
+      </header>
+      <body style={{backgroundColor:'lightskyblue'}} >
+        <fieldset style={{width:'1400px', border:'none'}}>
+          <legend style={{color:'darkblue'}}>Edit Applying for: Options</legend>
+          <form action="/addheader" method="post" >
+            <input type="submit" defaultValue="+" style={{backgroundColor:'darkgreen', color:'white'}} />
+            <Field type= "text" name="Name" placeholder="Name" width="15%" viewOnly={false} />
+            <Field type= "text" name="StreetAddress" placeholder="Street Address" width="25%" viewOnly={false} />
+            <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="25%" viewOnly={false} />
+            <Field type= "text" name="Title" placeholder="Title" width="25%" viewOnly={false} />
+          </form>
+          <form action="/delheader" method="post" >
+            <input type="submit" defaultValue="X" style={{backgroundColor:'darkred', color:'white'}} />
+            <Field type= "number" name="Row" placeholder="Row" width="5%" viewOnly={false} />
+          </form>
+        </fieldset>
+        <table style={{border:'1px solid black'}}>
+          <thead>
+            <tr> <Th text="Row" /> <Th text="Name" /> <Th text="Street Address" /> <Th text="City State Zip" /> <Th text="Title" /> </tr>
+          </thead>
+          <tbody> {
+            headers.map (
+              (h:any) =>
+              <tr key={h.Name}>
+                <Td text={headers.indexOf(h)} /> <Td text={h.Name} /> <Td text={h.StreetAddress} /> <Td text={h.CityStateZip} /> <Td text={h.Title} />
+              </tr>
+            )
+          } </tbody>
+        </table>
+      </body>
+    </>
+  )
+}
+
+export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID, header, headerNames, inTrash }:
   {message:string, color:string, viewOnly:boolean, inTrash:boolean
    icon:string, ap:{[key:string]:any}, foundFullNames:Array<string>
    apID:number, header:{[key:string]:any}, headerNames:Array<string>} ) {
@@ -112,9 +170,11 @@ function Label({forId, labelText}: {forId:string, labelText:string}) {
   )
 }
 
-function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, name: string, placeholder: string, width: string, ap: {[key:string]: any}, viewOnly: boolean }) {
+function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, name: string, placeholder: string, width: string, ap?: {[key:string]: any}, viewOnly: boolean }) {
+  const required = requiredFields.some((r:string) => r === name);
   return (
-    <input type={type} name={name} id={name.toLowerCase()} placeholder={placeholder} style={{width:width, marginBottom:2}} value={ap[name]} readOnly={viewOnly} onChange={function(){}} />
+    <input type={type} name={name} id={name.toLowerCase()} placeholder={placeholder} style={{width:width, marginBottom:2}}
+      value={ap ? ap[name] : ""} readOnly={viewOnly} onChange={function(){}} required={required} />
   )
 }
 
