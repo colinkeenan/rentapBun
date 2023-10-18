@@ -4,14 +4,18 @@ const requiredFields = ["FullName","headerName"]; // possibilities: FullName, SS
 const fieldsetStyle={display:'inline-block', width:'425px', border:'none'};
 //other styles defined inline or in functions that follow this Rentap function
 
-export function EditHeaders ({headers, icon, message}: {headers:{[key:string]:any}, icon:string, message:string}) {
+export function EditHeaders ({headers, icon, message, editOption}: {headers:{[key:string]:any}, icon:string, message:string, editOption?:string}) {
+  const headerNames = headers.map((header:any) => header.Name);
+  const encodedOptions = headerNames.map((name:any) => encodeURIComponent(name).replaceAll('%20','+'));
+  headerNames[0] = "Select Option to Edit"
+  const editRow = editOption ? encodedOptions.indexOf(editOption) : 0;
   return (
     <>
       <meta charSet="utf-8" />
-      <title>Rentap</title>
+      <title>Rentap Options</title>
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
       <header>
-        <img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" />
+        <a href='/'><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" /></a>
         <div style={{display:'inline-block', fontWeight:'bold', color:'blue'}}> {message} </div>
       </header>
       <body style={{backgroundColor:'lightskyblue'}} >
@@ -25,19 +29,25 @@ export function EditHeaders ({headers, icon, message}: {headers:{[key:string]:an
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend style={{color:'darkblue'}}>Edit Option</legend>
-          <form action="/editheader" method="post" >
+          <form action="/editheader" method="post">
+            <select name="select" id="select" style={{width:'60%'}}  value={headerNames[editRow]} onChange={function(){}} >
+              {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
+            </select>
             <input type="submit" defaultValue="Edit" style={{backgroundColor:'darkgreen', color:'white'}} />
-            <Field type= "text" name="Name" placeholder="Name" width="50%" viewOnly={false} />
-            <Field type= "text" name="StreetAddress" placeholder="Street Address" width="75%" viewOnly={false} />
-            <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="75%" viewOnly={false} />
-            <Field type= "text" name="Title" placeholder="Title" width="75%" viewOnly={false} />
+          </form>
+          <form action="/saveheader" method="post" encType="multipart/form-data" >
+            <input type="submit" defaultValue="Save" style={{backgroundColor:'darkgreen', color:'white'}} />
+            <Field type= "text" name="Name" placeholder="" width="50%" ap={headers[editRow]} viewOnly={true} />
+            <Field type= "text" name="StreetAddress" placeholder="Street Address" width="75%" ap={headers[editRow]} viewOnly={false} />
+            <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="75%" ap={headers[editRow]} viewOnly={false} />
+            <Field type= "text" name="Title" placeholder="Title" width="75%" ap={headers[editRow]} viewOnly={false} />
           </form>
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend style={{color:'darkgreen'}}>Add Option</legend>
           <form action="/addheader" method="post" >
             <input type="submit" defaultValue="+" style={{backgroundColor:'darkgreen', color:'white'}} />
-            <Field type= "text" name="Name" placeholder="Name" width="50%" viewOnly={false} />
+            <Field type= "text" name="Name" placeholder="Unique Option Name" width="50%" viewOnly={false} />
             <Field type= "text" name="StreetAddress" placeholder="Street Address" width="75%" viewOnly={false} />
             <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="75%" viewOnly={false} />
             <Field type= "text" name="Title" placeholder="Title" width="75%" viewOnly={false} />
@@ -45,7 +55,7 @@ export function EditHeaders ({headers, icon, message}: {headers:{[key:string]:an
         </fieldset>
         <table style={{border:'1px solid black'}}>
           <thead>
-            <tr> <Th text="Row" /> <Th text="Name" /> <Th text="Street Address" /> <Th text="City State Zip" /> <Th text="Title" /> </tr>
+            <tr> <Th text="Row" /> <Th text="Unique Option Name" /> <Th text="Street Address" /> <Th text="City State Zip" /> <Th text="Title" /> </tr>
           </thead>
           <tbody> {
             headers.map (
@@ -71,7 +81,7 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
   return (
     <>
       <meta charSet="utf-8" />
-      <title>Rental Application</title>
+      <title>Rentap</title>
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
       <header>
         <br/> <img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" />
@@ -139,7 +149,7 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
           <legend style={{color:'darkgreen'}}>Situation</legend>
           <Label forId="headername" labelText="Applying for:" />
             <select name="headerName" id="headername" style={{width:'76%', marginLeft:'8', marginBottom:'2'}}  value={header.Name ? header.Name : headerNames[0]} onChange={function(){}} >
-              {headerNames.map( (name) => <option value={name} key={name}>{name}</option> )}
+              {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
             </select>
           <TextArea rows={5}  name="ProposedOccupants" placeholder="Proposed Occupants: self+age, other+age" ap={ap} viewOnly={viewOnly} />
           <TextArea rows={3}  name="ProposedPets"      placeholder="Proposed Pets, names, types, ages, weights" ap={ap} viewOnly={viewOnly} />
@@ -173,14 +183,17 @@ function Label({forId, labelText}: {forId:string, labelText:string}) {
 function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, name: string, placeholder: string, width: string, ap?: {[key:string]: any}, viewOnly: boolean }) {
   const required = requiredFields.some((r:string) => r === name);
   return (
-    <input type={type} name={name} id={name.toLowerCase()} placeholder={placeholder} style={{width:width, marginBottom:2}}
+    <input type={type} name={name} id={name.toLowerCase()} placeholder={placeholder}
+      style={{width:width, marginBottom:2, backgroundColor:viewOnly?'#8c7d76':'white', color:viewOnly?'white':'black'}}
       value={ap ? ap[name] : ""} readOnly={viewOnly} onChange={function(){}} required={required} />
   )
 }
 
 function TextArea({rows, name, placeholder, ap, viewOnly}: { rows:number, name:string, placeholder:string, ap: {[key:string]: any}, viewOnly: boolean }) {
   return (
-    <textarea rows={rows} name={name} placeholder={placeholder} style={{width:'100%', marginBottom:2}} defaultValue={ap[name]} readOnly={viewOnly} onChange={function(){}} />
+    <textarea rows={rows} name={name} placeholder={placeholder}
+      style={{width:'100%', marginBottom:2, backgroundColor:viewOnly?'#8c7d76':'white', color:viewOnly?'white':'black'}}
+      defaultValue={ap[name]} readOnly={viewOnly} onChange={function(){}} />
   )
 }
 

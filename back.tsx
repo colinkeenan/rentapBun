@@ -252,6 +252,16 @@ const server = Bun.serve({
       });
     }
 
+    // show 'Applying for:' Options. Got here from /editheaders link (button named Edit 'Applying for:' Options)
+    if (url.pathname === "/editheaders") {
+      const stream =
+        await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={"Rentap"}/>);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    // delete the row given if it's not in use and a valid index of headers
     if (url.pathname === "/delheader") {
       const delText = await req.text();
       const delIndex = delText.slice(4);
@@ -274,9 +284,41 @@ const server = Bun.serve({
       });
     }
 
-    if (url.pathname === "/editheaders") {
+    // edit the header selected (populate the saveheader form to allow editing before saving)
+    if (url.pathname === "/editheader") {
+      const selectSubmit = await req.text();
+      const selOption = selectSubmit.slice(7); // remove "select="
+      const stream =
+        await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={"Rentap"} editOption={selOption}/>);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    // save the edited header
+    if (url.pathname === "/saveheader") {
+      const formData = await req.formData();
+      const headerSave = Object.fromEntries(formData.entries());
+      const headerRow = headerNames.indexOf(headerSave.Name);
+      headers[headerRow] = headerSave;
+      saveAll();
       const stream =
         await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={"Rentap"}/>);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    // add a new header
+    if (url.pathname === "/addheader") {
+      let m = "Option Added";
+      const formData = await req.formData();
+      const headerSave = Object.fromEntries(formData.entries());
+      const headerRow = headerNames.indexOf(headerSave.Name);
+      if (headers.some((h:any) => h.Name === headerSave.Name)) m="Choose a unique name for the new option.";
+      else {headers.push(headerSave); saveAll();}
+      const stream =
+        await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={m}/>);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -327,9 +369,11 @@ function matchHeader(name:string) {
 }
 
 function matchFullName(fullName:string) {
+  const encodedFullNames = aps.map((ap:any) => encodeURI(ap.FullName).replaceAll('%20','+'));
   const matchingApID =
-    fullName.includes(' ') ? aps.map((ap:any) => ap.FullName).indexOf(fullName)
-    : aps.map((ap:any) => ap.FullName.replaceAll(' ', '+')).indexOf(fullName); //fullName from <select...> has spaces replaced by +
+    fullName.includes(' ')
+    ? aps.map((ap:any) => ap.FullName).indexOf(fullName)
+    : encodedFullNames.indexOf(fullName); //fullName from <select...> is encoded for valid URI, replacing spaces with +
   return matchingApID > 0 ? matchingApID : 0;
 }
 
