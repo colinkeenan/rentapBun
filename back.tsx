@@ -34,7 +34,7 @@ const server = Bun.serve({
       populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="New" color="red" viewOnly={false} inTrash={inTrash}
+        message="New" color="darkred" viewOnly={false} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -43,12 +43,13 @@ const server = Bun.serve({
     }
 
     // render rentap.tsx with current ap for edit path (got here through Edit link)
-    if (url.pathname === "/edit") {
+    if (url.pathname === "/edit" || url.pathname === "/view") {
+      const viewOnly = url.pathname==="/view";
       const headerID = matchHeader(aps[apID].headerName);
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="Edit" color="red" viewOnly={false} inTrash={inTrash}
+        message="Edit" color="darkred" viewOnly={viewOnly} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -67,7 +68,7 @@ const server = Bun.serve({
       }
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} color="red" viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color="darkred" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -77,20 +78,13 @@ const server = Bun.serve({
 
     // render rentap.tsx with prev ap for prev path (got here through Prev link)
     if (url.pathname === "/prev") {
-      apID>0? apID-- : apID = aps.length-1;
-      //check if apID was deleted or discarded and skip it unless we're in trash then skip it if not discarded
-      if (inTrash)
-        while (deleted.some((e:any) => e.deletedRow === apID) || !trash.some((e:any) => e.discardedRow === apID))
-          apID>0? apID-- : apID = aps.length-1;
-      else
-        while (deleted.some((e:any) => e.deletedRow === apID) || trash.some((e:any) => e.discardedRow === apID))
-          apID>0? apID-- : apID = aps.length-1;
+      gotoPrevID();
 
       const headerID = matchHeader(aps[apID].headerName);
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} color="red" viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color="darkred" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -105,7 +99,7 @@ const server = Bun.serve({
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} color="red" viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color="darkred" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -135,7 +129,7 @@ const server = Bun.serve({
       const headerID = matchHeader(aps[apID].headerName);
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} color="red" viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color="darkred" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -152,7 +146,7 @@ const server = Bun.serve({
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} color="red" viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color="darkred" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -167,7 +161,7 @@ const server = Bun.serve({
       populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={trashMessage} color="red" viewOnly={true} inTrash={inTrash}
+        message={trashMessage} color="darkred" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -177,12 +171,12 @@ const server = Bun.serve({
 
     if (url.pathname === "/exittrash") {
       inTrash = false;
-      gotoNextID();
+      gotoPrevID();
       const headerID = matchHeader(aps[apID].headerName);
       populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="View" color="red" viewOnly={true} inTrash={inTrash}
+        message="View" color="darkred" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -201,7 +195,7 @@ const server = Bun.serve({
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={trashMessage} color="red" viewOnly={true} inTrash={inTrash}
+        message={trashMessage} color="darkred" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -221,7 +215,7 @@ const server = Bun.serve({
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="Edit" color="red" viewOnly={false} inTrash={inTrash}
+        message="Edit" color="darkred" viewOnly={false} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -244,7 +238,7 @@ const server = Bun.serve({
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={trashMessage} color="red" viewOnly={true} inTrash={inTrash}
+        message={trashMessage} color="darkred" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -337,7 +331,7 @@ const server = Bun.serve({
         saveAll();
       }
       const message = apSaveIsNew || apSaveIsEdited ? "Saved" : "Nothing to save";
-      const color = "red";
+      const color = "darkred";
       const headerID = matchHeader(aps[apID].headerName);
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
@@ -392,7 +386,7 @@ function apIsNew(obj:{[key:string]:any}) {
     if (key==='headerName' && obj[key]!=headerNames[0])
       return true;
   }
-  return false; // even though on a new ap, there was nothing entered
+  return false; // even though on a new ap, there was nothing entedarkred
 }
 
 function apIsEdited(obj:{[key:string]:any}) {
@@ -403,6 +397,17 @@ function apIsEdited(obj:{[key:string]:any}) {
       return true; // there's something to save
   }
   return false; // even though on an existing ap, nothing was changed
+}
+
+function gotoPrevID() {
+    apID>0? apID-- : apID = aps.length-1;
+    //check if apID was deleted or discarded and skip it unless we're in trash then skip it if not discarded
+    if (inTrash)
+      while (deleted.some((e:any) => e.deletedRow === apID) || !trash.some((e:any) => e.discardedRow === apID))
+        apID>0? apID-- : apID = aps.length-1;
+    else
+      while (deleted.some((e:any) => e.deletedRow === apID) || trash.some((e:any) => e.discardedRow === apID))
+        apID>0? apID-- : apID = aps.length-1;
 }
 
 function gotoNextID() {

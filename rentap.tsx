@@ -17,7 +17,7 @@ export function EditHeaders ({headers, icon, message, editOption}: {headers:{[ke
       <title>Rentap Options</title>
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
       <header>
-        <a href='/'><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" /></a>
+        <a href='/view'><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" /></a>
         <div style={{display:'inline-block', fontWeight:'bold', color:'blue'}}> {message} </div>
       </header>
       <body style={{backgroundColor:'lightskyblue'}} >
@@ -87,11 +87,11 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
       <title>Rentap</title>
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
       <header>
-        <br/> <img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" />
+        <img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" />
         <div style={{display:'inline-block', fontWeight:'bold', color:color}}>{message}</div>
-        <br/>
+        <br/><br/>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkblue'}}>Applying for:</legend>
+          <legend style={{color:'darkblue', fontWeight:'bold'}}>Applying for:</legend>
           <h3 style={{margin:'0'}}>{header.Title ? header.Title : "Title"}</h3>
           {header.StreetAddress ? header.StreetAddress : "Street Address"}
           <br/> {header.CityStateZip ? header.CityStateZip : "City, ST Zip"}
@@ -108,7 +108,7 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
           </div>
           <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
             <a href="/"     ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >New</button></a>
-            <a href={inTrash ? "delete" : "/editheaders"} ><button type="button" style={{backgroundColor:inTrash ? 'red' : rGray, color:'white'}} >
+            <a href={inTrash ? "delete" : "/editheaders"} ><button type="button" style={{backgroundColor:inTrash ? 'darkred' : rGray, color:'white'}} >
               {inTrash ? "Delete (This is Permanent)" : "Edit 'Applying for:' Options"}</button></a>
           </div>
         </fieldset>
