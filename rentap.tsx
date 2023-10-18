@@ -1,3 +1,4 @@
+const rGray = '#8A939E';
 const requiredFields = ["FullName","headerName"]; // possibilities: FullName, SSN, BirthDate, Email, StateID, Phone1, Phone2, dateApplied, dateGuested, dateRented
 //each fieldset acts like a column
 //set all columns next to each other if possible
@@ -53,7 +54,7 @@ export function EditHeaders ({headers, icon, message, editOption}: {headers:{[ke
             <Field type= "text" name="Title" placeholder="Title" width="75%" viewOnly={false} />
           </form>
         </fieldset>
-        <table style={{border:'1px solid black'}}>
+        <table style={{border:'1px solid black', backgroundColor:'white'}}>
           <thead>
             <tr> <Th text="Row" /> <Th text="Unique Option Name" /> <Th text="Street Address" /> <Th text="City State Zip" /> <Th text="Title" /> </tr>
           </thead>
@@ -76,7 +77,9 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
    icon:string, ap:{[key:string]:any}, foundFullNames:Array<string>
    apID:number, header:{[key:string]:any}, headerNames:Array<string>} ) {
 
-  const sort = foundFullNames[0].substring(0,4) === "Sort";
+  // when toggling Sort/Unsort button, check whether or not "Sorted:" was inserted at top of list
+  const sorted = foundFullNames[0].substring(0,7) === "Sorted:";
+  const dirt = '#8c7a76';
 
   return (
     <>
@@ -88,40 +91,40 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
         <div style={{display:'inline-block', fontWeight:'bold', color:color}}>{message}</div>
         <br/>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkgreen'}}>Applying for:</legend>
+          <legend style={{color:rGray}}>Applying for:</legend>
           <h3 style={{margin:'0'}}>{header.Title ? header.Title : "Title"}</h3>
           {header.StreetAddress ? header.StreetAddress : "Street Address"}
           <br/> {header.CityStateZip ? header.CityStateZip : "City, ST Zip"}
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'#a87a23'}}>Actions</legend>
+          <legend style={{color:rGray}}>Actions</legend>
           <div style={{width:'100%', marginBottom:'5px', display:'flex', justifyContent:'space-between'}}>
             <div>
-              <a href={inTrash ? "/restore" : "/discard"} ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >{inTrash ? "Restore" : "Discard"}</button></a>
+              <a href={inTrash ? "/restore" : "/discard"} ><button type="button" style={{backgroundColor:rGray, color:'white' }} >{inTrash ? "Restore" : "Discard"}</button></a>
               <div style={{backgroundColor:'gray', color:'white', textAlign:'center', display:'inline-block'}}>{'||'}</div>
-              <a href={inTrash ? "/exittrash" : "/trash"} ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >{inTrash ? "Exit Trash" : "View Discarded"}</button></a>
+              <a href={inTrash ? "/exittrash" : "/trash"} ><button type="button" style={{backgroundColor:rGray, color:'white' }} >{inTrash ? "Exit Trash" : "View Discarded"}</button></a>
             </div>
             <a href="/"     ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >New</button></a>
           </div>
           <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
-            <a href={inTrash ? "delete" : "/editheaders"} ><button type="button" style={{backgroundColor:inTrash ? 'red' : '#a87a23', color:'white'}} >
+            <a href={inTrash ? "delete" : "/editheaders"} ><button type="button" style={{backgroundColor:inTrash ? 'red' : rGray, color:'white'}} >
               {inTrash ? "Delete (This is Permanent)" : "Edit 'Applying for:' Options"}</button></a>
             <a href="/edit" ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >Edit</button></a>
           </div>
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'#a87a23'}}>Navigation</legend>
+          <legend style={{color:rGray}}>Navigation</legend>
           <form action="/search" method="post"  style={{display:'flex', justifyContent:'space-between', margin:'0', marginBottom:'5'}} >
             <div>
-              <a href="/prev" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >&lt;</button></a>
-              <div style={{backgroundColor:'gray', color:'white', textAlign:'center', display:'inline-block', width:'80px' }}>{apID}</div>
-              <a href="/next" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >&gt;</button></a>
+              <a href="/prev" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >&lt;</button></a>
+              <div style={{backgroundColor:dirt, color:'white', textAlign:'center', display:'inline-block', width:'80px' }}>{apID}</div>
+              <a href="/next" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >&gt;</button></a>
             </div>
             <input type="text" name="search" id="search" placeholder="search" style={{width:'65%'}} />
           </form>
           <form action="/select" method="post" style={{margin:'0'}}>
             <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
-              <a href="/sort" ><button type="button" style={{backgroundColor:'#a87a23', color:'white' }} >{sort ? "Unsort" : "Sort"}</button></a>
+              <a href="/sort" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >{sorted ? "Unsort" : "Sort"}</button></a>
               <select name="select" id="select" value={ap.FullName ? ap.FullName : foundFullNames[0]} style={{width:'58%'}} onChange={function(){}} >
                 {foundFullNames.map( (name:any) => <option value={name} key={name}>{name}</option> )}
               </select>
@@ -133,7 +136,7 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
       <body style={{backgroundColor:'lightskyblue'}} >
       <form action="/save" method="post" encType="multipart/form-data" >
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkgreen'}}>Identity</legend>
+          <legend style={{color:rGray}}>Identity</legend>
           <Label forId="fullname"  labelText="Full Name" />     <Field type="text"  name="FullName"      placeholder="First Middle Last" width='76%' ap={ap} viewOnly={viewOnly} />
           <Label forId="ssn"  labelText="Social Security" />    <Field type="text"  name="SSN"           placeholder="555-55-5555" width='76%' ap={ap} viewOnly={viewOnly} />
           <Label forId="birthdate" labelText="Birth Date" />    <Field type="date"  name="BirthDate"     placeholder="" width='38%' ap={ap} viewOnly={viewOnly} />
@@ -146,9 +149,10 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
           <TextArea rows={16} name="PriorAddresses"    placeholder="Prior Addresses, Cities, States, Zips, Dates, Rents, Landlords" ap={ap} viewOnly={viewOnly} />
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkgreen'}}>Situation</legend>
+          <legend style={{color:rGray}}>Situation</legend>
           <Label forId="headername" labelText="Applying for:" />
-            <select name="headerName" id="headername" style={{width:'76%', marginLeft:'8', marginBottom:'2'}}
+            <select name="headerName" id="headername"
+              style={{width:'76%', marginLeft:'8', marginBottom:'2', backgroundColor:viewOnly?dirt:'white', color:viewOnly?'white':'black' }}
               value={header.Name ? header.Name : headerNames[0]} onChange={function(){}} disabled={viewOnly} >
               {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
             </select>
@@ -158,7 +162,7 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
           <TextArea rows={14} name="Employment"        placeholder="Employment: address, job/position, dates, hours, supervisor name and phone number" ap={ap} viewOnly={viewOnly} />
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkgreen'}}>Criminal &amp; Civil Record | Notes</legend>
+          <legend style={{color:rGray}}>Criminal &amp; Civil Record | Notes</legend>
           <TextArea rows={15} name="Evictions"         placeholder="Evictions Past 10 Years, or other notes" ap={ap} viewOnly={viewOnly} />
           <TextArea rows={15} name="Felonies"          placeholder="Felonies/Drug Convictions, or other notes" ap={ap} viewOnly={viewOnly} />
         </fieldset>
@@ -185,7 +189,7 @@ function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, n
   const required = requiredFields.some((r:string) => r === name);
   return (
     <input type={type} name={name} id={name.toLowerCase()} placeholder={placeholder}
-      style={{width:width, marginBottom:2, backgroundColor:viewOnly?'#8c7d76':'white', color:viewOnly?'white':'black'}}
+      style={{width:width, marginBottom:2, backgroundColor:viewOnly?rGray:'white', color:viewOnly?'white':'black'}}
       value={ap ? ap[name] : ""} readOnly={viewOnly} onChange={function(){}} required={required} />
   )
 }
@@ -193,12 +197,12 @@ function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, n
 function TextArea({rows, name, placeholder, ap, viewOnly}: { rows:number, name:string, placeholder:string, ap: {[key:string]: any}, viewOnly: boolean }) {
   return (
     <textarea rows={rows} name={name} placeholder={placeholder}
-      style={{width:'100%', marginBottom:2, backgroundColor:viewOnly?'#8c7d76':'white', color:viewOnly?'white':'black'}}
+      style={{width:'100%', marginBottom:2, backgroundColor:viewOnly?rGray:'white', color:viewOnly?'white':'black'}}
       defaultValue={ap[name]} readOnly={viewOnly} onChange={function(){}} />
   )
 }
 
-const cellStyle={backgroundColor:'white', paddingLeft:'10', paddingRight:'10'}
+const cellStyle={backgroundColor:rGray, color:'white', paddingLeft:'10', paddingRight:'10'}
 
 function Td({text}:{text:string}) {
   return (
@@ -208,7 +212,7 @@ function Td({text}:{text:string}) {
 
 function TdR({text}:{text:string}) {
   return (
-    <td style={{backgroundColor:'white', paddingLeft:'10', paddingRight:'10', textAlign:'right'}}>{text}</td>
+    <td style={{backgroundColor:rGray, color:'white', paddingLeft:'10', paddingRight:'10', textAlign:'right'}}>{text}</td>
   )
 }
 
