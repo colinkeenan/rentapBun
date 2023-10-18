@@ -30,7 +30,7 @@ export function EditHeaders ({headers, icon, message, editOption}: {headers:{[ke
         <fieldset style={fieldsetStyle}>
           <legend style={{color:'darkblue'}}>Edit Option</legend>
           <form action="/editheader" method="post">
-            <select name="select" id="select" style={{width:'60%'}}  value={headerNames[editRow]} onChange={function(){}} >
+            <select name="select" id="select" style={{width:'60%'}}  value={headerNames[editRow]} onChange={function(){} } >
               {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
             </select>
             <input type="submit" defaultValue="Edit" style={{backgroundColor:'darkgreen', color:'white'}} />
@@ -148,7 +148,8 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
         <fieldset style={fieldsetStyle}>
           <legend style={{color:'darkgreen'}}>Situation</legend>
           <Label forId="headername" labelText="Applying for:" />
-            <select name="headerName" id="headername" style={{width:'76%', marginLeft:'8', marginBottom:'2'}}  value={header.Name ? header.Name : headerNames[0]} onChange={function(){}} >
+            <select name="headerName" id="headername" style={{width:'76%', marginLeft:'8', marginBottom:'2'}}
+              value={header.Name ? header.Name : headerNames[0]} onChange={function(){}} disabled={viewOnly} >
               {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
             </select>
           <TextArea rows={5}  name="ProposedOccupants" placeholder="Proposed Occupants: self+age, other+age" ap={ap} viewOnly={viewOnly} />
