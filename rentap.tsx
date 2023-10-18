@@ -1,4 +1,5 @@
 const rGray = '#8A939E';
+const rDisabled = '#BCE1F8'
 const requiredFields = ["FullName","headerName"]; // possibilities: FullName, SSN, BirthDate, Email, StateID, Phone1, Phone2, dateApplied, dateGuested, dateRented
 //each fieldset acts like a column
 //set all columns next to each other if possible
@@ -34,10 +35,10 @@ export function EditHeaders ({headers, icon, message, editOption}: {headers:{[ke
             <select name="select" id="select" style={{width:'60%'}}  value={headerNames[editRow]} onChange={function(){} } >
               {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
             </select>
-            <input type="submit" defaultValue="Edit" style={{backgroundColor:'darkgreen', color:'white'}} />
+            <input type="submit" defaultValue="Edit" style={{backgroundColor:'darkblue', color:'white'}} />
           </form>
           <form action="/saveheader" method="post" encType="multipart/form-data" >
-            <input type="submit" defaultValue="Save" style={{backgroundColor:'darkgreen', color:'white'}} />
+            <input type="submit" defaultValue="Save" style={{backgroundColor:'darkblue', color:'white'}} />
             <Field type= "text" name="Name" placeholder="" width="50%" ap={headers[editRow]} viewOnly={true} />
             <Field type= "text" name="StreetAddress" placeholder="Street Address" width="75%" ap={headers[editRow]} viewOnly={false} />
             <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="75%" ap={headers[editRow]} viewOnly={false} />
@@ -45,16 +46,16 @@ export function EditHeaders ({headers, icon, message, editOption}: {headers:{[ke
           </form>
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkgreen'}}>Add Option</legend>
+          <legend style={{color:'darkblue'}}>Add Option</legend>
           <form action="/addheader" method="post" >
-            <input type="submit" defaultValue="+" style={{backgroundColor:'darkgreen', color:'white'}} />
+            <input type="submit" defaultValue="+" style={{backgroundColor:'darkblue', color:'white'}} />
             <Field type= "text" name="Name" placeholder="Unique Option Name" width="50%" viewOnly={false} />
             <Field type= "text" name="StreetAddress" placeholder="Street Address" width="75%" viewOnly={false} />
             <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="75%" viewOnly={false} />
             <Field type= "text" name="Title" placeholder="Title" width="75%" viewOnly={false} />
           </form>
         </fieldset>
-        <table style={{border:'1px solid black', backgroundColor:'white'}}>
+        <table style={{backgroundColor:'black'}}>
           <thead>
             <tr> <Th text="Row" /> <Th text="Unique Option Name" /> <Th text="Street Address" /> <Th text="City State Zip" /> <Th text="Title" /> </tr>
           </thead>
@@ -79,7 +80,6 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
 
   // when toggling Sort/Unsort button, check whether or not "Sorted:" was inserted at top of list
   const sorted = foundFullNames[0].substring(0,7) === "Sorted:";
-  const dirt = '#8c7a76';
 
   return (
     <>
@@ -91,7 +91,7 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
         <div style={{display:'inline-block', fontWeight:'bold', color:color}}>{message}</div>
         <br/>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:rGray}}>Applying for:</legend>
+          <legend style={{color:'darkblue'}}>Applying for:</legend>
           <h3 style={{margin:'0'}}>{header.Title ? header.Title : "Title"}</h3>
           {header.StreetAddress ? header.StreetAddress : "Street Address"}
           <br/> {header.CityStateZip ? header.CityStateZip : "City, ST Zip"}
@@ -99,17 +99,17 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
         <fieldset style={fieldsetStyle}>
           <legend style={{color:rGray}}>Actions</legend>
           <div style={{width:'100%', marginBottom:'5px', display:'flex', justifyContent:'space-between'}}>
+            <a href="/edit" ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >Edit</button></a>
             <div>
               <a href={inTrash ? "/restore" : "/discard"} ><button type="button" style={{backgroundColor:rGray, color:'white' }} >{inTrash ? "Restore" : "Discard"}</button></a>
               <div style={{backgroundColor:'gray', color:'white', textAlign:'center', display:'inline-block'}}>{'||'}</div>
               <a href={inTrash ? "/exittrash" : "/trash"} ><button type="button" style={{backgroundColor:rGray, color:'white' }} >{inTrash ? "Exit Trash" : "View Discarded"}</button></a>
             </div>
-            <a href="/"     ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >New</button></a>
           </div>
           <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
+            <a href="/"     ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >New</button></a>
             <a href={inTrash ? "delete" : "/editheaders"} ><button type="button" style={{backgroundColor:inTrash ? 'red' : rGray, color:'white'}} >
               {inTrash ? "Delete (This is Permanent)" : "Edit 'Applying for:' Options"}</button></a>
-            <a href="/edit" ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >Edit</button></a>
           </div>
         </fieldset>
         <fieldset style={fieldsetStyle}>
@@ -117,7 +117,7 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
           <form action="/search" method="post"  style={{display:'flex', justifyContent:'space-between', margin:'0', marginBottom:'5'}} >
             <div>
               <a href="/prev" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >&lt;</button></a>
-              <div style={{backgroundColor:dirt, color:'white', textAlign:'center', display:'inline-block', width:'80px' }}>{apID}</div>
+              <div style={{backgroundColor:rDisabled, textAlign:'center', display:'inline-block', width:'80px' }}>{apID}</div>
               <a href="/next" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >&gt;</button></a>
             </div>
             <input type="text" name="search" id="search" placeholder="search" style={{width:'65%'}} />
@@ -128,7 +128,7 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
               <select name="select" id="select" value={ap.FullName ? ap.FullName : foundFullNames[0]} style={{width:'58%'}} onChange={function(){}} >
                 {foundFullNames.map( (name:any) => <option value={name} key={name}>{name}</option> )}
               </select>
-              <input type="submit" defaultValue="Display" style={{backgroundColor:'darkgreen', color:'white'}} />
+              <input type="submit" defaultValue="Display" style={{backgroundColor:'darkblue', color:'white'}} />
             </div>
           </form>
         </fieldset>
@@ -152,7 +152,7 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
           <legend style={{color:rGray}}>Situation</legend>
           <Label forId="headername" labelText="Applying for:" />
             <select name="headerName" id="headername"
-              style={{width:'76%', marginLeft:'8', marginBottom:'2', backgroundColor:viewOnly?dirt:'white', color:viewOnly?'white':'black' }}
+              style={{width:'76%', marginLeft:'8', marginBottom:'2',  }}
               value={header.Name ? header.Name : headerNames[0]} onChange={function(){}} disabled={viewOnly} >
               {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
             </select>
@@ -170,7 +170,7 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
         <Label forId="dateapplied" labelText="Date Applied"/> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         <Label forId="dateguested" labelText="Date Guested"/> <Field type="date" name="dateGuested" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         <Label forId="daterented" labelText="Date Rented"  /> <Field type="date" name="dateRented"  placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
-        {viewOnly ? "" : <input type="submit" defaultValue="Save" style={{backgroundColor:'darkgreen', color:'white', marginLeft:'15px'}} />}
+        {viewOnly ? "" : <input type="submit" defaultValue="Save" style={{backgroundColor:'darkblue', color:'white', marginLeft:'15px'}} />}
       </form>
       </body>
     </>
@@ -189,7 +189,7 @@ function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, n
   const required = requiredFields.some((r:string) => r === name);
   return (
     <input type={type} name={name} id={name.toLowerCase()} placeholder={placeholder}
-      style={{width:width, marginBottom:2, backgroundColor:viewOnly?rGray:'white', color:viewOnly?'white':'black'}}
+      style={{width:width, marginBottom:2, backgroundColor:viewOnly?rDisabled:'white'}}
       value={ap ? ap[name] : ""} readOnly={viewOnly} onChange={function(){}} required={required} />
   )
 }
@@ -197,12 +197,12 @@ function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, n
 function TextArea({rows, name, placeholder, ap, viewOnly}: { rows:number, name:string, placeholder:string, ap: {[key:string]: any}, viewOnly: boolean }) {
   return (
     <textarea rows={rows} name={name} placeholder={placeholder}
-      style={{width:'100%', marginBottom:2, backgroundColor:viewOnly?rGray:'white', color:viewOnly?'white':'black'}}
+      style={{width:'100%', marginBottom:2, backgroundColor:viewOnly?rDisabled:'white'}}
       defaultValue={ap[name]} readOnly={viewOnly} onChange={function(){}} />
   )
 }
 
-const cellStyle={backgroundColor:rGray, color:'white', paddingLeft:'10', paddingRight:'10'}
+const cellStyle={backgroundColor:rDisabled, paddingLeft:'10', paddingRight:'10'}
 
 function Td({text}:{text:string}) {
   return (
@@ -212,7 +212,7 @@ function Td({text}:{text:string}) {
 
 function TdR({text}:{text:string}) {
   return (
-    <td style={{backgroundColor:rGray, color:'white', paddingLeft:'10', paddingRight:'10', textAlign:'right'}}>{text}</td>
+    <td style={{backgroundColor:rDisabled, paddingLeft:'10', paddingRight:'10', textAlign:'right'}}>{text}</td>
   )
 }
 

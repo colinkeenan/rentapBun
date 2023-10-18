@@ -67,7 +67,7 @@ const server = Bun.serve({
       }
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Green"} viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Blue"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -90,7 +90,7 @@ const server = Bun.serve({
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Green"} viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Blue"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -105,7 +105,7 @@ const server = Bun.serve({
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Green"} viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Blue"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -135,7 +135,7 @@ const server = Bun.serve({
       const headerID = matchHeader(aps[apID].headerName);
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Green"} viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Blue"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -152,7 +152,7 @@ const server = Bun.serve({
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Green"} viewOnly={true} inTrash={inTrash}
+        message={inTrash ? trashMessage : "View"} color={inTrash ? "Red" : "Blue"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -182,7 +182,7 @@ const server = Bun.serve({
       populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="View" color="green" viewOnly={true} inTrash={inTrash}
+        message="View" color="blue" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -337,7 +337,7 @@ const server = Bun.serve({
         saveAll();
       }
       const message = apSaveIsNew || apSaveIsEdited ? "Saved" : "Nothing to save";
-      const color = apSaveIsNew || apSaveIsEdited ? "green" : "red";
+      const color = apSaveIsNew || apSaveIsEdited ? "blue" : "red";
       const headerID = matchHeader(aps[apID].headerName);
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
