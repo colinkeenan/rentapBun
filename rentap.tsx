@@ -1,6 +1,6 @@
 const rGray = '#8A939E';
 const rDisabled = '#BCE1F8'
-const requiredFields = ["FullName","headerName"]; // possibilities: FullName, SSN, BirthDate, Email, StateID, Phone1, Phone2, dateApplied, dateGuested, dateRented
+const requiredFields = ["FullName", "dateApplied"]; // possibilities: FullName, SSN, BirthDate, Email, StateID, Phone1, Phone2, dateApplied, dateStart, dateStop
 //each fieldset acts like a column
 //set all columns next to each other if possible
 const fieldsetStyle={display:'inline-block', width:'425px', border:'none'};
@@ -153,7 +153,7 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
           <Label forId="headername" labelText="Applying for:" />
             <select name="headerName" id="headername"
               style={{width:'76%', marginLeft:'8', marginBottom:'2',  }}
-              value={header.Name ? header.Name : headerNames[0]} onChange={function(){}} disabled={viewOnly} >
+              value={header.Name} onChange={function(){}} disabled={viewOnly} required>
               {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
             </select>
           <TextArea rows={5}  name="ProposedOccupants" placeholder="Proposed Occupants: self+age, other+age" ap={ap} viewOnly={viewOnly} />
@@ -167,9 +167,12 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
           <TextArea rows={15} name="Felonies"          placeholder="Felonies/Drug Convictions, or other notes" ap={ap} viewOnly={viewOnly} />
         </fieldset>
         <br />
-        <Label forId="dateapplied" labelText="Date Applied"/> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
-        <Label forId="dateguested" labelText="Date Guested"/> <Field type="date" name="dateGuested" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
-        <Label forId="daterented" labelText="Date Rented"  /> <Field type="date" name="dateRented"  placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
+        <fieldset style={fieldsetStyle}>
+          <legend style={{color:rGray}}>Agreement Dates</legend>
+          <Label forId="datestart" labelText="Start | Stop"/> <Field type="date" name="dateStart" placeholder="" width='38%' ap={ap} viewOnly={viewOnly} />
+                                                              <Field type="date" name="dateStop"  placeholder="" width='38%' ap={ap} viewOnly={viewOnly} />
+        </fieldset>
+        <Label forId="dateapplied" labelText="Applied"/> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         {viewOnly ? "" : <input type="submit" defaultValue="Save" style={{backgroundColor:'darkblue', color:'white', marginLeft:'15px'}} />}
       </form>
       </body>

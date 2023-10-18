@@ -8,18 +8,25 @@ const deletedfile = Bun.file("store-tables/deleted.json");
 const olddeleted = deletedfile.size ? await deletedfile.text() : "";
 
 //put blank ap at aps[0]
-const ap = {"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateGuested":"","dateRented":"","headerName":""};
+const ap = {"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateStart":"","dateEnd":"","headerName":""};
 const aps = tbl ? JSON.parse(tbl) : [ap];
 
 if (tbl) {
   aps.unshift(ap); //put blank ap at aps[0];
 
+  //save old information stored in date fields at start of Evictions
+  for (const a of aps)
+    if (aps.indexOf(a))
+      a.Evictions = "Imported Information from rentap.js Date Fields: \n".concat("Date Applied: ",a.dateApplied,"\nDate Guested: ",a.dateGuested,"\nDate Rented: ",a.dateRented,"\n\n",a.Evictions)
+
   //fix dates to be in format "YYYY-MM-DD" or ""
   for (const ap of aps) {
     ap.BirthDate = fixDatetxt(ap.BirthDate);
     ap.dateApplied = fixDatetxt(ap.dateApplied);
-    ap.dateGuested = fixDatetxt(ap.dateGuested);
-    ap.dateRented = fixDatetxt(ap.dateRented);
+    //not using dateGuested anymore
+    // ap.dateGuested = fixDatetxt(ap.dateGuested);
+    //using dateStart instead of dateRented, and adding dateStop that can't be read automatically
+    ap.dateStart = fixDatetxt(ap.dateRented);
   }
 
   //convert stuff I entered in date fields to just dates

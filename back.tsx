@@ -8,11 +8,10 @@ const storefile = Bun.file("store.json");
 const sJfT = storefile.size ? await storefile.text() : "";
 const storeArray = sJfT ? JSON.parse(sJfT) : {};
 // Setting up aps, headers, trash, deleted using ? : instead of just defining them and then if() to change because would have to use "let" to be able to change them in if()
-const aps = sJfT ? storeArray.aps : [{"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateGuested":"","dateRented":"","headerName":""}];
+const aps = sJfT ? storeArray.aps : [{"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateStart":"","dateStop":"","headerName":""}];
 let foundFullNames = ["All Names (not Discarded)"];
 const headers = sJfT ? storeArray.headers : [{"StreetAddress":"","CityStateZip":"","Title":"","Name":""}];
 const headerNames = headers.map((header:any) => header.Name);
-headerNames[0] = "'Applying for:' Options";
 const trash = sJfT ? storeArray.trash : [{"discardedRow":0}];
 const deleted = sJfT ? storeArray.deleted : [{"deletedRow":0}];
 let inTrash = false;
@@ -231,7 +230,7 @@ const server = Bun.serve({
         const trashApIDindex = trash.map((e:any) => e.discardedRow).indexOf(apID);
         trash.splice(trashApIDindex,1);
         //delete the information
-        aps[apID] = {"FullName":"Deleted apID:" + apID,"SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateGuested":"","dateRented":"","headerName":""};
+        aps[apID] = {"FullName":"Deleted apID:" + apID,"SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateStart":"","dateStop":"","headerName":""};
         saveAll();
       }
       const headerID = matchHeader(aps[apID].headerName);
