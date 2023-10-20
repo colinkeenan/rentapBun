@@ -87,13 +87,11 @@ export function Rentap({message, viewOnly, icon, ap, foundFullNames, apID, heade
       <title>Rentap</title>
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
       <header>
-        <div style={{display:'flex', minHeight:'76px'}} >
+        <div style={{display:'flex', minHeight:'76px', border:'8px solid white', minWidth:'425px', maxWidth:'1374px'}} >
           <div style={{flex:'grow', textAlign:'center', backgroundColor:'darkred', width:'70px'}} >
-            <a href='/view' ><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" style={{marginTop:'10'}} /></a>
+            <a href='/view' ><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" style={{marginTop:'12'}} /></a>
           </div>
-          <div style={{flex: 1,
-            fontWeight:'bold', textAlign:'center', backgroundColor:'darkblue', color:'white',
-            minHeight:'54px', verticalAlign:'top', minWidth:'425px', maxWidth:'1400px'}}>
+          <div style={{flex: 1, alignItems:'center', minHeight:'54px', fontWeight:'bold', textAlign:'center', backgroundColor:'darkblue', color:'white' }}>
             <p> {message} </p>
           </div>
         </div>

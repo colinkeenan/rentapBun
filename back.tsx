@@ -341,8 +341,8 @@ const server = Bun.serve({
         if(First.indexOf(' ')!==-1)
           First = First.substring(0, First.indexOf(' '));
         const AfterFirst = FullName.substring(First.length);
-        message = `${apSave.FullName} already applied. Either append this new information to that previous application,
-                   or use numbers like this: '${First} 1 ${AfterFirst}' and '${First} 2 ${AfterFirst}'`;
+        message = `${apSave.FullName} already applied. Append this new information to that previous application,
+                   or use numbers as in: '${First} 1 ${AfterFirst}' & '${First} 2 ${AfterFirst}'`;
       }
       const headerID = matchHeader(aps[apID].headerName);
       if (foundFullNames.length === 1) populateAllNames();
