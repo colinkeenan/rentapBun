@@ -73,8 +73,8 @@ export function EditHeaders ({headers, icon, message, editOption}: {headers:{[ke
   )
 }
 
-export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID, header, headerNames, inTrash }:
-  {message:string, color:string, viewOnly:boolean, inTrash:boolean
+export function Rentap({message, viewOnly, icon, ap, foundFullNames, apID, header, headerNames, inTrash }:
+  {message:string, viewOnly:boolean, inTrash:boolean
    icon:string, ap:{[key:string]:any}, foundFullNames:Array<string>
    apID:number, header:{[key:string]:any}, headerNames:Array<string>} ) {
 
@@ -87,8 +87,16 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
       <title>Rentap</title>
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
       <header>
-        <a href='/view'><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" /></a>
-        <div style={{display:'inline-block', fontWeight:'bold', backgroundColor:'darkblue', color:'white', maxWidth:'1400px'}}>{message}</div>
+        <div style={{display:'flex', minHeight:'76px'}} >
+          <div style={{flex:'grow', textAlign:'center', backgroundColor:'darkred', width:'70px'}} >
+            <a href='/view' ><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" style={{marginTop:'10'}} /></a>
+          </div>
+          <div style={{flex: 1,
+            fontWeight:'bold', textAlign:'center', backgroundColor:'darkblue', color:'white',
+            minHeight:'54px', verticalAlign:'top', minWidth:'425px', maxWidth:'1400px'}}>
+            <p> {message} </p>
+          </div>
+        </div>
         <br/><br/>
         <fieldset style={fieldsetStyle}>
           <legend style={{color:'darkblue', fontWeight:'bold'}}>Applying for:</legend>
