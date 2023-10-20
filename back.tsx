@@ -48,7 +48,7 @@ const server = Bun.serve({
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message="Edit" color="darkred" viewOnly={viewOnly} inTrash={inTrash}
+        message={viewOnly ? 'View' : 'Edit'} color="darkred" viewOnly={viewOnly} inTrash={inTrash}
         ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
@@ -318,25 +318,36 @@ const server = Bun.serve({
     }
 
     // push formdata at /save into file store.json
+    let message="";
     if (url.pathname === "/save") {
       const formData = await req.formData();
       const apSave = Object.fromEntries(formData.entries());
       const apSaveIsNew = apIsNew(apSave);
       const apSaveIsEdited = apIsEdited(apSave);
-      if (apSaveIsNew) { aps.push(apSave); apID = aps.length -1; }
-      if (apSaveIsEdited) aps[apID] = apSave;
-      // write to the file if there's something new to write or if the file doesn't exist
-      if (apSaveIsNew || apSaveIsEdited || !sJfT) {
-        saveAll();
+      if (apIsUnique(apSave)) {
+        if (apSaveIsNew) { aps.push(apSave); apID = aps.length -1; }
+        if (apSaveIsEdited) aps[apID] = apSave;
+        // write to the file if there's something new to write or if the file doesn't exist
+        if (apSaveIsNew || apSaveIsEdited || !sJfT) {
+          saveAll();
+          message = apSaveIsNew || apSaveIsEdited ? "Saved" : "Nothing to save";
+        }
+      } else {
+        const FullName = apSave.FullName.toString().trim();
+        let First = FullName;
+        if(First.indexOf(' ')!==-1)
+          First = First.substring(0, First.indexOf(' '));
+        const AfterFirst = FullName.substring(First.length);
+        message = `${apSave.FullName} already applied. Either append this new information to that previous application,
+                   or use numbers like this: '${First} 1 ${AfterFirst}' and '${First} 2 ${AfterFirst}'`;
       }
-      const message = apSaveIsNew || apSaveIsEdited ? "Saved" : "Nothing to save";
       const color = "darkred";
       const headerID = matchHeader(aps[apID].headerName);
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={message} color={color} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={apSave} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -379,23 +390,25 @@ function containsSubstring(obj:{[key:string]: any}, substring:string) {
 function apIsNew(obj:{[key:string]:any}) {
   // if apID is not 0, we are editing an existing ap, not a new one
   if (apID) return false;
-  for (const key in obj) {
-    if (obj[key].toString() != "" && key!='headerName')
+  for (const key in obj)
+    if (obj[key].toString() != "")
       return true; // there's something to save
-    if (key==='headerName' && obj[key]!=headerNames[0])
-      return true;
-  }
-  return false; // even though on a new ap, there was nothing entedarkred
+  return false; // even though on a new ap, there was nothing entered
 }
 
 function apIsEdited(obj:{[key:string]:any}) {
-  // if apID is 0, we are editing an new ap, not an existing one
+  // if apID is 0, we are editing a new ap, not an existing one
   if (!apID) return false;
   for (const key in obj) {
     if (obj[key].toString() != aps[apID][key].toString())
       return true; // there's something to save
   }
   return false; // even though on an existing ap, nothing was changed
+}
+
+function apIsUnique(obj:{[key:string]:any}) {
+  // if obj.FullName is already in aps, it's not unique because every app must have a unique fullName
+  return !aps.some((a:any) => a.FullName.toString().trim() === obj.FullName.toString().trim());
 }
 
 function gotoPrevID() {
