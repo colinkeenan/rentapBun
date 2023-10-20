@@ -88,7 +88,7 @@ export function Rentap({message, color, viewOnly, icon, ap, foundFullNames, apID
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
       <header>
         <a href='/view'><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" /></a>
-        <div style={{display:'inline-block', fontWeight:'bold', color:color, maxWidth:'1400px'}}>{message}</div>
+        <div style={{display:'inline-block', fontWeight:'bold', backgroundColor:'darkblue', color:'white', maxWidth:'1400px'}}>{message}</div>
         <br/><br/>
         <fieldset style={fieldsetStyle}>
           <legend style={{color:'darkblue', fontWeight:'bold'}}>Applying for:</legend>
