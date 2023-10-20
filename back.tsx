@@ -318,24 +318,21 @@ const server = Bun.serve({
     }
 
     // push formdata at /save into file store.json
-    let message="";
     if (url.pathname === "/save") {
+      // default message if ap is neither edited or new
+      let message="Nothing to save";
       const formData = await req.formData();
       const apSave = Object.fromEntries(formData.entries());
-      const apSaveIsNew = apIsNew(apSave);
-      const apSaveIsEdited = apIsEdited(apSave);
-      if (apSaveIsEdited) {
+      if (apIsEdited(apSave)) {
         aps[apID] = apSave;
         saveAll();
         message = "Saved";
-      } else if (apIsUnique(apSave)) {
-        if (apSaveIsNew) { aps.push(apSave); apID = aps.length -1; }
-        // write to the file if there's something new to write or if the file doesn't exist
-        if (apSaveIsNew || !sJfT) {
-          saveAll();
-          message = apSaveIsNew ? "Saved" : "Nothing to save";
-        }
-      } else {
+      } else if (apIsUnique(apSave) && apIsNew(apSave)) {
+        aps.push(apSave);
+        apID = aps.length -1;
+        saveAll();
+        message = "Saved";
+      } else if (!apID) { // only display the "already applied" message if user is trying to add a new application (which has to be at apID=0)
         const FullName = apSave.FullName.toString().trim();
         let First = FullName;
         if(First.indexOf(' ')!==-1)
@@ -344,6 +341,8 @@ const server = Bun.serve({
         message = `${apSave.FullName} already applied. Append this new information to that previous application,
                    or use numbers as in: '${First} 1 ${AfterFirst}' & '${First} 2 ${AfterFirst}'`;
       }
+      // write to file if doesn't exist already
+      if (!sJfT) saveAll();
       const headerID = matchHeader(aps[apID].headerName);
       if (foundFullNames.length === 1) populateAllNames();
       const stream =
@@ -402,8 +401,9 @@ function apIsEdited(obj:{[key:string]:any}) {
   // if apID is 0, we are editing a new ap, not an existing one
   if (!apID) return false;
   for (const key in obj) {
-    if (obj[key].toString() != aps[apID][key].toString())
+    if (obj[key].toString() != aps[apID][key].toString()) {
       return true; // there's something to save
+    }
   }
   return false; // even though on an existing ap, nothing was changed
 }
