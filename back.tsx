@@ -17,6 +17,7 @@ const deleted = sJfT ? storeArray.deleted : [{"deletedRow":0}];
 let inTrash = false;
 const trashMessage="Viewing Discarded Applications in Trash"
 let sort = false;
+let searchField='selectSearchFields'
 
 let apID = 0;
 
@@ -34,7 +35,7 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message="New" viewOnly={false} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -49,7 +50,7 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={viewOnly ? 'View' : 'Edit'} viewOnly={viewOnly} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -68,7 +69,7 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -84,7 +85,7 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -99,7 +100,7 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -108,28 +109,41 @@ const server = Bun.serve({
 
     // render rentap.tsx with search results listed in FullName select, for search path (got here through search submited with Enter)
     if (url.pathname === "/search") {
-      const searchSubmit = await req.text();
-      const search = searchSubmit.slice(7); // remove "search="
+      const searchSubmit = await req.formData();
+      const searchEntries = Object.fromEntries(searchSubmit.entries());
+      const search = searchEntries.search.toString();
+      searchField = searchEntries.searchFields.toString();
       foundFullNames = inTrash ? ["Search Results in Trash"] : ["Search Results (not Discarded)"];
       if (search) // no need to search if the search string is empty
         for (const ap of aps) {
           // containsSubstring seems to change the apID to aps.indexOf(ap), although it's not obvious to me why.
           // So, comparing discardedRow with apID works. But then, why is apID left unchanged after exiting this for loop?
           // Because it's mysterious, I'm not going to compare discardedRow to apID. Instead, comparing to aps.indexOf(ap)
-          if (containsSubstring(ap, search) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) {
-            if (trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
-              inTrash && foundFullNames.push(ap.FullName);
-            else !inTrash && foundFullNames.push(ap.FullName);
+          if (searchField==='selectSearchFields') {
+            if (containsSubstring(ap, search) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) {
+              if (trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
+                inTrash && foundFullNames.push(ap.FullName);
+              else !inTrash && foundFullNames.push(ap.FullName);
+            }
+          } else {
+          if (ap[searchField].toString().includes(search) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) {
+              if (trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
+                inTrash && foundFullNames.push(ap.FullName);
+              else !inTrash && foundFullNames.push(ap.FullName);
+            }
           }
         }
-      else populateAllNames();
+      else {
+        populateAllNames();
+        searchField='selectSearchFields';
+      }
       if (foundFullNames.length === 1) populateAllNames(); //if nothing found, just show everything
       else apID = matchFullName(foundFullNames[1]);
       const headerID = matchHeader(aps[apID].headerName);
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -146,7 +160,7 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -161,7 +175,7 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={trashMessage} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -176,7 +190,7 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message="View" viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -195,7 +209,7 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={trashMessage} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -215,7 +229,7 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message="Edit" viewOnly={false} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -238,7 +252,7 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={trashMessage} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} foundFullNames={foundFullNames} apID={apID}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
@@ -348,7 +362,7 @@ const server = Bun.serve({
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
         message={message} viewOnly={true} inTrash={inTrash}
-        ap={apSave} foundFullNames={foundFullNames} apID={apID}
+        ap={apSave} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },

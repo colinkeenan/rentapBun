@@ -1,5 +1,6 @@
-const rGray = '#8A939E';
-const rDisabled = '#BCE1F8'
+const rGray = '#57606F';
+const rDisabled = '#b4cefb'
+const rLightBlue = '#77aaff'
 const requiredFields = ["FullName", "dateApplied"]; // possibilities: FullName, SSN, BirthDate, Email, StateID, Phone1, Phone2, dateApplied, dateStart, dateStop
 //each fieldset acts like a column
 //set all columns next to each other if possible
@@ -20,17 +21,17 @@ export function EditHeaders ({headers, icon, message, editOption}: {headers:{[ke
         <a href='/view'><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" /></a>
         <div style={{display:'inline-block', fontWeight:'bold', color:'blue'}}> {message} </div>
       </header>
-      <body style={{backgroundColor:'lightskyblue'}} >
+      <body style={{backgroundColor:rLightBlue}} >
         <h3 style={{backgroundColor:'darkblue', color:'white', textAlign:'center', maxWidth:'1500'}}>'Applying for:' Options</h3>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkred'}}>Delete Option</legend>
+          <legend style={{color:rGray}}>Delete Option</legend>
           <form action="/delheader" method="post" >
             <input type="submit" defaultValue="X" style={{backgroundColor:'darkred', color:'white'}} />
             <Field type= "number" name="Row" placeholder="Row" width="20%" viewOnly={false} />
           </form>
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkblue'}}>Edit Option</legend>
+          <legend style={{color:rGray}}>Edit Option</legend>
           <form action="/editheader" method="post">
             <select name="select" id="select" style={{width:'60%'}}  value={headerNames[editRow]} onChange={function(){} } >
               {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
@@ -46,7 +47,7 @@ export function EditHeaders ({headers, icon, message, editOption}: {headers:{[ke
           </form>
         </fieldset>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkblue'}}>Add Option</legend>
+          <legend style={{color:rGray}}>Add Option</legend>
           <form action="/addheader" method="post" >
             <input type="submit" defaultValue="+" style={{backgroundColor:'darkblue', color:'white'}} />
             <Field type= "text" name="Name" placeholder="Unique Option Name" width="50%" viewOnly={false} />
@@ -73,9 +74,9 @@ export function EditHeaders ({headers, icon, message, editOption}: {headers:{[ke
   )
 }
 
-export function Rentap({message, viewOnly, icon, ap, foundFullNames, apID, header, headerNames, inTrash }:
+export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames, apID, header, headerNames, inTrash }:
   {message:string, viewOnly:boolean, inTrash:boolean
-   icon:string, ap:{[key:string]:any}, foundFullNames:Array<string>
+    icon:string, ap:{[key:string]:any}, searchField:string, foundFullNames:Array<string>
    apID:number, header:{[key:string]:any}, headerNames:Array<string>} ) {
 
   // when toggling Sort/Unsort button, check whether or not "Sorted:" was inserted at top of list
@@ -97,10 +98,12 @@ export function Rentap({message, viewOnly, icon, ap, foundFullNames, apID, heade
         </div>
         <br/><br/>
         <fieldset style={fieldsetStyle}>
-          <legend style={{color:'darkblue', fontWeight:'bold'}}>Applying for:</legend>
-          <h3 style={{margin:'0'}}>{header.Title ? header.Title : "Title"}</h3>
+          <legend style={{color:rGray}}>Applying for:</legend>
+          <h3 style={{margin:'0', color:rGray}}>{header.Title ? header.Title : "Title"}</h3>
+          <p style={{margin:'0', color:rGray}}>
           {header.StreetAddress ? header.StreetAddress : "Street Address"}
           <br/> {header.CityStateZip ? header.CityStateZip : "City, ST Zip"}
+          </p>
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend style={{color:rGray}}>Actions</legend>
@@ -120,13 +123,20 @@ export function Rentap({message, viewOnly, icon, ap, foundFullNames, apID, heade
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend style={{color:rGray}}>Navigation</legend>
-          <form action="/search" method="post"  style={{display:'flex', justifyContent:'space-between', margin:'0', marginBottom:'5'}} >
-            <div>
-              <a href="/prev" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >&lt;</button></a>
-              <div style={{backgroundColor:rDisabled, textAlign:'center', display:'inline-block', width:'80px' }}>{apID}</div>
-              <a href="/next" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >&gt;</button></a>
+          <form action="/search" method="post" encType="multipart/form-data" style={{margin:'0', marginBottom:'5'}} >
+            <Label forId='searchFields' labelText="Search Field(s)" />
+            <select name="searchFields" id="searchfields" value={searchField} style={{width:'73%', marginLeft:'8', marginBottom:'2' }} onChange={function(){}} >
+              <option value="selectSearchFields" key="selectSearchFields"> ALL  or [ Select field to search ]</option>
+              {Object.keys(ap).map( (key:string) => <option value={key} key={key}>{camelCaseToWords(key)}</option> )}
+            </select>
+            <div style={{display:'flex', justifyContent:'space-between'}} >
+              <div>
+                <a href="/prev" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >&lt;</button></a>
+                <div style={{backgroundColor:rDisabled, textAlign:'center', display:'inline-block', width:'80px' }}>{apID}</div>
+                <a href="/next" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >&gt;</button></a>
+              </div>
+              <input type="text" name="search" id="search" placeholder="search" style={{width:'65%'}} />
             </div>
-            <input type="text" name="search" id="search" placeholder="search" style={{width:'65%'}} />
           </form>
           <form action="/select" method="post" style={{margin:'0'}}>
             <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
@@ -134,23 +144,23 @@ export function Rentap({message, viewOnly, icon, ap, foundFullNames, apID, heade
               <select name="select" id="select" value={ap.FullName ? ap.FullName : foundFullNames[0]} style={{width:'58%'}} onChange={function(){}} >
                 {foundFullNames.map( (name:any) => <option value={name} key={name}>{name}</option> )}
               </select>
-              <input type="submit" defaultValue="Display" style={{backgroundColor:'darkblue', color:'white'}} />
+              <input type="submit" defaultValue="View" style={{backgroundColor:'darkblue', color:'white'}} />
             </div>
           </form>
         </fieldset>
       </header>
-      <body style={{backgroundColor:'lightskyblue'}} >
+      <body style={{backgroundColor:rLightBlue}} >
       <form action="/save" method="post" encType="multipart/form-data" >
         <fieldset style={fieldsetStyle}>
           <legend style={{color:rGray}}>Identity</legend>
-          <Label forId="fullname"  labelText="Full Name" />     <Field type="text"  name="FullName"      placeholder="First Middle Last" width='76%' ap={ap} viewOnly={viewOnly} />
-          <Label forId="ssn"  labelText="Social Security" />    <Field type="text"  name="SSN"           placeholder="555-55-5555" width='76%' ap={ap} viewOnly={viewOnly} />
-          <Label forId="birthdate" labelText="Birth Date" />    <Field type="date"  name="BirthDate"     placeholder="" width='38%' ap={ap} viewOnly={viewOnly} />
-                                                                <Field type="text"  name="MaritalStatus" placeholder="Marital Status" width='38%' ap={ap} viewOnly={viewOnly} />
-          <Label forId="email" labelText="Email" />             <Field type="email" name="Email"         placeholder="youremail@provider.com" width='76%' ap={ap} viewOnly={viewOnly} />
-          <Label forId="stateid" labelText="State ID#" />       <Field type="text"  name="StateID"       placeholder="MO 123456789 1/2/2034" width='76%' ap={ap} viewOnly={viewOnly} />
-          <Label forId="phone1" labelText="Phones" />           <Field type="tel"   name="Phone1"        placeholder="Phone 1" width='38%' ap={ap} viewOnly={viewOnly} />
-                                                                <Field type="tel"   name="Phone2"        placeholder="Phone 2" width='38%' ap={ap} viewOnly={viewOnly} />
+          <Label forId="fullname"  labelText="Full Name" />     <Field type="text"  name="FullName"      placeholder="First Middle Last" width='73%' ap={ap} viewOnly={viewOnly} />
+          <Label forId="ssn"  labelText="Social Security" />    <Field type="text"  name="SSN"           placeholder="555-55-5555" width='73%' ap={ap} viewOnly={viewOnly} />
+          <Label forId="birthdate" labelText="Birth Date" />    <Field type="date"  name="BirthDate"     placeholder="" width='36.5%' ap={ap} viewOnly={viewOnly} />
+                                                                <Field type="text"  name="MaritalStatus" placeholder="Marital Status" width='36.5%' ap={ap} viewOnly={viewOnly} />
+          <Label forId="email" labelText="Email" />             <Field type="email" name="Email"         placeholder="youremail@provider.com" width='73%' ap={ap} viewOnly={viewOnly} />
+          <Label forId="stateid" labelText="State ID#" />       <Field type="text"  name="StateID"       placeholder="MO 123456789 1/2/2034" width='73%' ap={ap} viewOnly={viewOnly} />
+          <Label forId="phone1" labelText="Phones" />           <Field type="tel"   name="Phone1"        placeholder="Phone 1" width='36.5%' ap={ap} viewOnly={viewOnly} />
+                                                                <Field type="tel"   name="Phone2"        placeholder="Phone 2" width='36.5%' ap={ap} viewOnly={viewOnly} />
           <TextArea rows={5}  name="CurrentAddress"    placeholder="Address, City, State, Zip, Dates, Rent, Landlord name and phone number" ap={ap} viewOnly={viewOnly} />
           <TextArea rows={16} name="PriorAddresses"    placeholder="Prior Addresses, Cities, States, Zips, Dates, Rents, Landlords" ap={ap} viewOnly={viewOnly} />
         </fieldset>
@@ -158,7 +168,7 @@ export function Rentap({message, viewOnly, icon, ap, foundFullNames, apID, heade
           <legend style={{color:rGray}}>Situation</legend>
           <Label forId="headername" labelText="Applying for:" />
             <select name="headerName" id="headername"
-              style={{width:'76%', marginLeft:'8', marginBottom:'2',  }}
+              style={{width:'73%', marginLeft:'8', marginBottom:'2',  }}
               value={header.Name} onChange={function(){}} disabled={viewOnly} required>
               {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
             </select>
@@ -175,8 +185,8 @@ export function Rentap({message, viewOnly, icon, ap, foundFullNames, apID, heade
         <br />
         <fieldset style={fieldsetStyle}>
           <legend style={{color:rGray}}>Agreement Dates</legend>
-          <Label forId="datestart" labelText="Start | Stop"/> <Field type="date" name="dateStart" placeholder="" width='38%' ap={ap} viewOnly={viewOnly} />
-                                                              <Field type="date" name="dateStop"  placeholder="" width='38%' ap={ap} viewOnly={viewOnly} />
+          <Label forId="datestart" labelText="Start | Stop"/> <Field type="date" name="dateStart" placeholder="" width='36%' ap={ap} viewOnly={viewOnly} />
+                                                              <Field type="date" name="dateStop"  placeholder="" width='36%' ap={ap} viewOnly={viewOnly} />
         </fieldset>
         <Label forId="dateapplied" labelText="Applied"/> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly} />
         {viewOnly ? "" : <input type="submit" defaultValue="Save" style={{backgroundColor:'darkblue', color:'white', marginLeft:'15px'}} />}
@@ -190,7 +200,7 @@ export function Rentap({message, viewOnly, icon, ap, foundFullNames, apID, heade
 
 function Label({forId, labelText}: {forId:string, labelText:string}) {
   return (
-    <label htmlFor={forId} style={{width:'94px', display:'inline-block', textAlign:'right', fontSize:'10px'}} > {labelText} </label>
+    <label htmlFor={forId} style={{width:'106px', display:'inline-block', color:'white', textAlign:'right', fontSize:'14px'}} > {labelText} </label>
   )
 }
 
@@ -229,4 +239,14 @@ function Th({text}:{text:string}) {
   return (
     <th style={cellStyle}>{text}</th>
   )
+}
+
+function camelCaseToWords(s:string) {
+  let str = s
+  .replace(/([a-z])([A-Z])/g, '$1 $2') // replaces FullName with Full Name
+  .replace(/([a-zA-Z])([0-9])/g, '$1 $2') // replaces Phone1 with Phone 1
+  .replace(/^./, m => m.toUpperCase()); // uppercases first letter
+  if (str==='SSN') str='Social Security'
+  if (str==='Header Name') str='Applying For:'
+  return str;
 }
