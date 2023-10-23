@@ -51,7 +51,7 @@ const server = Bun.serve({
     switch (url.pathname) {
       case '/':
         message = "New";
-        viewOnly = false;
+        viewOnly = true;
         inTrash = false;
         foundFullNamesUpdate();
         apID = 0;
@@ -67,6 +67,16 @@ const server = Bun.serve({
         message = "View"
         viewOnly = true;
         if (foundFullNames.length === 1) foundFullNamesUpdate();
+        headerID = matchHeader(aps[apID].headerName);
+        break;
+      case '/selectapplyingfor':
+        message = "Edit";
+        viewOnly = false;
+        const headerSubmit = await req.formData();
+        const headerEntries = Object.fromEntries(headerSubmit.entries());
+        const headerNameSelected = headerEntries.selectApplyingFor.toString();
+        if (foundFullNames.length === 1) foundFullNamesUpdate();
+        aps[apID].headerName = headerNameSelected;
         headerID = matchHeader(aps[apID].headerName);
         break;
       case '/sort':

@@ -101,6 +101,12 @@ export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames
         <br/><br/>
         <fieldset style={fieldsetStyle}>
           <legend style={{color:rGray}}>Applying for:</legend>
+          <form action="/selectapplyingfor" method="post" encType="multipart/form-data" style={{margin:'0', marginBottom:'5'}} >
+            <select name="selectApplyingFor" id="selectapplyingfor" style={{ display:'inline-block', width:'73%' }} value={header.Name} onChange={function(){}} required>
+              {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
+            </select>
+            <input type="submit" defaultValue="Update" style={{backgroundColor:'darkblue', color:'white'}} />
+          </form>
           <h3 style={{margin:'0', color:rGray}}>{header.Title ? header.Title : "Title"}</h3>
           <p style={{margin:'0', color:rGray}}>
           {header.StreetAddress ? header.StreetAddress : "Street Address"}
@@ -110,7 +116,11 @@ export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames
         <fieldset style={fieldsetStyle}>
           <legend style={{color:rGray}}>Actions</legend>
           <div style={{width:'100%', marginBottom:'5px', display:'flex', justifyContent:'space-between'}}>
-            <a href={viewOnly?'/edit':'/view'} ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >{viewOnly?'Edit':'View'}</button></a>
+            <a href={apID ? (viewOnly?'/edit':'/view') : '/' } >
+              <button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >
+                {apID ? (viewOnly?'Edit':'View') : 'New'}
+              </button>
+            </a>
             <div>
               <a href={inTrash ? "/restore" : "/discard"} ><button type="button" style={{backgroundColor:rGray, color:'white' }} >{inTrash ? "Restore" : "Discard"}</button></a>
               <div style={{backgroundColor:'gray', color:'white', textAlign:'center', display:'inline-block'}}>{'||'}</div>
