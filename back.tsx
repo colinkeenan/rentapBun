@@ -12,6 +12,7 @@ const aps = sJfT ? storeArray.aps : [{"FullName":"","SSN":"","BirthDate":"","Mar
 const trash = sJfT ? storeArray.trash : [{"discardedRow":0}];
 const deleted = sJfT ? storeArray.deleted : [{"deletedRow":0}];
 const trashMessage="Viewing Discarded Applications in Trash"
+let apHasUndefined = false;
 let sort = false;
 
 // const variables needed for <EditHeaders .../> are:
@@ -209,7 +210,7 @@ const server = Bun.serve({
         if (apIsEdited(apSave)) {
           aps[apID] = apSave;
           saveAll();
-          message = "Saved";
+          message = apHasUndefined ? "Saved and replaced undefined entries with ''" : "Saved";
         } else if (apIsUnique(apSave) && apIsNew(apSave)) {
           aps.push(apSave);
           apID = aps.length -1;
@@ -335,14 +336,21 @@ function apIsNew(obj:{[key:string]:any}) {
 }
 
 function apIsEdited(obj:{[key:string]:any}) {
+  const isString =  (input:any) => typeof input?.replaceAll === 'function'
   // if apID is 0, we are editing a new ap, not an existing one
   if (!apID) return false;
   for (const key in obj) {
-    if (obj[key]===undefined) return false; // don't save undefined
-    if (aps[apID][key]===undefined && obj[key]!=undefined) return true; // yes, replace undefined with something
-    if (!(aps[apID][key]===undefined || obj[key]===undefined)) {
-      const maybeEdited = obj[key].toString().trim; // trim to avoid saving extra spaces, but if trying to remove
-      const original = aps[apID][key].toString().trim; // extra spaces, they will have to edit something else too
+    apHasUndefined = !isString(aps[apID][key]);
+    const objKeyIsString = isString(obj[key]);
+    if (!objKeyIsString) {
+      return false; // don't save undefined
+    }
+    if (apHasUndefined && objKeyIsString) {
+      return true; // yes, replace undefined with something
+    }
+    if (!apHasUndefined && objKeyIsString) {
+      const maybeEdited = obj[key].trim; // trim to avoid saving extra spaces, but if trying to remove
+      const original = aps[apID][key].trim; // extra spaces, they will have to edit something else too
       if (maybeEdited != original) return true; // there's something to save
     }
   }
