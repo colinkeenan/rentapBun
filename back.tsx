@@ -330,18 +330,23 @@ function apIsNew(obj:{[key:string]:any}) {
   for (const key in obj)
     if (obj[key].toString() != "")
       return true; // there's something to save
-  return false; // even though on a new ap, there was nothing entered
+  return false; // even though on a new ap, there was nothing entered,
+  // (but this should never happen because there are required fields that prevent submission if empty)
 }
 
 function apIsEdited(obj:{[key:string]:any}) {
   // if apID is 0, we are editing a new ap, not an existing one
   if (!apID) return false;
   for (const key in obj) {
-    if (obj[key].toString() != aps[apID][key].toString()) {
-      return true; // there's something to save
+    if (obj[key]===undefined) return false; // don't save undefined
+    if (aps[apID][key]===undefined && obj[key]!=undefined) return true; // yes, replace undefined with something
+    if (!(aps[apID][key]===undefined || obj[key]===undefined)) {
+      const maybeEdited = obj[key].toString().trim; // trim to avoid saving extra spaces, but if trying to remove
+      const original = aps[apID][key].toString().trim; // extra spaces, they will have to edit something else too
+      if (maybeEdited != original) return true; // there's something to save
     }
   }
-  return false; // even though on an existing ap, nothing was changed
+  return false; // on an existing ap that was not changed
 }
 
 function apIsUnique(obj:{[key:string]:any}) {

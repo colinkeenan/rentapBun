@@ -115,18 +115,18 @@ export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend style={{color:rGray}}>Actions</legend>
-          <div style={{width:'100%', marginBottom:'5px', display:'flex', justifyContent:'space-between'}}>
-            <a href={apID ? (viewOnly?'/edit':'/view') : '/' } >
-              <button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >
-                {apID ? (viewOnly?'Edit':'View') : 'New'}
-              </button>
-            </a>
-            <div>
-              <a href={inTrash ? "/restore" : "/discard"} ><button type="button" style={{backgroundColor:rGray, color:'white' }} >{inTrash ? "Restore" : "Discard"}</button></a>
-              <div style={{backgroundColor:'gray', color:'white', textAlign:'center', display:'inline-block'}}>{'||'}</div>
-              <a href={inTrash ? "/exittrash" : "/trash"} ><button type="button" style={{backgroundColor:rGray, color:'white' }} >{inTrash ? "Exit Trash" : "View Discarded"}</button></a>
+          {!apID ? "" :
+            <div style={{width:'100%', marginBottom:'5px', display:'flex', justifyContent:'space-between'}}>
+                <a href={viewOnly?'/edit':'/view'} > <button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} > {viewOnly?'Edit':'View'} </button> </a>
+              <div>
+                {ap.FullName==="Deleted apID:" + apID ? <div>&bull</div> :
+                <a href={inTrash ? "/restore" : "/discard"} ><button type="button" style={{backgroundColor:rGray, color:'white' }} >{inTrash ? "Restore" : "Discard"}</button></a>
+                }
+                <div style={{backgroundColor:'gray', color:'white', textAlign:'center', display:'inline-block'}}>{'||'}</div>
+                <a href={inTrash ? "/exittrash" : "/trash"} ><button type="button" style={{backgroundColor:rGray, color:'white' }} >{inTrash ? "Exit Trash" : "View Discarded"}</button></a>
+              </div>
             </div>
-          </div>
+          }
           <div style={{width:'100%', display:'flex', justifyContent:'space-between'}}>
             <a href="/"     ><button type="button" style={{backgroundColor:'darkblue', color:'white', fontWeight:'bold' }} >New</button></a>
             <a href={inTrash ? "/delete" : "/editheaders"} ><button type="button" style={{backgroundColor:inTrash ? 'darkred' : rGray, color:'white'}} >
