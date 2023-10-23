@@ -9,367 +9,279 @@ const sJfT = storefile.size ? await storefile.text() : "";
 const storeArray = sJfT ? JSON.parse(sJfT) : {};
 // Setting up aps, headers, trash, deleted using ? : instead of just defining them and then if() to change because would have to use "let" to be able to change them in if()
 const aps = sJfT ? storeArray.aps : [{"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateStart":"","dateStop":"","headerName":""}];
-let foundFullNames = ["All Names (not Discarded)"];
-const headers = sJfT ? storeArray.headers : [{"StreetAddress":"","CityStateZip":"","Title":"","Name":""}];
-const headerNames = headers.map((header:any) => header.Name);
 const trash = sJfT ? storeArray.trash : [{"discardedRow":0}];
 const deleted = sJfT ? storeArray.deleted : [{"deletedRow":0}];
-let inTrash = false;
 const trashMessage="Viewing Discarded Applications in Trash"
 let sort = false;
-let searchField='selectSearchFields'
 
+// const variables needed for <EditHeaders .../> are:
+//   icon={base64icon} (defined above) and
+//   headers
+const headers = sJfT ? storeArray.headers :
+  [{"StreetAddress":"","CityStateZip":"","Title":"","Name":""}];
+// let variables needed for <EditHeaders .../> are:
+//   messageEditHeaders editOption;
+let messageEditHeaders = "";
+let editOption = "";
+
+// const variables needed for <Rentap .../> are:
+//   icon={base64icon} and
+//   headerNames
+const headerNames = headers.map((header:any) => header.Name);
+// let variables needed for <Rentap .../> are:
+//   ap={aps[apID]} header={headers[headerID]} and
+//   message viewOnly inTrash searchField foundFullNames apID (headerID for header)
+let message = "";
+let viewOnly = true;
+let inTrash = false;
+let searchField='selectSearchFields'
+let foundFullNames = ["All Names (not Discarded)"];
 let apID = 0;
+let headerID = 0;
 
 const server = Bun.serve({
   port: 3000,
   async fetch(req) {
     const url = new URL(req.url);
 
-    // render rentap.tsx with blank ap for root path (got here through New link or bun start)
-    if (url.pathname === "/") {
-      apID = 0;
-      inTrash = false;
-      const headerID = 0;
-      populateAllNames();
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-        message="New" viewOnly={false} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
+    // A bunch of path-handlers for the Rentap page follows. After those, the rest are for the
+    // Applying for Options page. The const stream = ...renderToReadableStream ...
+    // return new Response(stream ...line comes at the end of all these path-handlers.
 
-    // render rentap.tsx with current ap for edit path (got here through Edit link)
-    if (url.pathname === "/edit" || url.pathname === "/view") {
-      const viewOnly = url.pathname==="/view";
-      const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) populateAllNames();
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-        message={viewOnly ? 'View' : 'Edit'} viewOnly={viewOnly} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    // render rentap.tsx after toggling sort for select from foundFullNames (got here through Sort link)
-    if (url.pathname === "/sort") {
-      sort = !sort;
-      const headerID = matchHeader(aps[apID].headerName);
-      populateAllNames();
-      if (sort) { // sort, but don't include the first "name" which is actually a description of the list
-        const sortedNames = foundFullNames.slice(1).sort()
-        foundFullNames = [foundFullNames[0]].concat(sortedNames)
-      }
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    // render rentap.tsx with prev ap for prev path (got here through Prev link)
-    if (url.pathname === "/prev") {
-      gotoPrevID();
-
-      const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) populateAllNames();
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    // render rentap.tsx with next ap for next path (got here through Next link)
-    if (url.pathname === "/next") {
-      gotoNextID();
-      const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) populateAllNames();
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    // render rentap.tsx with search results listed in FullName select, for search path (got here through search submited with Enter)
-    if (url.pathname === "/search") {
-      const searchSubmit = await req.formData();
-      const searchEntries = Object.fromEntries(searchSubmit.entries());
-      const search = searchEntries.search.toString();
-      searchField = searchEntries.searchFields.toString();
-      foundFullNames = inTrash ? ["Search Results in Trash"] : ["Search Results (not Discarded)"];
-      if (search) // no need to search if the search string is empty
-        for (const ap of aps) {
-          // containsSubstring seems to change the apID to aps.indexOf(ap), although it's not obvious to me why.
-          // So, comparing discardedRow with apID works. But then, why is apID left unchanged after exiting this for loop?
-          // Because it's mysterious, I'm not going to compare discardedRow to apID. Instead, comparing to aps.indexOf(ap)
-          if (searchField==='selectSearchFields') {
-            if (containsSubstring(ap, search) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) {
-              if (trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
-                inTrash && foundFullNames.push(ap.FullName);
-              else !inTrash && foundFullNames.push(ap.FullName);
-            }
-          } else {
-          if (ap[searchField].toString().includes(search) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) {
-              if (trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
-                inTrash && foundFullNames.push(ap.FullName);
-              else !inTrash && foundFullNames.push(ap.FullName);
+    switch (url.pathname) {
+      case '/':
+        message = "New";
+        viewOnly = false;
+        inTrash = false;
+        foundFullNamesUpdate();
+        apID = 0;
+        headerID = 0;
+        break;
+      case '/edit':
+        message = "Edit";
+        viewOnly = false;
+        if (foundFullNames.length === 1) foundFullNamesUpdate();
+        headerID = matchHeader(aps[apID].headerName);
+        break;
+      case '/view':
+        message = "View"
+        viewOnly = true;
+        if (foundFullNames.length === 1) foundFullNamesUpdate();
+        headerID = matchHeader(aps[apID].headerName);
+        break;
+      case '/sort':
+        message = inTrash ? trashMessage : "View";
+        viewOnly = true;
+        sort = !sort;
+        headerID = matchHeader(aps[apID].headerName);
+        foundFullNamesUpdate();
+        if (sort) { // sort, but don't include the first "name" (a description of the list)
+          const sortedNames = foundFullNames.slice(1).sort()
+          foundFullNames = [foundFullNames[0]].concat(sortedNames)
+        }
+      case '/prev':
+        gotoPrevID();
+        message = inTrash ? trashMessage : "View";
+        viewOnly = true;
+        if (foundFullNames.length === 1) foundFullNamesUpdate();
+        headerID = matchHeader(aps[apID].headerName);
+        break;
+      case '/next':
+        gotoNextID();
+        message = inTrash ? trashMessage : "View";
+        viewOnly = true;
+        if (foundFullNames.length === 1) foundFullNamesUpdate();
+        headerID = matchHeader(aps[apID].headerName);
+        break;
+      case '/search':
+        const searchSubmit = await req.formData();
+        const searchEntries = Object.fromEntries(searchSubmit.entries());
+        const search = searchEntries.search.toString();
+        searchField = searchEntries.searchFields.toString();
+        foundFullNames = inTrash ? ["Search Results in Trash"] : ["Search Results (not Discarded)"];
+        if (search) // no need to search if the search string is empty
+          for (const ap of aps) {
+            if (searchField==='selectSearchFields') {
+              if (containsSubstring(ap, search) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) {
+                if (trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
+                  inTrash && foundFullNames.push(ap.FullName);
+                else !inTrash && foundFullNames.push(ap.FullName);
+              }
+            } else {
+            if (ap[searchField].toString().includes(search) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) {
+                if (trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
+                  inTrash && foundFullNames.push(ap.FullName);
+                else !inTrash && foundFullNames.push(ap.FullName);
+              }
             }
           }
+        else { // no search done because search string was empty
+          foundFullNamesUpdate();
+          searchField='selectSearchFields';
         }
-      else {
-        populateAllNames();
-        searchField='selectSearchFields';
-      }
-      if (foundFullNames.length === 1) populateAllNames(); //if nothing found, just show everything
-      else apID = matchFullName(foundFullNames[1]);
-      const headerID = matchHeader(aps[apID].headerName);
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    // render rentap.tsx with selected ap for select path (got here through selecting a FullName and submitting with Display button)
-    if (url.pathname === "/select") {
-      const selectSubmit = await req.text();
-      const selectedFullName = selectSubmit.slice(7); // remove "select="
-      apID = matchFullName(selectedFullName);
-      const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) populateAllNames();
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-        message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    if (url.pathname === "/trash") {
-      inTrash = true;
-      gotoNextID();
-      const headerID = matchHeader(aps[apID].headerName);
-      populateAllNames();
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-        message={trashMessage} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    if (url.pathname === "/exittrash") {
-      inTrash = false;
-      gotoPrevID();
-      const headerID = matchHeader(aps[apID].headerName);
-      populateAllNames();
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-        message="View" viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    if (url.pathname === "/discard") {
-      //put apID in trash if not already there
-      if (!trash.some((e:any) => e.discardedRow === apID)) {
-        trash.push({discardedRow:apID});
+        if (foundFullNames.length === 1) foundFullNamesUpdate(); //if nothing found, just show all
+        else apID = matchFullName(foundFullNames[1]);
+        message = inTrash ? trashMessage : "View";
+        viewOnly = true;
+        headerID = matchHeader(aps[apID].headerName);
+        break;
+      case '/select':
+        const selectNameSubmit = await req.text();
+        const selectedFullName = selectNameSubmit.slice(7); // remove "select="
+        message = inTrash ? trashMessage : "View";
+        viewOnly = true;
+        if (foundFullNames.length === 1) foundFullNamesUpdate();
+        apID = matchFullName(selectedFullName);
+        headerID = matchHeader(aps[apID].headerName);
+        break;
+      case '/trash':
+        message = trashMessage;
+        viewOnly = true;
+        inTrash = true;
+        gotoNextID();
+        headerID = matchHeader(aps[apID].headerName);
+        foundFullNamesUpdate();
+        break;
+      case '/exittrash':
+        message = "View";
+        viewOnly = true;
+        inTrash = false;
+        gotoPrevID();
+        headerID = matchHeader(aps[apID].headerName);
+        foundFullNamesUpdate();
+        break;
+      case '/discard':
+        //put apID in trash if not already there
+        if (!trash.some((e:any) => e.discardedRow === apID)) {
+          trash.push({discardedRow:apID});
+          saveAll();
+        }
+        message = trashMessage;
+        viewOnly = true;
+        inTrash = true;
+        headerID = matchHeader(aps[apID].headerName);
+        if (foundFullNames.length === 1) foundFullNamesUpdate();
+        break;
+      case '/restore':
+        //remove apID from trash if it's in there
+        if (trash.some((e:any) => e.discardedRow === apID)) {
+          const trashApIDindex = trash.map((e:any) => e.discardedRow).indexOf(apID);
+          trash.splice(trashApIDindex,1);
+          saveAll();
+        }
+        message = "Edit";
+        viewOnly = false;
+        inTrash = false;
+        headerID = matchHeader(aps[apID].headerName);
+        if (foundFullNames.length === 1) foundFullNamesUpdate();
+        break;
+      case '/delete':
+        //put apID in deleted if not already there and delete the ap
+        if (!deleted.some((e:any) => e.deletedRow === apID)) {
+          //add to deleted list and remove from trash list
+          deleted.push({deletedRow:apID});
+          const trashApIDindex = trash.map((e:any) => e.discardedRow).indexOf(apID);
+          trash.splice(trashApIDindex,1);
+          //delete the information
+          aps[apID] = {"FullName":"Deleted apID:" + apID,"SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateStart":"","dateStop":"","headerName":""};
+          saveAll();
+        }
+        message = trashMessage;
+        viewOnly = true;
+        inTrash = true;
+        headerID = matchHeader(aps[apID].headerName);
+        if (foundFullNames.length === 1) foundFullNamesUpdate();
+        break;
+      case '/save':
+        message = "Nothing to save";
+        const rentapFormData = await req.formData();
+        const apSave = Object.fromEntries(rentapFormData.entries());
+        if (apIsEdited(apSave)) {
+          aps[apID] = apSave;
+          saveAll();
+          message = "Saved";
+        } else if (apIsUnique(apSave) && apIsNew(apSave)) {
+          aps.push(apSave);
+          apID = aps.length -1;
+          saveAll();
+          message = "Saved";
+        } else if (!apID) { // only display the "already applied" message if user is trying to add a new application (which has to be at apID=0)
+          const FullName = apSave.FullName.toString().trim();
+          let First = FullName;
+          if(First.indexOf(' ')!==-1)
+            First = First.substring(0, First.indexOf(' '));
+          const AfterFirst = FullName.substring(First.length);
+          message = `${apSave.FullName} already applied. Append this new information to that previous application,
+                     or use numbers as in: '${First} 1 ${AfterFirst}' & '${First} 2 ${AfterFirst}'`;
+        }
+        // write to file if doesn't exist already
+        if (!sJfT) saveAll();
+        viewOnly = true;
+        headerID = matchHeader(aps[apID].headerName);
+        if (foundFullNames.length === 1) foundFullNamesUpdate();
+        break;
+      case '/editheaders':
+        messageEditHeaders = "Rentap";
+        break;
+      case '/delheader':
+        const delText = await req.text();
+        const delIndex = delText.slice(4);
+        const dI = Number(delIndex);
+        if ( !isNaN(dI) && (0 < dI) && (dI < headers.length) &&
+          !aps.some((ap:any) => ap.headerName ===headers[dI].Name) )
+        {
+          const delName = headers[dI].Name;
+          headers.splice(dI,1);
+          saveAll();
+          messageEditHeaders = "Deleted '" + delName + "' that was on row " + delIndex;
+        } else if ( !(!isNaN(dI) && (0 < dI) && (dI < headers.length)) )
+          messageEditHeaders = "Please enter a valid row to be deleted"
+        else messageEditHeaders = "Can't delete row " + delIndex + " because '" + headers[dI].Name + "' is in use."
+        break;
+      case '/editheader':
+        messageEditHeaders = 'Rentap';
+        const selectHeaderSubmit = await req.text();
+        const selOption = selectHeaderSubmit.slice(7); // remove "select="
+        editOption = selOption;
+        break;
+      case '/saveheader':
+        const headerFormData = await req.formData();
+        const headerSave = Object.fromEntries(headerFormData.entries());
+        const headerRow = headerNames.indexOf(headerSave.Name);
+        headers[headerRow] = headerSave;
         saveAll();
-      }
-      inTrash = true;
-      const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) populateAllNames();
+        messageEditHeaders = 'Rentap';
+        break;
+      case '/addheader':
+        messageEditHeaders = "Option Added";
+        const addHeaderFormData = await req.formData();
+        const headerAdd = Object.fromEntries(addHeaderFormData.entries());
+        if (headers.some((h:any) => h.Name === headerAdd.Name))
+          messageEditHeaders = "Choose a unique name for the new option.";
+        else {headers.push(headerAdd); saveAll();}
+        break;
+      default:
+        return new Response("Not Found", { status: 404 });
+    }
+
+    if (url.pathname.includes("header")) {
+      const stream =
+        await renderToReadableStream(<EditHeaders icon={base64icon}
+          headers={headers} message={messageEditHeaders} editOption={editOption}/>);
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      });
+    } else {
       const stream =
         await renderToReadableStream(<Rentap icon={base64icon}
-        message={trashMessage} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
+          message={message} viewOnly={viewOnly} inTrash={inTrash}
+          ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
+          header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
     }
 
-    if (url.pathname === "/restore") {
-      //remove apID from trash if it's in there
-      if (trash.some((e:any) => e.discardedRow === apID)) {
-        const trashApIDindex = trash.map((e:any) => e.discardedRow).indexOf(apID);
-        trash.splice(trashApIDindex,1);
-        saveAll();
-      }
-      inTrash = false;
-      const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) populateAllNames();
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-        message="Edit" viewOnly={false} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    if (url.pathname === "/delete") {
-      //put apID in deleted if not already there and delete the ap
-      if (!deleted.some((e:any) => e.deletedRow === apID)) {
-        //add to deleted list and remove from trash list
-        deleted.push({deletedRow:apID});
-        const trashApIDindex = trash.map((e:any) => e.discardedRow).indexOf(apID);
-        trash.splice(trashApIDindex,1);
-        //delete the information
-        aps[apID] = {"FullName":"Deleted apID:" + apID,"SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateStart":"","dateStop":"","headerName":""};
-        saveAll();
-      }
-      const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) populateAllNames();
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-        message={trashMessage} viewOnly={true} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    // show 'Applying for:' Options. Got here from /editheaders link (button named Edit 'Applying for:' Options)
-    if (url.pathname === "/editheaders") {
-      const stream =
-        await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={"Rentap"}/>);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    // delete the row given if it's not in use and a valid index of headers
-    if (url.pathname === "/delheader") {
-      const delText = await req.text();
-      const delIndex = delText.slice(4);
-      let message = "";
-      const dI = Number(delIndex);
-      if ( !isNaN(dI) && (0 < dI) && (dI < headers.length) &&
-        !aps.some((ap:any) => ap.headerName ===headers[dI].Name) )
-      {
-        const delName = headers[dI].Name;
-        headers.splice(dI,1);
-        saveAll();
-        message = "Deleted '" + delName + "' that was on row " + delIndex;
-      } else if ( !(!isNaN(dI) && (0 < dI) && (dI < headers.length)) )
-        message = "Please enter a valid row to be deleted"
-      else message = "Can't delete row " + delIndex + " because '" + headers[dI].Name + "' is in use."
-      const stream =
-        await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={message}/>);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    // edit the header selected (populate the saveheader form to allow editing before saving)
-    if (url.pathname === "/editheader") {
-      const selectSubmit = await req.text();
-      const selOption = selectSubmit.slice(7); // remove "select="
-      const stream =
-        await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={"Rentap"} editOption={selOption}/>);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    // save the edited header
-    if (url.pathname === "/saveheader") {
-      const formData = await req.formData();
-      const headerSave = Object.fromEntries(formData.entries());
-      const headerRow = headerNames.indexOf(headerSave.Name);
-      headers[headerRow] = headerSave;
-      saveAll();
-      const stream =
-        await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={"Rentap"}/>);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    // add a new header
-    if (url.pathname === "/addheader") {
-      let m = "Option Added";
-      const formData = await req.formData();
-      const headerSave = Object.fromEntries(formData.entries());
-      const headerRow = headerNames.indexOf(headerSave.Name);
-      if (headers.some((h:any) => h.Name === headerSave.Name)) m="Choose a unique name for the new option.";
-      else {headers.push(headerSave); saveAll();}
-      const stream =
-        await renderToReadableStream(<EditHeaders headers={headers} icon={base64icon} message={m}/>);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    // push formdata at /save into file store.json
-    if (url.pathname === "/save") {
-      // default message if ap is neither edited or new
-      let message="Nothing to save";
-      const formData = await req.formData();
-      const apSave = Object.fromEntries(formData.entries());
-      if (apIsEdited(apSave)) {
-        aps[apID] = apSave;
-        saveAll();
-        message = "Saved";
-      } else if (apIsUnique(apSave) && apIsNew(apSave)) {
-        aps.push(apSave);
-        apID = aps.length -1;
-        saveAll();
-        message = "Saved";
-      } else if (!apID) { // only display the "already applied" message if user is trying to add a new application (which has to be at apID=0)
-        const FullName = apSave.FullName.toString().trim();
-        let First = FullName;
-        if(First.indexOf(' ')!==-1)
-          First = First.substring(0, First.indexOf(' '));
-        const AfterFirst = FullName.substring(First.length);
-        message = `${apSave.FullName} already applied. Append this new information to that previous application,
-                   or use numbers as in: '${First} 1 ${AfterFirst}' & '${First} 2 ${AfterFirst}'`;
-      }
-      // write to file if doesn't exist already
-      if (!sJfT) saveAll();
-      const headerID = matchHeader(aps[apID].headerName);
-      if (foundFullNames.length === 1) populateAllNames();
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-        message={message} viewOnly={true} inTrash={inTrash}
-        ap={apSave} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-    return new Response("Not Found", { status: 404 });
   },
 });
 
@@ -458,7 +370,7 @@ async function saveAll() {
   await Bun.write("./store.json", formattedStore);
 }
 
-function populateAllNames() {
+function foundFullNamesUpdate() {
   foundFullNames = sort ?
     inTrash ? ["Sorted: All Discarded Names"] : ["Sorted: All Names (not Discarded)"]
     : inTrash ? ["All Discarded Names"] : ["All Names (not Discarded)"];

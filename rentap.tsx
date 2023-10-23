@@ -9,7 +9,7 @@ const requiredFields = ["FullName", "dateApplied"]; // possibilities: FullName, 
 const fieldsetStyle={display:'inline-block', width:'425px', border:'none'};
 //other styles defined inline or in functions that follow this Rentap function
 
-export function EditHeaders ({headers, icon, message, editOption}: {headers:{[key:string]:any}, icon:string, message:string, editOption?:string}) {
+export function EditHeaders ({headers, icon, message, editOption}: {headers:{[key:string]:any}, icon:string, message:string, editOption:string}) {
   const headerNames = headers.map((header:any) => header.Name);
   const encodedOptions = headerNames.map((name:any) => encodeURIComponent(name).replaceAll('%20','+'));
   headerNames[0] = "Select Option to Edit"
