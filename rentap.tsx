@@ -1,3 +1,5 @@
+import {useRef} from "react"
+
 const rGray = '#57606F';
 const rDisabled = '#b4cefb'
 const rLightBlue = '#77aaff'
@@ -32,12 +34,7 @@ export function EditHeaders ({headers, icon, message, editOption}: {headers:{[ke
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend style={{color:rGray}}>Edit Option</legend>
-          <form action="/editheader" method="post">
-            <select name="select" id="select" style={{width:'60%'}}  value={headerNames[editRow]} onChange={function(){} } >
-              {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
-            </select>
-            <input type="submit" defaultValue="Edit" style={{backgroundColor:'darkblue', color:'white'}} />
-          </form>
+          {selectHeaderToEdit(editRow, headerNames)}
           <form action="/saveheader" method="post" encType="multipart/form-data" >
             <input type="submit" defaultValue="Save" style={{backgroundColor:'darkblue', color:'white'}} />
             <Field type= "text" name="Name" placeholder="" width="50%" ap={headers[editRow]} viewOnly={true} />
@@ -196,8 +193,6 @@ export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames
   );
 }
 
-//setting up functions for inline CSS instead of passing CSS as a string to Rentap which has to be included with dangerouslySetInnerHTML
-
 function Label({forId, labelText}: {forId:string, labelText:string}) {
   return (
     <label htmlFor={forId} style={{width:'106px', display:'inline-block', color:'white', textAlign:'right', fontSize:'14px'}} > {labelText} </label>
@@ -249,4 +244,17 @@ function camelCaseToWords(s:string) {
   if (str==='SSN') str='Social Security'
   if (str==='Header Name') str='Applying For:'
   return str;
+}
+
+function selectHeaderToEdit (editRow:number, headerNames:Array<string>) {
+  const selectForm = useRef(null)
+  const handleSubmit = () => {selectForm.current.submit()}
+  return (
+    <form ref={selectForm} action="/editheader" method="post" onChange={handleSubmit}>
+      <select name="select" id="select" style={{width:'60%'}}  value={headerNames[editRow]} onChange={handleSubmit} >
+        {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
+      </select>
+      <input type="submit" defaultValue="Edit" style={{backgroundColor:'darkblue', color:'white'}} />
+    </form>
+  )
 }
