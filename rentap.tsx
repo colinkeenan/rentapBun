@@ -34,7 +34,12 @@ export function EditHeaders ({headers, icon, message, editOption}: {headers:{[ke
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend style={{color:rGray}}>Edit Option</legend>
-          {selectHeaderToEdit(editRow, headerNames)}
+          <form action="/editheader" method="post">
+            <select name="select" id="select" style={{width:'60%'}}  value={headerNames[editRow]} onChange={function(){}} >
+              {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
+            </select>
+            <input type="submit" defaultValue="Edit" style={{backgroundColor:'darkblue', color:'white'}} />
+          </form>
           <form action="/saveheader" method="post" encType="multipart/form-data" >
             <input type="submit" defaultValue="Save" style={{backgroundColor:'darkblue', color:'white'}} />
             <Field type= "text" name="Name" placeholder="" width="50%" ap={headers[editRow]} viewOnly={true} />

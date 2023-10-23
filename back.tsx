@@ -36,10 +36,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message="New" viewOnly={false} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -54,10 +51,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message={viewOnly ? 'View' : 'Edit'} viewOnly={viewOnly} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -76,10 +70,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -95,10 +86,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -113,10 +101,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -159,10 +144,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -179,10 +161,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message={inTrash ? trashMessage : "View"} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -197,10 +176,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message={trashMessage} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -215,10 +191,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message="View" viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -237,10 +210,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message={trashMessage} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -260,10 +230,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message="Edit" viewOnly={false} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -286,10 +253,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message={trashMessage} viewOnly={true} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -399,10 +363,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
         message={message} viewOnly={true} inTrash={inTrash}
         ap={apSave} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} />, {
-            bootstrapScripts: ['/front.tsx']
-          }
-        );
+        header={headers[headerID]} headerNames={headerNames} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
