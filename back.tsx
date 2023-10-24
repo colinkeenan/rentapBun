@@ -243,6 +243,7 @@ const server = Bun.serve({
         {
           const delName = headers[dI].Name;
           headers.splice(dI,1);
+          headerNames.splice(dI,1); // keep headerNames in sync with headers
           saveAll();
           messageEditHeaders = "Deleted '" + delName + "' that was on row " + delIndex;
         } else if ( !(!isNaN(dI) && (0 < dI) && (dI < headers.length)) )
@@ -269,7 +270,11 @@ const server = Bun.serve({
         const headerAdd = Object.fromEntries(addHeaderFormData.entries());
         if (headers.some((h:any) => h.Name === headerAdd.Name))
           messageEditHeaders = "Choose a unique name for the new option.";
-        else {headers.push(headerAdd); saveAll();}
+        else {
+          headers.push(headerAdd);
+          headerNames.push(headerAdd.Name); // keep headerNames in sync with headers
+          saveAll();
+        }
         break;
       default:
         return new Response("Not Found", { status: 404 });
