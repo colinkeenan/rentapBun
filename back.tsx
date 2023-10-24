@@ -349,8 +349,8 @@ function apIsEdited(obj:{[key:string]:any}) {
       return true; // yes, replace undefined with something
     }
     if (!apHasUndefined && objKeyIsString) {
-      const maybeEdited = obj[key].trim; // trim to avoid saving extra spaces, but if trying to remove
-      const original = aps[apID][key].trim; // extra spaces, they will have to edit something else too
+      const maybeEdited = obj[key].trim(); // trim to avoid saving extra spaces, but if trying to remove
+      const original = aps[apID][key].trim(); // extra spaces, they will have to edit something else too
       if (maybeEdited != original) return true; // there's something to save
     }
   }
