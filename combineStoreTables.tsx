@@ -3,7 +3,7 @@ const tbl = tblfile.size ? await tblfile.text() : "";
 const headersfile = Bun.file("store-tables/headers.json");
 const oldheaders = headersfile.size ? await headersfile.text() : "";
 const trashfile = Bun.file("store-tables/trash.json");
-const oldtrash = trashfile.size? await trashfile.text() : "";
+const oldtrash = trashfile.size ? await trashfile.text() : "";
 const deletedfile = Bun.file("store-tables/deleted.json");
 const olddeleted = deletedfile.size ? await deletedfile.text() : "";
 
@@ -17,7 +17,7 @@ if (tbl) {
   //save old information stored in date fields at start of Evictions
   for (const a of aps)
     if (aps.indexOf(a))
-      a.Evictions = "Imported Information from rentap.js Date Fields: \n".concat("Date Applied: ",a.dateApplied,"\nDate Guested: ",a.dateGuested,"\nDate Rented: ",a.dateRented,"\n\n",a.Evictions)
+      a.Evictions = "Old rentap.js date fields are listed below \n".concat("Date Applied: ",a.dateApplied,"\nDate Guested: ",a.dateGuested,"\nDate Rented: ",a.dateRented,"\n\n",a.Evictions)
 
   //fix dates to be in format "YYYY-MM-DD" or ""
   for (const ap of aps) {
@@ -25,8 +25,10 @@ if (tbl) {
     ap.dateApplied = fixDatetxt(ap.dateApplied);
     //not using dateGuested anymore
     // ap.dateGuested = fixDatetxt(ap.dateGuested);
-    //using dateStart instead of dateRented, and adding dateStop that can't be read automatically
+    //using dateStart instead of dateRented, and adding dateStop that
     ap.dateStart = fixDatetxt(ap.dateRented);
+    //try to read dateStop assuming it's after dash in old dateRented field
+    ap.dateStop = getDateStop(ap.dateRented);
   }
 
   //convert stuff I entered in date fields to just dates
@@ -39,6 +41,29 @@ if (tbl) {
     //year is trouble because I added a lot of text to some dates
     const year = fixYear(dateArray[2]);
     return year === 9999 ? "" : JSON.stringify(new Date(year,month,day)).substring(1,11); //charAt(0) is "
+  }
+
+  // this function only works if information was entered
+  // the way I did for rentDate in rentap.js
+  // which was usually something like:
+  // mm/dd/yyyy - mm/dd/yyyy prevTen
+  function getDateStop(datetxt:string) {
+    if (!datetxt || !datetxt.includes('-')) return "";
+    const dateArray = datetxt.split('-');
+    const stopArray = dateArray[1].split('/');
+    for (const n of stopArray) { //remove non-numeric characters
+      const i = stopArray.indexOf(n);
+      stopArray[i]=n.replace(/\D/g,"");
+    }
+    if (stopArray.length < 3) return "";
+    let year = !isNaN(Number(stopArray[2])) ? Number(stopArray[2]) : 9999;
+    if (year === 9999) return ""
+    if (year < 2000) year+=2000;
+    const curYear = new Date().getFullYear();
+    if (year > curYear) return "";
+    const month = !isNaN(Number(stopArray[0])) ? Number(stopArray[0]) - 1 : 0;
+    const day = !isNaN(Number(stopArray[1])) ? Number(stopArray[1]) : 1;
+    return JSON.stringify(new Date(year,month,day)).substring(1,11); //charAt(0) is "
   }
 
   function fixYear (sYear:string) {
