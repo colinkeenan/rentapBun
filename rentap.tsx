@@ -1,5 +1,3 @@
-import {useRef} from "react"
-
 const rGray = '#57606F';
 const rDisabled = '#b4cefb'
 const rLightBlue = '#77aaff'
@@ -259,17 +257,4 @@ function camelCaseToWords(s:string) {
   if (str==='SSN') str='Social Security'
   if (str==='Header Name') str='Applying For:'
   return str;
-}
-
-function selectHeaderToEdit (editRow:number, headerNames:Array<string>) {
-  const selectForm = useRef(null)
-  const handleSubmit = () => {selectForm.current.submit()}
-  return (
-    <form ref={selectForm} action="/editheader" method="post" onChange={handleSubmit}>
-      <select name="select" id="select" style={{width:'60%'}}  value={headerNames[editRow]} onChange={handleSubmit} >
-        {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
-      </select>
-      <input type="submit" defaultValue="Edit" style={{backgroundColor:'darkblue', color:'white'}} />
-    </form>
-  )
 }
