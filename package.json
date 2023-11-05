@@ -1,6 +1,6 @@
 {
   "name": "rentapBun",
-  "version": "1.02",
+  "version": "1.03",
   "description": "Create Rental Applications offline on your own computer.",
   "module": "back.tsx",
   "type": "module",

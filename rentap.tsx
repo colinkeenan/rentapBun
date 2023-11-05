@@ -104,27 +104,33 @@ export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames
           <legend style={legendStyle}>Navigation</legend>
           <div style={{display:'flex', justifyContent:'space-between'}}>
           <div style={{display:'block'}}>
-            <form action="/search" method="post" encType="multipart/form-data" style={{margin:'0'}} >
+            <form action="/go" method="post" encType="multipart/form-data" style={{margin:'0'}}>
               <div style={{display:'flex', justifyContent:'space-between', marginBottom:5}} >
-                <input type="text" name="search" id="search" placeholder="search" style={{width:'50%'}} />
-                <input type="submit" defaultValue="&#10003;" style={{backgroundColor:'darkblue', color:'white'}} />
+                <div>
+                  <input type="number" name="go" id="go" placeholder="apID" style={{width:80, marginRight:5}} />
+                  <input type="submit" defaultValue="Go" style={{backgroundColor:'darkblue', color:'white'}} />
+                </div>
                 <div>
                   <a href="/prev" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >&lt;</button></a>
                   <div style={{backgroundColor:rDisabled, textAlign:'center', display:'inline-block', width:80 }}>{apID}</div>
                   <a href="/next" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >&gt;</button></a>
                 </div>
               </div>
+            </form>
+            <form action="/search" method="post" encType="multipart/form-data" style={{margin:'0'}} >
               <div style={{display:'flex', justifyContent:'space-between', marginBottom:5}} >
-                <select name="searchFields" id="searchfields" value={searchField} style={{width:'80%' }} onChange={function(){}} >
-                  <option value="selectSearchFields" key="selectSearchFields"> ALL  or [ Select field to search ]</option>
+                <input type="text" name="search" id="search" placeholder="search" style={{width:'45%'}} />
+                <input type="submit" defaultValue="&#10003;" style={{backgroundColor:'darkblue', color:'white'}} />
+                <select name="searchFields" id="searchfields" value={searchField} style={{width:'45%' }} onChange={function(){}} >
+                  <option value="selectSearchFields" key="selectSearchFields"> All / choose one </option>
                   {Object.keys(ap).map( (key:string) => <option value={key} key={key}>{camelCaseToWords(key)}</option> )}
                 </select>
-                <a href="/sort" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >{sorted ? "Unsort" : "Sort"}</button></a>
               </div>
             </form>
             <form action="/select" method="post" encType="multipart/form-data"  style={{margin:'0'}}>
               <div style={{display:'flex', justifyContent:'space-between'}}>
-                <select name="select" id="select" value={ap.FullName ? ap.FullName : foundFullNames[0]} style={{width:'80%'}} onChange={function(){}} >
+                <a href="/sort" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >{sorted ? "Unsort" : "Sort"}</button></a>
+                <select name="select" id="select" value={ap.FullName ? ap.FullName : foundFullNames[0]} style={{width:'60%'}} onChange={function(){}} >
                   {foundFullNames.map( (name:any) => <option value={name} key={name}>{name}</option> )}
                 </select>
                 <input type="submit" defaultValue="View" style={{backgroundColor:'darkblue', color:'white'}} />

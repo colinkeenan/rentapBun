@@ -93,6 +93,20 @@ const server = Bun.serve({
           foundFullNames.push(n0);
           for (const n of sortedNames) foundFullNames.push(n);
         }
+        break;
+      case '/go':
+        const goSubmit = await req.formData();
+        const goEntry = Object.fromEntries(goSubmit.entries());
+        const goID = Number(goEntry.go);
+        if ( !isNaN(goID) && (0 < goID) && (goID < aps.length) ) {
+          apID = goID;
+          inTrash = trash.some((e:any) => e.discardedRow === goID);
+          message = inTrash ? trashMessage : "View";
+          viewOnly = true;
+          headerID = matchHeader(aps[apID].headerName);
+          foundFullNamesUpdate();
+        } else message = "Enter a valid apID";
+        break;
       case '/prev':
         gotoPrevID();
         message = inTrash ? trashMessage : "View";
@@ -409,7 +423,7 @@ function foundFullNamesUpdate() {
     : inTrash ? "All Discarded Names" : "All Names (not Discarded)");
   for (const ap of aps) {
     if (inTrash) {
-      if (ap.FullName && trash.some((e:any) => e.discardedRow === aps.indexOf(ap))) 
+      if (ap.FullName && trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
         foundFullNames.push(ap.FullName);
     } else {
       if (!trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap)))

@@ -1,6 +1,8 @@
 # rentapBun
 
-WARNING: `bun upgrade` from 1.07 to 1.08 is broken and won't run rentapBun. Stay with `bun 1.07` until issue is resolved.
+`bun 1.09` fixed the broken version 1.08.
+
+~~WARNING: `bun upgrade` from 1.07 to 1.08 is broken and won't run rentapBun. Stay with `bun 1.07` until issue is resolved~~.
 
 rentapBun is rentap.js done over again using Bun instead of npm. The only dependency besides Bun is `react-dom`, and only for `import { renderToReadableStream } from "react-dom/server"`.
 
