@@ -2,13 +2,11 @@ const rGray = '#57606F';
 const rDisabled = '#b4cefb'
 const rLightBlue = '#77aaff'
 const requiredFields = ["FullName", "dateApplied"]; // possibilities: FullName, SSN, BirthDate, Email, StateID, Phone1, Phone2, dateApplied, dateStart, dateStop
-//each fieldset acts like a column
-//set all columns next to each other if possible
-const fieldsetStyle={display:'inline-block', width:'425px', border:'none'};
-const legendStyle={width:'auto', marginLeft:'auto', marginRight:'auto', color:rGray};
-//other styles defined inline or in functions that follow this Rentap function
 
 export function EditHeaders ({headers, icon, message, editOption}: {headers:{[key:string]:any}, icon:string, message:string, editOption:string}) {
+  const fieldsetStyle={display:'inline-block', width:'300px', border:'none'};
+  const legendStyle={width:'auto', marginLeft:'auto', marginRight:'auto', color:rGray};
+  const maxWidth = 1200;
   const headerNames = headers.map((header:any) => header.Name);
   headerNames[0] = "Select Option to Edit"
   const editRow = editOption ? headerNames.indexOf(editOption) : 0;
@@ -17,12 +15,12 @@ export function EditHeaders ({headers, icon, message, editOption}: {headers:{[ke
       <meta charSet="utf-8" />
       <title>Rentap Options</title>
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
-      <header>
+      <header style={{maxWidth:maxWidth}}>
         <a href='/view'><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" /></a>
         <div style={{display:'inline-block', fontWeight:'bold', color:'blue'}}> {message} </div>
       </header>
-      <body style={{backgroundColor:rLightBlue}} >
-        <h3 style={{backgroundColor:'darkblue', color:'white', textAlign:'center', maxWidth:'1500'}}>'Applying for:' Options</h3>
+      <body style={{backgroundColor:rLightBlue, maxWidth:maxWidth}} >
+        <h3 style={{backgroundColor:'darkblue', color:'white', textAlign:'center', maxWidth:maxWidth}}>'Applying for:' Options</h3>
         <fieldset style={fieldsetStyle}>
           <legend style={legendStyle}>Delete Option</legend>
           <form action="/delheader" method="post" encType="multipart/form-data" style={{display:'flex', justifyContent:'center'}} >
@@ -83,6 +81,8 @@ export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames
     icon:string, ap:{[key:string]:any}, searchField:string, foundFullNames:Array<string>
    apID:number, header:{[key:string]:any}, headerNames:Array<string>} ) {
 
+  const fieldsetStyle={display:'inline-block', width:'425px', border:'none'};
+  const legendStyle={width:'auto', marginLeft:'auto', marginRight:'auto', color:rGray};
   // when toggling Sort/Unsort button, check whether or not "Sorted:" was inserted at top of list
   const sorted = foundFullNames[0].substring(0,7) === "Sorted:";
 
@@ -244,7 +244,7 @@ function TextArea({rows, name, placeholder, ap, viewOnly}: { rows:number, name:s
   )
 }
 
-const cellStyle={backgroundColor:rDisabled, paddingLeft:'10', paddingRight:'10'}
+const cellStyle={backgroundColor:rDisabled, paddingLeft:'10', paddingRight:'10', fontSize:'22px'}
 
 function Td({text}:{text:string}) {
   return (
@@ -254,7 +254,7 @@ function Td({text}:{text:string}) {
 
 function TdR({text}:{text:string}) {
   return (
-    <td style={{backgroundColor:rDisabled, paddingLeft:'10', paddingRight:'10', textAlign:'right'}}>{text}</td>
+    <td style={{backgroundColor:rDisabled, paddingLeft:'10', paddingRight:'10', textAlign:'right', fontSize:'22px'}}>{text}</td>
   )
 }
 
