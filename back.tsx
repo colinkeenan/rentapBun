@@ -245,7 +245,7 @@ const server = Bun.serve({
           headers.splice(dI,1);
           headerNames.splice(dI,1); // keep headerNames in sync with headers
           saveAll();
-          messageEditHeaders = "Deleted '" + delName + "' that was on row " + delIndex;
+          messageEditHeaders = "Deleted '" + delName + "' that was on row " + dI;
         } else if ( !(!isNaN(dI) && (0 < dI) && (dI < headers.length)) )
           messageEditHeaders = "Please enter a valid row to be deleted"
         else messageEditHeaders = "Can't delete row " + delIndex + " because '" + headers[dI].Name + "' is in use."
