@@ -26,17 +26,17 @@ let messageEditHeaders = "";
 let editOption = "";
 
 // const variables needed for <Rentap .../> are:
-//   icon={base64icon} and
+//   icon={base64icon} foundFullNames and
 //   headerNames
 const headerNames = headers.map((header:any) => header.Name);
+const foundFullNames = ["All Names (not Discarded)"];
 // let variables needed for <Rentap .../> are:
 //   ap={aps[apID]} header={headers[headerID]} and
-//   message viewOnly inTrash searchField foundFullNames apID (headerID for header)
+//   message viewOnly inTrash searchField apID (headerID for header)
 let message = "";
 let viewOnly = true;
 let inTrash = false;
 let searchField='selectSearchFields'
-let foundFullNames = ["All Names (not Discarded)"];
 let apID = 0;
 let headerID = 0;
 
@@ -88,7 +88,10 @@ const server = Bun.serve({
         foundFullNamesUpdate();
         if (sort) { // sort, but don't include the first "name" (a description of the list)
           const sortedNames = foundFullNames.slice(1).sort()
-          foundFullNames = [foundFullNames[0]].concat(sortedNames)
+          const n0 = foundFullNames[0];
+          foundFullNames.length = 0;
+          foundFullNames.push(n0);
+          for (const n of sortedNames) foundFullNames.push(n);
         }
       case '/prev':
         gotoPrevID();
@@ -109,7 +112,8 @@ const server = Bun.serve({
         const searchEntries = Object.fromEntries(searchSubmit.entries());
         const search = searchEntries.search.toString();
         searchField = searchEntries.searchFields.toString();
-        foundFullNames = inTrash ? ["Search Results in Trash"] : ["Search Results (not Discarded)"];
+        foundFullNames.length = 0;
+        foundFullNames.push(inTrash ? "Search Results in Trash" : "Search Results (not Discarded)");
         if (search) // no need to search if the search string is empty
           for (const ap of aps) {
             if (searchField==='selectSearchFields') {
@@ -399,14 +403,18 @@ async function saveAll() {
 }
 
 function foundFullNamesUpdate() {
-  foundFullNames = sort ?
-    inTrash ? ["Sorted: All Discarded Names"] : ["Sorted: All Names (not Discarded)"]
-    : inTrash ? ["All Discarded Names"] : ["All Names (not Discarded)"];
+  foundFullNames.length = 0;
+  foundFullNames.push(sort ?
+    inTrash ? "Sorted: All Discarded Names" : "Sorted: All Names (not Discarded)"
+    : inTrash ? "All Discarded Names" : "All Names (not Discarded)");
   for (const ap of aps) {
-    if (inTrash && trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
-      foundFullNames.push(ap.FullName);
-    else if (!trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap)))
-      foundFullNames.push(ap.FullName);
+    if (inTrash) {
+      if (ap.FullName && trash.some((e:any) => e.discardedRow === aps.indexOf(ap))) 
+        foundFullNames.push(ap.FullName);
+    } else {
+      if (!trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap)))
+        foundFullNames.push(ap.FullName);
+    }
   }
 }
 
