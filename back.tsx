@@ -137,12 +137,12 @@ const server = Bun.serve({
         headerID = matchHeader(aps[apID].headerName);
         break;
       case '/select':
-        const selectNameSubmit = await req.text();
-        const selectedFullName = selectNameSubmit.slice(7); // remove "select="
+        const selectNameSubmit = await req.formData();
+        const selectedFullName = Object.fromEntries(selectNameSubmit.entries());
         message = inTrash ? trashMessage : "View";
         viewOnly = true;
         if (foundFullNames.length === 1) foundFullNamesUpdate();
-        apID = matchFullName(selectedFullName);
+        apID = matchFullName(selectedFullName.select.toString());
         headerID = matchHeader(aps[apID].headerName);
         break;
       case '/trash':
@@ -235,9 +235,9 @@ const server = Bun.serve({
         messageEditHeaders = "Rentap";
         break;
       case '/delheader':
-        const delText = await req.text();
-        const delIndex = delText.slice(4);
-        const dI = Number(delIndex);
+        const delSubmit = await req.formData();
+        const delIndex = Object.fromEntries(delSubmit.entries());
+        const dI = Number(delIndex.Row);
         if ( !isNaN(dI) && (0 < dI) && (dI < headers.length) &&
           !aps.some((ap:any) => ap.headerName ===headers[dI].Name) )
         {
@@ -252,9 +252,9 @@ const server = Bun.serve({
         break;
       case '/editheader':
         messageEditHeaders = 'Rentap';
-        const selectHeaderSubmit = await req.text();
-        const selOption = selectHeaderSubmit.slice(7); // remove "select="
-        editOption = selOption;
+        const selectHeaderSubmit = await req.formData();
+        const selOption = Object.fromEntries(selectHeaderSubmit.entries());
+        editOption = selOption.select.toString();
         break;
       case '/saveheader':
         const headerFormData = await req.formData();
