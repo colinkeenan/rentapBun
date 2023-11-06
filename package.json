@@ -1,7 +1,7 @@
 {
   "name": "rentapBun",
-  "version": "1.03",
-  "description": "Create Rental Applications offline on your own computer.",
+  "version": "1.04",
+  "description": "Create and Fill-in Application Forms offline on your own computer. Faster than npm, but doesn't work in Termux on Android.",
   "module": "back.tsx",
   "type": "module",
   "scripts": {
