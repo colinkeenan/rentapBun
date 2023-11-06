@@ -110,6 +110,7 @@ export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames
                   <input type="number" name="go" id="go" placeholder="apID" style={{width:80, marginRight:5}} />
                   <input type="submit" defaultValue="Go" style={{backgroundColor:'darkblue', color:'white'}} />
                 </div>
+                <a href="/current" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >Current</button></a>
                 <div>
                   <a href="/prev" ><button type="button" style={{backgroundColor:rGray, color:'white' }} >&lt;</button></a>
                   <div style={{backgroundColor:rDisabled, textAlign:'center', display:'inline-block', width:80 }}>{apID}</div>

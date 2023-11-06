@@ -8,7 +8,7 @@ const deletedfile = Bun.file("store-tables/deleted.json");
 const olddeleted = deletedfile.size ? await deletedfile.text() : "";
 
 //put blank ap at aps[0]
-const ap = {"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateStart":"","dateEnd":"","headerName":""};
+const ap = {"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","headerName":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateStart":"","dateStop":"","dateApplied":""};
 const aps = tbl ? JSON.parse(tbl) : [ap];
 
 if (tbl) {

@@ -8,7 +8,7 @@ const storefile = Bun.file("store.json");
 const sJfT = storefile.size ? await storefile.text() : "";
 const storeArray = sJfT ? JSON.parse(sJfT) : {};
 // Setting up aps, headers, trash, deleted using ? : instead of just defining them and then if() to change because would have to use "let" to be able to change them in if()
-const aps = sJfT ? storeArray.aps : [{"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateStart":"","dateStop":"","headerName":""}];
+const aps = sJfT ? storeArray.aps : [{"FullName":"","SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","headerName":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateStart":"","dateStop":"","dateApplied":""}];
 const trash = sJfT ? storeArray.trash : [{"discardedRow":0}];
 const deleted = sJfT ? storeArray.deleted : [{"deletedRow":0}];
 const trashMessage="Viewing Discarded Applications in Trash"
@@ -121,6 +121,30 @@ const server = Bun.serve({
         if (foundFullNames.length === 1) foundFullNamesUpdate();
         headerID = matchHeader(aps[apID].headerName);
         break;
+      case '/current': // search for existing dateStart without dateStop (should return all aps with agreements that have not terminated)
+        foundFullNames.length = 0;
+        foundFullNames.push(inTrash ? "Search Results in Trash" : "Search Results (not Discarded)");
+        for (const ap of aps) {
+          if (!deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) { // nothing to search for in deleted aps
+            if (inTrash) { // searching in trash (shouldn't have current agreements in trash, but maybe there by mistake)
+              if(trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) // verify the ap is in trash
+              && ap["dateStart"] && !ap["dateStop"]) {
+                foundFullNames.push(ap.FullName);
+              }
+            } else { // searching aps not in trash
+              if(!trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) // verify the ap is not in trash
+              && ap["dateStart"] && !ap["dateStop"]) {
+                foundFullNames.push(ap.FullName);
+              }
+            }
+          }
+        }
+        if (foundFullNames.length === 1) foundFullNamesUpdate(); // nothing found even though search completed, just show all
+        else apID = matchFullName(foundFullNames[1]);
+        message = inTrash ? trashMessage : "View";
+        viewOnly = true;
+        headerID = matchHeader(aps[apID].headerName);
+        break;
       case '/search':
         const searchSubmit = await req.formData();
         const searchEntries = Object.fromEntries(searchSubmit.entries());
@@ -128,27 +152,27 @@ const server = Bun.serve({
         searchField = searchEntries.searchFields.toString();
         foundFullNames.length = 0;
         foundFullNames.push(inTrash ? "Search Results in Trash" : "Search Results (not Discarded)");
-        if (search) // no need to search if the search string is empty
+        if (search) { // no need to search if the search string is empty
           for (const ap of aps) {
-            if (searchField==='selectSearchFields') {
-              if (containsSubstring(ap, search) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) {
-                if (trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
-                  inTrash && foundFullNames.push(ap.FullName);
-                else !inTrash && foundFullNames.push(ap.FullName);
-              }
-            } else {
-            if (ap[searchField].toString().includes(search) && !deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) {
-                if (trash.some((e:any) => e.discardedRow === aps.indexOf(ap)))
-                  inTrash && foundFullNames.push(ap.FullName);
-                else !inTrash && foundFullNames.push(ap.FullName);
+            if (!deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) { // nothing to search for in deleted aps
+              if (inTrash) { // searching in trash
+                if(trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) // verify the ap is in trash
+                && containsSubstring(searchField==='selectSearchFields' ? ap : {searchField:ap[searchField]}, search)) {
+                  foundFullNames.push(ap.FullName);
+                }
+              } else { // searching aps not in trash
+                if(!trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) // verify the ap is not in trash
+                && containsSubstring(searchField==='selectSearchFields' ? ap : {searchField:ap[searchField]}, search)) {
+                  foundFullNames.push(ap.FullName);
+                }
               }
             }
           }
-        else { // no search done because search string was empty
-          foundFullNamesUpdate();
+        } else { // no search done because search string was empty
+          foundFullNamesUpdate(); // just show all
           searchField='selectSearchFields';
         }
-        if (foundFullNames.length === 1) foundFullNamesUpdate(); //if nothing found, just show all
+        if (foundFullNames.length === 1) foundFullNamesUpdate(); // nothing found even though search completed, just show all
         else apID = matchFullName(foundFullNames[1]);
         message = inTrash ? trashMessage : "View";
         viewOnly = true;
@@ -344,7 +368,7 @@ function matchFullName(fullName:string) {
 
 function containsSubstring(obj:{[key:string]: any}, substring:string) {
   for (const key in obj)
-    if (obj[key].toString().includes(substring)) return true;
+    if (obj[key] && obj[key].toString().includes(substring)) return true;
   return false;
 }
 
