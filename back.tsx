@@ -1,6 +1,9 @@
 import { renderToReadableStream } from "react-dom/server";
 import { Rentap, EditHeaders } from "./rentap"
 
+// argv: [ 'path/to/node', 'path/to/back.tsx', 'arguements' ], so length of 2 means no args. Any args, then phone is true.
+const phone = !(process.argv.length === 2);
+
 const iconfile = Bun.file("icon.txt");
 const base64icon = await iconfile.text();
 const storefile = Bun.file("store.json");
@@ -325,7 +328,7 @@ const server = Bun.serve({
     if (url.pathname.includes("header")) {
       const stream =
         await renderToReadableStream(<EditHeaders icon={base64icon}
-          headers={headers} message={messageEditHeaders} editOption={editOption}/>);
+          headers={headers} message={messageEditHeaders} editOption={editOption} phone={phone} n={phone?2:1}/>);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
@@ -334,7 +337,7 @@ const server = Bun.serve({
         await renderToReadableStream(<Rentap icon={base64icon}
           message={message} viewOnly={viewOnly} inTrash={inTrash}
           ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-          header={headers[headerID]} headerNames={headerNames} />);
+          header={headers[headerID]} headerNames={headerNames} phone={phone} n={phone?2:1} />);
       return new Response(stream, {
         headers: { "Content-Type": "text/html" },
       });
