@@ -1,3 +1,4 @@
+// {{{ za to toggle fold which includes all the imports and global variables
 import { renderToReadableStream } from "react-dom/server";
 import { Rentap, EditHeaders } from "./rentap"
 
@@ -42,311 +43,301 @@ let inTrash = false;
 let searchField='selectSearchFields'
 let apID = 0;
 let headerID = 0;
+// }}}
 
 const server = Bun.serve({
-  port: 3000,
-  async fetch(req) {
-    const url = new URL(req.url);
+  port: 3000, async fetch(req) {
+  const url = new URL(req.url);
 
-    // A bunch of path-handlers for the Rentap page follows. After those, the rest are for the
-    // Applying for Options page. The const stream = ...renderToReadableStream ...
-    // return new Response(stream ...line comes at the end of all these path-handlers.
+  // A bunch of path-handlers for the Rentap page follows. After those, the rest are for the
+  // Applying for Options page. A render follows the switch.
+  // {{{ za to toggle fold: entire switch should be same for both Bun & Termux
 
-    switch (url.pathname) {
-      case '/':
-        message = "New";
-        viewOnly = true;
-        inTrash = false;
-        foundFullNamesUpdate();
-        apID = 0;
-        headerID = 0;
-        break;
-      case '/edit':
-        message = "Edit";
-        viewOnly = false;
-        if (foundFullNames.length === 1) foundFullNamesUpdate();
-        headerID = matchHeader(aps[apID].headerName);
-        break;
-      case '/view':
-        message = "View"
-        viewOnly = true;
-        if (foundFullNames.length === 1) foundFullNamesUpdate();
-        headerID = matchHeader(aps[apID].headerName);
-        break;
-      case '/selectapplyingfor':
-        message = "Edit";
-        viewOnly = false;
-        const headerSubmit = await req.formData();
-        const headerEntries = Object.fromEntries(headerSubmit.entries());
-        const headerNameSelected = headerEntries.selectApplyingFor.toString();
-        if (foundFullNames.length === 1) foundFullNamesUpdate();
-        aps[apID].headerName = headerNameSelected;
-        headerID = matchHeader(aps[apID].headerName);
-        break;
-      case '/sort':
-        message = inTrash ? trashMessage : "View";
-        viewOnly = true;
-        sort = !sort;
-        headerID = matchHeader(aps[apID].headerName);
-        foundFullNamesUpdate();
-        if (sort) { // sort, but don't include the first "name" (a description of the list)
-          const sortedNames = foundFullNames.slice(1).sort()
-          const n0 = foundFullNames[0];
-          foundFullNames.length = 0;
-          foundFullNames.push(n0);
-          for (const n of sortedNames) foundFullNames.push(n);
-        }
-        break;
-      case '/go':
-        const goSubmit = await req.formData();
-        const goEntry = Object.fromEntries(goSubmit.entries());
-        const goID = Number(goEntry.go);
-        if ( !isNaN(goID) && (0 < goID) && (goID < aps.length) ) {
-          apID = goID;
-          inTrash = trash.some((e:any) => e.discardedRow === goID);
-          message = inTrash ? trashMessage : "View";
-          viewOnly = true;
-          headerID = matchHeader(aps[apID].headerName);
-          foundFullNamesUpdate();
-        } else message = "Enter a valid apID";
-        break;
-      case '/prev':
-        gotoPrevID();
-        message = inTrash ? trashMessage : "View";
-        viewOnly = true;
-        if (foundFullNames.length === 1) foundFullNamesUpdate();
-        headerID = matchHeader(aps[apID].headerName);
-        break;
-      case '/next':
-        gotoNextID();
-        message = inTrash ? trashMessage : "View";
-        viewOnly = true;
-        if (foundFullNames.length === 1) foundFullNamesUpdate();
-        headerID = matchHeader(aps[apID].headerName);
-        break;
-      case '/current': // search for existing dateStart without dateStop (should return all aps with agreements that have not terminated)
+  switch (url.pathname) {
+    case '/':
+      message = "New";
+      viewOnly = true;
+      inTrash = false;
+      foundFullNamesUpdate();
+      apID = 0;
+      headerID = 0;
+      break;
+    case '/edit':
+      message = "Edit";
+      viewOnly = false;
+      if (foundFullNames.length === 1) foundFullNamesUpdate();
+      headerID = matchHeader(aps[apID].headerName);
+      break;
+    case '/view':
+      message = "View"
+      viewOnly = true;
+      if (foundFullNames.length === 1) foundFullNamesUpdate();
+      headerID = matchHeader(aps[apID].headerName);
+      break;
+    case '/selectapplyingfor':
+      message = "Edit";
+      viewOnly = false;
+      const headerEntry = await getFormData(req);
+      const headerNameSelected = headerEntry.selectApplyingFor.toString();
+      if (foundFullNames.length === 1) foundFullNamesUpdate();
+      aps[apID].headerName = headerNameSelected;
+      headerID = matchHeader(aps[apID].headerName);
+      break;
+    case '/sort':
+      message = inTrash ? trashMessage : "View";
+      viewOnly = true;
+      sort = !sort;
+      headerID = matchHeader(aps[apID].headerName);
+      foundFullNamesUpdate();
+      if (sort) { // sort, but don't include the first "name" (a description of the list)
+        const sortedNames = foundFullNames.slice(1).sort()
+        const n0 = foundFullNames[0];
         foundFullNames.length = 0;
-        foundFullNames.push(inTrash ? "Search Results in Trash" : "Search Results (not Discarded)");
+        foundFullNames.push(n0);
+        for (const n of sortedNames) foundFullNames.push(n);
+      }
+    break;
+    case '/go':
+      const goEntry = await getFormData(req);
+      const goID = Number(goEntry.go);
+      if ( !isNaN(goID) && (0 < goID) && (goID < aps.length) ) {
+        apID = goID;
+        inTrash = trash.some((e:any) => e.discardedRow === goID);
+        message = inTrash ? trashMessage : "View";
+        viewOnly = true;
+        headerID = matchHeader(aps[apID].headerName);
+        foundFullNamesUpdate();
+      } else message = "Enter a valid apID";
+      break;
+    case '/prev':
+      gotoPrevID();
+      message = inTrash ? trashMessage : "View";
+      viewOnly = true;
+      if (foundFullNames.length === 1) foundFullNamesUpdate();
+      headerID = matchHeader(aps[apID].headerName);
+      break;
+    case '/next':
+      gotoNextID();
+      message = inTrash ? trashMessage : "View";
+      viewOnly = true;
+      if (foundFullNames.length === 1) foundFullNamesUpdate();
+      headerID = matchHeader(aps[apID].headerName);
+      break;
+    case '/current': // search for existing dateStart without dateStop (should return all aps with agreements that have not terminated)
+      foundFullNames.length = 0;
+      foundFullNames.push(inTrash ? "Search Results in Trash" : "Search Results (not Discarded)");
+      for (const ap of aps) {
+        if (!deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) { // nothing to search for in deleted aps
+          if (inTrash) { // searching in trash (shouldn't have current agreements in trash, but maybe there by mistake)
+            if(trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) // verify the ap is in trash
+            && ap["dateStart"] && !ap["dateStop"]) {
+              foundFullNames.push(ap.FullName);
+            }
+          } else { // searching aps not in trash
+            if(!trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) // verify the ap is not in trash
+            && ap["dateStart"] && !ap["dateStop"]) {
+              foundFullNames.push(ap.FullName);
+            }
+          }
+        }
+      }
+      if (foundFullNames.length === 1) foundFullNamesUpdate(); // nothing found even though search completed, just show all
+      else apID = matchFullName(foundFullNames[1]);
+      message = inTrash ? trashMessage : "View";
+      viewOnly = true;
+      headerID = matchHeader(aps[apID].headerName);
+      break;
+    case '/search':
+      const searchEntry = await getFormData(req);
+      const search = searchEntry.search.toString();
+      searchField = searchEntry.searchFields.toString();
+      foundFullNames.length = 0;
+      foundFullNames.push(inTrash ? "Search Results in Trash" : "Search Results (not Discarded)");
+      if (search) { // no need to search if the search string is empty
         for (const ap of aps) {
           if (!deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) { // nothing to search for in deleted aps
-            if (inTrash) { // searching in trash (shouldn't have current agreements in trash, but maybe there by mistake)
+            if (inTrash) { // searching in trash
               if(trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) // verify the ap is in trash
-              && ap["dateStart"] && !ap["dateStop"]) {
+              && containsSubstring(searchField==='selectSearchFields' ? ap : {searchField:ap[searchField]}, search)) {
                 foundFullNames.push(ap.FullName);
               }
             } else { // searching aps not in trash
               if(!trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) // verify the ap is not in trash
-              && ap["dateStart"] && !ap["dateStop"]) {
+              && containsSubstring(searchField==='selectSearchFields' ? ap : {searchField:ap[searchField]}, search)) {
                 foundFullNames.push(ap.FullName);
               }
             }
           }
         }
-        if (foundFullNames.length === 1) foundFullNamesUpdate(); // nothing found even though search completed, just show all
-        else apID = matchFullName(foundFullNames[1]);
-        message = inTrash ? trashMessage : "View";
-        viewOnly = true;
-        headerID = matchHeader(aps[apID].headerName);
-        break;
-      case '/search':
-        const searchSubmit = await req.formData();
-        const searchEntries = Object.fromEntries(searchSubmit.entries());
-        const search = searchEntries.search.toString();
-        searchField = searchEntries.searchFields.toString();
-        foundFullNames.length = 0;
-        foundFullNames.push(inTrash ? "Search Results in Trash" : "Search Results (not Discarded)");
-        if (search) { // no need to search if the search string is empty
-          for (const ap of aps) {
-            if (!deleted.some((e:any) => e.deletedRow === aps.indexOf(ap))) { // nothing to search for in deleted aps
-              if (inTrash) { // searching in trash
-                if(trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) // verify the ap is in trash
-                && containsSubstring(searchField==='selectSearchFields' ? ap : {searchField:ap[searchField]}, search)) {
-                  foundFullNames.push(ap.FullName);
-                }
-              } else { // searching aps not in trash
-                if(!trash.some((e:any) => e.discardedRow === aps.indexOf(ap)) // verify the ap is not in trash
-                && containsSubstring(searchField==='selectSearchFields' ? ap : {searchField:ap[searchField]}, search)) {
-                  foundFullNames.push(ap.FullName);
-                }
-              }
-            }
-          }
-        } else { // no search done because search string was empty
-          foundFullNamesUpdate(); // just show all
-          searchField='selectSearchFields';
-        }
-        if (foundFullNames.length === 1) foundFullNamesUpdate(); // nothing found even though search completed, just show all
-        else apID = matchFullName(foundFullNames[1]);
-        message = inTrash ? trashMessage : "View";
-        viewOnly = true;
-        headerID = matchHeader(aps[apID].headerName);
-        break;
-      case '/select':
-        const selectNameSubmit = await req.formData();
-        const selectedFullName = Object.fromEntries(selectNameSubmit.entries());
-        message = inTrash ? trashMessage : "View";
-        viewOnly = true;
-        if (foundFullNames.length === 1) foundFullNamesUpdate();
-        apID = matchFullName(selectedFullName.select.toString());
-        headerID = matchHeader(aps[apID].headerName);
-        break;
-      case '/trash':
-        message = trashMessage;
-        viewOnly = true;
-        inTrash = true;
-        gotoNextID();
-        headerID = matchHeader(aps[apID].headerName);
-        foundFullNamesUpdate();
-        break;
-      case '/exittrash':
-        message = "View";
-        viewOnly = true;
-        inTrash = false;
-        gotoPrevID();
-        headerID = matchHeader(aps[apID].headerName);
-        foundFullNamesUpdate();
-        break;
-      case '/discard':
-        //put apID in trash if not already there
-        if (!trash.some((e:any) => e.discardedRow === apID)) {
-          trash.push({discardedRow:apID});
-          saveAll();
-        }
-        message = trashMessage;
-        viewOnly = true;
-        inTrash = true;
-        headerID = matchHeader(aps[apID].headerName);
-        if (foundFullNames.length === 1) foundFullNamesUpdate();
-        break;
-      case '/restore':
-        //remove apID from trash if it's in there
-        if (trash.some((e:any) => e.discardedRow === apID)) {
-          const trashApIDindex = trash.map((e:any) => e.discardedRow).indexOf(apID);
-          trash.splice(trashApIDindex,1);
-          saveAll();
-        }
-        message = "Edit";
-        viewOnly = false;
-        inTrash = false;
-        headerID = matchHeader(aps[apID].headerName);
-        if (foundFullNames.length === 1) foundFullNamesUpdate();
-        break;
-      case '/delete':
-        //put apID in deleted if not already there and delete the ap
-        if (!deleted.some((e:any) => e.deletedRow === apID)) {
-          //add to deleted list and remove from trash list
-          deleted.push({deletedRow:apID});
-          const trashApIDindex = trash.map((e:any) => e.discardedRow).indexOf(apID);
-          trash.splice(trashApIDindex,1);
-          //delete the information
-          aps[apID] = {"FullName":"Deleted apID:" + apID,"SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateStart":"","dateStop":"","headerName":""};
-          saveAll();
-        }
-        message = trashMessage;
-        viewOnly = true;
-        inTrash = true;
-        headerID = matchHeader(aps[apID].headerName);
-        if (foundFullNames.length === 1) foundFullNamesUpdate();
-        break;
-      case '/save':
-        message = "Nothing to save";
-        const rentapFormData = await req.formData();
-        const apSave = Object.fromEntries(rentapFormData.entries());
-        if (apIsEdited(apSave)) {
-          aps[apID] = apSave;
-          saveAll();
-          message = apHasUndefined ? "Saved and replaced undefined entries with ''" : "Saved";
-        } else if (apIsUnique(apSave) && apIsNew(apSave)) {
-          aps.push(apSave);
-          apID = aps.length -1;
-          saveAll();
-          message = "Saved";
-        } else if (!apID) { // only display the "already applied" message if user is trying to add a new application (which has to be at apID=0)
-          const FullName = apSave.FullName.toString().trim();
-          let First = FullName;
-          if(First.indexOf(' ')!==-1)
-            First = First.substring(0, First.indexOf(' '));
-          const AfterFirst = FullName.substring(First.length);
-          message = `${apSave.FullName} already applied. Append this new information to that previous application,
-                     or use numbers as in: '${First} 1 ${AfterFirst}' & '${First} 2 ${AfterFirst}'`;
-        }
-        // write to file if doesn't exist already
-        if (!sJfT) saveAll();
-        viewOnly = true;
-        headerID = matchHeader(aps[apID].headerName);
-        if (foundFullNames.length === 1) foundFullNamesUpdate();
-        break;
-      case '/editheaders':
-        messageEditHeaders = "Rentap";
-        break;
-      case '/delheader':
-        const delSubmit = await req.formData();
-        const delIndex = Object.fromEntries(delSubmit.entries());
-        const dI = Number(delIndex.Row);
-        if ( !isNaN(dI) && (0 < dI) && (dI < headers.length) &&
-          !aps.some((ap:any) => ap.headerName ===headers[dI].Name) )
-        {
-          const delName = headers[dI].Name;
-          headers.splice(dI,1);
-          headerNames.splice(dI,1); // keep headerNames in sync with headers
-          saveAll();
-          messageEditHeaders = "Deleted '" + delName + "' that was on row " + dI;
-        } else if ( !(!isNaN(dI) && (0 < dI) && (dI < headers.length)) )
-          messageEditHeaders = "Please enter a valid row to be deleted"
-        else messageEditHeaders = "Can't delete row " + delIndex + " because '" + headers[dI].Name + "' is in use."
-        break;
-      case '/editheader':
-        messageEditHeaders = 'Rentap';
-        const selectHeaderSubmit = await req.formData();
-        const selOption = Object.fromEntries(selectHeaderSubmit.entries());
-        editOption = selOption.select.toString();
-        break;
-      case '/saveheader':
-        const headerFormData = await req.formData();
-        const headerSave = Object.fromEntries(headerFormData.entries());
-        const headerRow = headerNames.indexOf(headerSave.Name);
-        headers[headerRow] = headerSave;
+      } else { // no search done because search string was empty
+        foundFullNamesUpdate(); // just show all
+        searchField='selectSearchFields';
+      }
+      if (foundFullNames.length === 1) foundFullNamesUpdate(); // nothing found even though search completed, just show all
+      else apID = matchFullName(foundFullNames[1]);
+      message = inTrash ? trashMessage : "View";
+      viewOnly = true;
+      headerID = matchHeader(aps[apID].headerName);
+      break;
+    case '/select':
+      const selectedFullName = await getFormData(req);
+      message = inTrash ? trashMessage : "View";
+      viewOnly = true;
+      if (foundFullNames.length === 1) foundFullNamesUpdate();
+      apID = matchFullName(selectedFullName.select.toString());
+      headerID = matchHeader(aps[apID].headerName);
+      break;
+    case '/trash':
+      message = trashMessage;
+      viewOnly = true;
+      inTrash = true;
+      gotoNextID();
+      headerID = matchHeader(aps[apID].headerName);
+      foundFullNamesUpdate();
+      break;
+    case '/exittrash':
+      message = "View";
+      viewOnly = true;
+      inTrash = false;
+      gotoPrevID();
+      headerID = matchHeader(aps[apID].headerName);
+      foundFullNamesUpdate();
+      break;
+    case '/discard':
+      //put apID in trash if not already there
+      if (!trash.some((e:any) => e.discardedRow === apID)) {
+        trash.push({discardedRow:apID});
         saveAll();
-        messageEditHeaders = 'Rentap';
-        break;
-      case '/addheader':
-        messageEditHeaders = "Option Added";
-        const addHeaderFormData = await req.formData();
-        const headerAdd = Object.fromEntries(addHeaderFormData.entries());
-        if (headers.some((h:any) => h.Name === headerAdd.Name))
-          messageEditHeaders = "Choose a unique name for the new option.";
-        else {
-          headers.push(headerAdd);
-          headerNames.push(headerAdd.Name); // keep headerNames in sync with headers
-          saveAll();
-        }
-        break;
-      default:
-        return new Response("Not Found", { status: 404 });
-    }
+      }
+      message = trashMessage;
+      viewOnly = true;
+      inTrash = true;
+      headerID = matchHeader(aps[apID].headerName);
+      if (foundFullNames.length === 1) foundFullNamesUpdate();
+      break;
+    case '/restore':
+      //remove apID from trash if it's in there
+      if (trash.some((e:any) => e.discardedRow === apID)) {
+        const trashApIDindex = trash.map((e:any) => e.discardedRow).indexOf(apID);
+        trash.splice(trashApIDindex,1);
+        saveAll();
+      }
+      message = "Edit";
+      viewOnly = false;
+      inTrash = false;
+      headerID = matchHeader(aps[apID].headerName);
+      if (foundFullNames.length === 1) foundFullNamesUpdate();
+      break;
+    case '/delete':
+      //put apID in deleted if not already there and delete the ap
+      if (!deleted.some((e:any) => e.deletedRow === apID)) {
+        //add to deleted list and remove from trash list
+        deleted.push({deletedRow:apID});
+        const trashApIDindex = trash.map((e:any) => e.discardedRow).indexOf(apID);
+        trash.splice(trashApIDindex,1);
+        //delete the information
+        aps[apID] = {"FullName":"Deleted apID:" + apID,"SSN":"","BirthDate":"","MaritalStatus":"","Email":"","StateID":"","Phone1":"","Phone2":"","CurrentAddress":"","PriorAddresses":"","ProposedOccupants":"","ProposedPets":"","Income":"","Employment":"","Evictions":"","Felonies":"","dateApplied":"","dateStart":"","dateStop":"","headerName":""};
+        saveAll();
+      }
+      message = trashMessage;
+      viewOnly = true;
+      inTrash = true;
+      headerID = matchHeader(aps[apID].headerName);
+      if (foundFullNames.length === 1) foundFullNamesUpdate();
+      break;
+    case '/save':
+      message = "Nothing to save";
+      const apSave = await getFormData(req);
+      if (apIsEdited(apSave)) {
+        aps[apID] = apSave;
+        saveAll();
+        message = apHasUndefined ? "Saved and replaced undefined entries with ''" : "Saved";
+      } else if (apIsUnique(apSave) && apIsNew(apSave)) {
+        aps.push(apSave);
+        apID = aps.length -1;
+        saveAll();
+        message = "Saved";
+      } else if (!apID) { // only display the "already applied" message if user is trying to add a new application (which has to be at apID=0)
+        const FullName = apSave.FullName.toString().trim();
+        let First = FullName;
+        if(First.indexOf(' ')!==-1)
+          First = First.substring(0, First.indexOf(' '));
+        const AfterFirst = FullName.substring(First.length);
+        message = `${apSave.FullName} already applied. Append this new information to that previous application,
+                   or use numbers as in: '${First} 1 ${AfterFirst}' & '${First} 2 ${AfterFirst}'`;
+      }
+      // write to file if doesn't exist already
+      if (!sJfT) saveAll();
+      viewOnly = true;
+      headerID = matchHeader(aps[apID].headerName);
+      if (foundFullNames.length === 1) foundFullNamesUpdate();
+      break;
+    case '/editheaders':
+      messageEditHeaders = "Rentap";
+      break;
+    case '/delheader':
+      const delIndex = await getFormData(req);
+      const dI = Number(delIndex.Row);
+      if ( !isNaN(dI) && (0 < dI) && (dI < headers.length) &&
+        !aps.some((ap:any) => ap.headerName ===headers[dI].Name) )
+      {
+        const delName = headers[dI].Name;
+        headers.splice(dI,1);
+        headerNames.splice(dI,1); // keep headerNames in sync with headers
+        saveAll();
+        messageEditHeaders = "Deleted '" + delName + "' that was on row " + dI;
+      } else if ( !(!isNaN(dI) && (0 < dI) && (dI < headers.length)) )
+        messageEditHeaders = "Please enter a valid row to be deleted"
+      else messageEditHeaders = "Can't delete row " + delIndex + " because '" + headers[dI].Name + "' is in use."
+      break;
+    case '/editheader':
+      messageEditHeaders = 'Rentap';
+      const selOption = await getFormData(req);
+      editOption = selOption.select.toString();
+      break;
+    case '/saveheader':
+      const headerSave = await getFormData(req);
+      const headerRow = headerNames.indexOf(headerSave.Name);
+      headers[headerRow] = headerSave;
+      saveAll();
+      messageEditHeaders = 'Rentap';
+      break;
+    case '/addheader':
+      messageEditHeaders = "Option Added";
+      const headerAdd = await getFormData(req);
+      if (headers.some((h:any) => h.Name === headerAdd.Name))
+        messageEditHeaders = "Choose a unique name for the new option.";
+      else {
+        headers.push(headerAdd);
+        headerNames.push(headerAdd.Name); // keep headerNames in sync with headers
+        saveAll();
+      }
+      break;
+    default:
+      return new Response("Not Found", { status: 404 });
+  }
+// }}}
 
-    if (url.pathname.includes("header")) {
-      const stream =
-        await renderToReadableStream(<EditHeaders icon={base64icon}
-          headers={headers} message={messageEditHeaders} editOption={editOption} phone={phone} n={phone?2:1}/>);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    } else {
-      const stream =
-        await renderToReadableStream(<Rentap icon={base64icon}
-          message={message} viewOnly={viewOnly} inTrash={inTrash}
-          ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-          header={headers[headerID]} headerNames={headerNames} phone={phone} n={phone?2:1} />);
-      return new Response(stream, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-
-  },
+  if (url.pathname.includes("header")) {
+    const stream =
+      await renderToReadableStream(<EditHeaders icon={base64icon}
+        headers={headers} message={messageEditHeaders} editOption={editOption} phone={phone} n={phone?2:1}/>);
+    return new Response(stream, {
+      headers: { "Content-Type": "text/html" },
+    });
+  } else {
+    const stream =
+      await renderToReadableStream(<Rentap icon={base64icon}
+        message={message} viewOnly={viewOnly} inTrash={inTrash}
+        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
+        header={headers[headerID]} headerNames={headerNames} phone={phone} n={phone?2:1} />);
+    return new Response(stream, {
+      headers: { "Content-Type": "text/html" },
+    });
+  }},
 });
 
-
+// {{{ za to toggle fold: all these functions should be same for both Bun & Termux
 function formatArray(arrObj:Array<Object>) {
   // write each array element on it's own line if there's more than one
   const [a0, ...aRest] = arrObj;
@@ -434,15 +425,6 @@ function gotoNextID() {
         apID < aps.length-1 ? apID++ : apID=0;
 }
 
-async function saveAll() {
-  const fAps = formatArray(aps);
-  const fHeaders = formatArray(headers);
-  const fTrash = formatArray(trash);
-  const fDeleted = formatArray(deleted);
-  const formattedStore = `\{"aps":${fAps}, "headers":${fHeaders}, "trash":${fTrash}, "deleted":${fDeleted}\}`;
-  await Bun.write("./store.json", formattedStore);
-}
-
 function foundFullNamesUpdate() {
   foundFullNames.length = 0;
   foundFullNames.push(sort ?
@@ -457,6 +439,23 @@ function foundFullNamesUpdate() {
         foundFullNames.push(ap.FullName);
     }
   }
+}
+// }}}
+
+async function saveAll() {
+  const fAps = formatArray(aps);
+  const fHeaders = formatArray(headers);
+  const fTrash = formatArray(trash);
+  const fDeleted = formatArray(deleted);
+  const formattedStore = `\{"aps":${fAps}, "headers":${fHeaders}, "trash":${fTrash}, "deleted":${fDeleted}\}`;
+  // this last line is why saveAll() can't be the same for both Bun and Termux
+  await Bun.write("./store.json", formattedStore);
+}
+
+// just a function to make code look the same between Bun and Termux versions
+async function getFormData(req:any) {
+  const reqSubmit = await req.formData();
+  return Object.fromEntries(reqSubmit.entries());
 }
 
 console.log(`Listening on http://localhost:${server.port}`);
