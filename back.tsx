@@ -273,7 +273,7 @@ const server = Bun.serve({
       if (foundFullNames.length === 1) foundFullNamesUpdate();
       break;
     case '/editheaders':
-      messageEditHeaders = "Rentap";
+      messageEditHeaders = "'Applying for' Options";
       break;
     case '/delheader':
       const delIndex = await getFormData(req);

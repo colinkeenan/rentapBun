@@ -5,6 +5,20 @@ const requiredFields = ["FullName", "dateApplied"]; // possibilities: FullName, 
 const fS = {"lbl":14,"a":21, "tbl":22, "p":23.5, "h3":28}; // font sizes
 let m = 1;
 
+function Banner ({icon, marginLeft, minWidth, maxWidth, message}:{icon:string, marginLeft:number, minWidth:number, maxWidth:number, message:string}) {
+  return (
+      <>
+        <div style={{display:'flex', minHeight:76*m, border:'8px solid white', marginBottom:16*m, marginLeft:marginLeft, minWidth:minWidth, maxWidth:maxWidth}} >
+          <div style={{flex:'grow', textAlign:'center', backgroundColor:'darkred', width:70*m}} >
+            <a href='/view' ><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" style={{marginTop:12*m, width:'70%', height:'auto'}} /></a>
+          </div>
+          <div style={{flex: 1, alignItems:'center', minHeight:54*m, fontWeight:'bold', textAlign:'center', backgroundColor:'darkblue', color:'white', fontSize:fS.p*m }}>
+            <p> {message} </p>
+          </div>
+        </div>
+      </>
+  )
+}
 export function EditHeaders ({headers, icon, message, editOption, phone, n}: {headers:{[key:string]:any}, icon:string, message:string, editOption:string, phone:boolean, n:number}) {
   // m is the global magnification factor
   m=n;
@@ -19,12 +33,10 @@ export function EditHeaders ({headers, icon, message, editOption, phone, n}: {he
       <meta charSet="utf-8" />
       <title>Rentap Options</title>
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
-      <header style={{maxWidth: maxWidth }}>
-        <a href='/view'><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" /></a>
-        <div style={{display:'inline-block', fontWeight:'bold', color:'blue', fontSize:fS.p*m}}> {message} </div>
+      <header >
+        <Banner icon={icon} marginLeft={m} minWidth={400*m} maxWidth={maxWidth+m} message={message} />
       </header>
       <body style={{backgroundColor:rLightBlue, maxWidth: maxWidth }} >
-        <h3 style={{backgroundColor:'darkblue', color:'white', textAlign:'center', maxWidth:maxWidth, fontSize:fS.h3*m}}>'Applying for:' Options</h3>
         <fieldset style={fieldsetStyle}>
           <legend style={legendStyle}>Delete Option</legend>
           <form action="/delheader" method="post" encType="multipart/form-data" style={{display:'flex', justifyContent:'center'}} >
@@ -91,7 +103,7 @@ export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames
   const legendStyle={width:'auto', marginLeft:'auto', marginRight:'auto', color:rGray};
   // when toggling Sort/Unsort button, check whether or not "Sorted:" was inserted at top of list
   const sorted = foundFullNames[0].substring(0,7) === "Sorted:";
-  const maxWidth = phone ? 428*m : 1394*m; // force single-column on phone
+  const maxWidth = phone ? 427*m : 1394*m; // force single-column on phone
 
   return (
     <>
@@ -99,14 +111,7 @@ export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames
       <title>Rentap</title>
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
       <header style={{maxWidth: maxWidth}}>
-        <div style={{display:'flex', minHeight:76*m, border:'8px solid white', marginBottom:16*m, marginLeft:16*m, minWidth:425*m, maxWidth:maxWidth}} >
-          <div style={{flex:'grow', textAlign:'center', backgroundColor:'darkred', width:70*m}} >
-            <a href='/view' ><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" style={{marginTop:12*m}} /></a>
-          </div>
-          <div style={{flex: 1, alignItems:'center', minHeight:54*m, fontWeight:'bold', textAlign:'center', backgroundColor:'darkblue', color:'white', fontSize:fS.p*m }}>
-            <p> {message} </p>
-          </div>
-        </div>
+        <Banner icon={icon} marginLeft={14*m} minWidth={427*m} maxWidth={maxWidth-44} message={message} />
         <fieldset style={fieldsetStyle}>
           <legend style={legendStyle}>Navigation</legend>
           <div style={{display:'flex', justifyContent:'space-between'}}>
