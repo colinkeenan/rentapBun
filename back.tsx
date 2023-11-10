@@ -65,10 +65,12 @@ const server = Bun.serve({
       headerID = 0;
       break;
     case '/edit':
-      message = "Edit";
-      viewOnly = false;
-      if (foundFullNames.length === 1) foundFullNamesUpdate();
-      headerID = matchHeader(aps[apID].headerName);
+      if (apID) {
+        message = "Edit";
+        viewOnly = false;
+        if (foundFullNames.length === 1) foundFullNamesUpdate();
+        headerID = matchHeader(aps[apID].headerName);
+      } else message = "Update 'Applying for:' section before editing a blank application"
       break;
     case '/view':
       message = "View"

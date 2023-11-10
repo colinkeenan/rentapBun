@@ -108,9 +108,7 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
           <div style={{display:'block'}}>
             <div style={{display:'flex', justifyContent:'space-between', marginBottom:5*m}}>
               <Lbutton link="/" text="New" />
-              {!apID ? <div>&bull;</div> :
-                <Lbutton link={viewOnly?'/edit':'/view'} text={viewOnly?'Edit':'View'} />
-              }
+              {viewOnly ? <Lbutton link='/edit' text='Edit' /> : <Submit name="Save" form="ap" /> }
               {ap.FullName==="Deleted apID:" + apID ? <div>&bull;</div> :
                 <Lbutton link={inTrash ? "/restore" : "/discard"} text={inTrash ? "Restore" : "Discard"} />
               }
@@ -125,7 +123,7 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
         </fieldset>
       </header>
       <body style={{backgroundColor:rLightBlue, maxWidth: maxWidth}} >
-      <form action="/save" method="post" encType="multipart/form-data" >
+      <form action="/save" id="ap" method="post" encType="multipart/form-data" >
         <fieldset style={fieldsetStyle}>
           <legend style={legendStyle}>Identity</legend>
           <Label forId="fullname"  labelText="Full Name"  />     <Field type="text"  name="FullName"      placeholder="First Middle Last" width='73%' ap={ap} viewOnly={viewOnly}  />
@@ -158,13 +156,14 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
           <TextArea rows={15} name="Felonies"          placeholder="Felonies/Drug Convictions, or other notes" ap={ap} viewOnly={viewOnly}  />
         </fieldset>
         <br />
-        <fieldset style={fieldsetStyle}>
-          <legend style={legendStyle}>Agreement Dates</legend>
-          <Label forId="datestart" labelText="Start | Stop" /> <Field type="date" name="dateStart" placeholder="" width='36%' ap={ap} viewOnly={viewOnly}  />
-                                                              <Field type="date" name="dateStop"  placeholder="" width='36%' ap={ap} viewOnly={viewOnly}  />
-        </fieldset>
-        <Label forId="dateapplied" labelText="Applied" /> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly}  />
-        {viewOnly ? "" : <><div style={{marginLeft:15*m}}></div> <Submit name="Save" /></>}
+        <div style={{display:'flex', justifyContent:'space-between', minWidth:446*m, maxWidth:maxWidth-20}}>
+          <fieldset style={fieldsetStyle}>
+            <legend style={legendStyle}>Agreement Dates</legend>
+            <Label forId="datestart" labelText="Start | Stop" /> <Field type="date" name="dateStart" placeholder="" width={150*m} ap={ap} viewOnly={viewOnly}  />
+                                                                <Field type="date" name="dateStop"  placeholder="" width={150*m} ap={ap} viewOnly={viewOnly}  />
+          </fieldset >
+          <div style={{display:'block'}}> <Label forId="dateapplied" labelText="Applied" /> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly}  /> </div>
+        </div>
       </form>
       </body>
     </>
@@ -251,7 +250,7 @@ function Label({forId, labelText}: {forId:string, labelText:string}) {
   )
 }
 
-function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, name: string, placeholder: string, width: string, ap?: {[key:string]: any}, viewOnly: boolean }) {
+function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, name: string, placeholder: string, width: string | number, ap?: {[key:string]: any}, viewOnly: boolean }) {
   const required = requiredFields.some((r:string) => r === name);
   return (
     <input type={type} name={name} id={name.toLowerCase()} placeholder={placeholder}
@@ -286,15 +285,16 @@ function Th({text}:{text:string}) {
   )
 }
 
-function Submit({name}:{name:string}) {
+function Submit({name, form}:{name:string, form?:string}) {
   return (
-    <input type="submit" name={name} id={name.toLowerCase()} defaultValue={name} style={{backgroundColor: name==='X' ? 'darkred' : 'darkblue', color:'white', fontSize:fS.a*m}}/>
+    <input type="submit" name={name} id={name.toLowerCase()} defaultValue={name} form={form}
+      style={{backgroundColor: name==='X' ? 'darkred' : 'darkblue', color:'white', fontSize:fS.a*m, maxHeight:30*m}}/>
   )
 }
 
 function Lbutton({link, text}:{link:string, text:string}) {
   return (
-    <a href={link}><button type="button" style={{backgroundColor: link==='/delete' ? 'darkred' : rGray, color:'white', fontSize:fS.a*m }} >{text}</button></a>
+    <a href={link}><button type="button" style={{backgroundColor: link==='/delete' || link==='/edit' ? 'darkred' : rGray, color:'white', fontSize:fS.a*m }} >{text}</button></a>
   )
 }
 
