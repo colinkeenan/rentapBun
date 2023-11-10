@@ -19,6 +19,7 @@ function Banner ({icon, marginLeft, minWidth, maxWidth, message}:{icon:string, m
       </>
   )
 }
+
 export function EditHeaders ({headers, icon, message, editOption, phone, n}: {headers:{[key:string]:any}, icon:string, message:string, editOption:string, phone:boolean, n:number}) {
   // m is the global magnification factor
   m=n;
@@ -282,13 +283,13 @@ function Th({text}:{text:string}) {
 
 function Submit({name}:{name:string}) {
   return (
-    <input type="submit" name={name} id={name.toLowerCase()} defaultValue={name} style={{backgroundColor:'darkblue', color:'white', fontSize:fS.a*m}}/>
+    <input type="submit" name={name} id={name.toLowerCase()} defaultValue={name} style={{backgroundColor: name==='X' ? 'darkred' : 'darkblue', color:'white', fontSize:fS.a*m}}/>
   )
 }
 
 function Lbutton({link, text}:{link:string, text:string}) {
   return (
-    <a href={link}><button type="button" style={{backgroundColor:rGray, color:'white', fontSize:fS.a*m }} >{text}</button></a>
+    <a href={link}><button type="button" style={{backgroundColor: link==='/delete' ? 'darkred' : rGray, color:'white', fontSize:fS.a*m }} >{text}</button></a>
   )
 }
 
