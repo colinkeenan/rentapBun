@@ -5,97 +5,28 @@ const requiredFields = ["FullName", "dateApplied"]; // possibilities: FullName, 
 const fS = {"lbl":14,"a":21, "tbl":22, "p":23.5, "h3":28}; // font sizes
 let m = 1;
 
-function Banner ({icon, marginLeft, minWidth, maxWidth, message}:{icon:string, marginLeft:number, minWidth:number, maxWidth:number, message:string}) {
+function Banner ({icon, trash, marginLeft, minWidth, maxWidth, inTrash, message}:
+  {icon:string, trash:string, marginLeft:number, minWidth:number, maxWidth:number, inTrash:boolean, message:string}) {
   return (
       <>
         <div style={{display:'flex', minHeight:76*m, border:'8px solid white', marginBottom:16*m, marginLeft:marginLeft, minWidth:minWidth, maxWidth:maxWidth}} >
           <div style={{flex:'grow', textAlign:'center', backgroundColor:'darkred', width:70*m}} >
-            <a href='/view' ><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" style={{marginTop:12*m, width:'70%', height:'auto'}} /></a>
+            <a href= {inTrash ? '/exittrash' : '/view'} ><img src={`data:image/png;base64,${icon}`} alt="Rentap Icon" style={{marginTop:12*m, width:'70%', height:'auto'}} /></a>
           </div>
           <div style={{flex: 1, alignItems:'center', minHeight:54*m, fontWeight:'bold', textAlign:'center', backgroundColor:'darkblue', color:'white', fontSize:fS.p*m }}>
             <p> {message} </p>
+          </div>
+          <div style={{flex:'grow', textAlign:'center', backgroundColor:'darkred', width:70*m}} >
+            <a href='/trash' ><img src={`data:image/png;base64,${trash}`} alt="View Discarded" style={{marginTop:12*m, width:'70%', height:'auto'}} /></a>
           </div>
         </div>
       </>
   )
 }
 
-export function EditHeaders ({headers, icon, message, editOption, phone, n}: {headers:{[key:string]:any}, icon:string, message:string, editOption:string, phone:boolean, n:number}) {
-  // m is the global magnification factor
-  m=n;
-  const fieldsetStyle={display:'inline-block', width:300*m, border:'none', fontSize:fS.p*m};
-  const legendStyle={width:'auto', marginLeft:'auto', marginRight:'auto', color:rGray};
-  const maxWidth = phone ? 400*m : 1200*m; // force single-column on phone
-  const headerNames = headers.map((header:any) => header.Name);
-  headerNames[0] = "Select Option to Edit"
-  const editRow = editOption ? headerNames.indexOf(editOption) : 0;
-  return (
-    <>
-      <meta charSet="utf-8" />
-      <title>Rentap Options</title>
-      <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
-      <header >
-        <Banner icon={icon} marginLeft={m} minWidth={400*m} maxWidth={maxWidth+m} message={message} />
-      </header>
-      <body style={{backgroundColor:rLightBlue, maxWidth: maxWidth }} >
-        <fieldset style={fieldsetStyle}>
-          <legend style={legendStyle}>Delete Option</legend>
-          <form action="/delheader" method="post" encType="multipart/form-data" style={{display:'flex', justifyContent:'center'}} >
-            <Submit name="X"/>
-            <Field type= "number" name="Row" placeholder="Row" width="30%" viewOnly={false}/>
-          </form>
-        </fieldset>
-        <fieldset style={fieldsetStyle}>
-          <legend style={legendStyle}>Edit Option</legend>
-          <form action="/editheader" method="post" encType="multipart/form-data" style={{display:'flex'}}  >
-            <select name="select" id="select" style={{fontSize:fS.a*m, width:'100%'}}  value={headerNames[editRow]} onChange={function(){}} >
-              {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
-            </select>
-            <Submit name="Edit"/>
-          </form>
-          <form action="/saveheader" method="post" encType="multipart/form-data">
-            <div style={{display:'flex'}}>
-              <Submit name="Save"/>
-              <Field type= "text" name="Name" placeholder="" width="100%" ap={headers[editRow]} viewOnly={true} />
-            </div>
-            <Field type= "text" name="StreetAddress" placeholder="Street Address" width="100%" ap={headers[editRow]} viewOnly={false} />
-            <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="100%" ap={headers[editRow]} viewOnly={false} />
-            <Field type= "text" name="Title" placeholder="Title" width="100%" ap={headers[editRow]} viewOnly={false} />
-          </form>
-        </fieldset>
-        <fieldset style={fieldsetStyle}>
-          <legend style={legendStyle}>Add Option</legend>
-          <form action="/addheader" method="post" encType="multipart/form-data">
-            <div style={{display:'flex'}}>
-              <Submit name="+" />
-              <Field type= "text" name="Name" placeholder="Unique Option Name" width="100%" viewOnly={false} />
-            </div>
-            <Field type= "text" name="StreetAddress" placeholder="Street Address" width="100%" viewOnly={false} />
-            <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="100%" viewOnly={false} />
-            <Field type= "text" name="Title" placeholder="Title" width="100%" viewOnly={false} />
-          </form>
-        </fieldset>
-        <table style={{backgroundColor:'black'}}>
-          <thead>
-            <tr> <Th text="Row" /> <Th text="Unique Option Name" /> <Th text="Street Address" /> <Th text="City State Zip" /> <Th text="Title" /> </tr>
-          </thead>
-          <tbody> {
-            headers.map (
-              (h:any) => h.Name && //skip headers[0] which has all blank entries
-              <tr key={h.Name}>
-                <TdR text={headers.indexOf(h)} /> <Td text={h.Name} /> <Td text={h.StreetAddress} /> <Td text={h.CityStateZip} /> <Td text={h.Title} />
-              </tr>
-            )
-          } </tbody>
-        </table>
-      </body>
-    </>
-  )
-}
-
-export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames, apID, header, headerNames, inTrash, phone, n }:
+export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFullNames, apID, header, headerNames, inTrash, phone, n }:
   {message:string, viewOnly:boolean, inTrash:boolean
-    icon:string, ap:{[key:string]:any}, searchField:string, foundFullNames:Array<string>
+   icon:string, trash:string, ap:{[key:string]:any}, searchField:string, foundFullNames:Array<string>
    apID:number, header:{[key:string]:any}, headerNames:Array<string>, phone:boolean, n:number} ) {
 
   // m is the global maginification factor
@@ -112,7 +43,7 @@ export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames
       <title>Rentap</title>
       <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
       <header style={{maxWidth: maxWidth}}>
-        <Banner icon={icon} marginLeft={14*m} minWidth={427*m} maxWidth={maxWidth-44} message={message} />
+        <Banner icon={icon} trash={trash} marginLeft={14*m} minWidth={427*m} maxWidth={maxWidth-44} inTrash={inTrash} message={message} />
         <fieldset style={fieldsetStyle}>
           <legend style={legendStyle}>Navigation</legend>
           <div style={{display:'flex', justifyContent:'space-between'}}>
@@ -177,16 +108,16 @@ export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames
           <div style={{display:'block'}}>
             <div style={{display:'flex', justifyContent:'space-between', marginBottom:5*m}}>
               <Lbutton link="/" text="New" />
-              {!apID ? "" :
+              {!apID ? <div>&bull;</div> :
                 <Lbutton link={viewOnly?'/edit':'/view'} text={viewOnly?'Edit':'View'} />
               }
-            </div>
-            <div style={{marginBottom:5*m}}>
-              {ap.FullName==="Deleted apID:" + apID ? <div>&bull</div> :
+              {ap.FullName==="Deleted apID:" + apID ? <div>&bull;</div> :
                 <Lbutton link={inTrash ? "/restore" : "/discard"} text={inTrash ? "Restore" : "Discard"} />
               }
-              <div style={{backgroundColor:'gray', color:'white', textAlign:'center', display:'inline-block'}}>{'||'}</div>
-              <Lbutton link={inTrash ? "/exittrash" : "/trash"} text={inTrash ? "Exit Trash" : "View Discarded"} />
+            </div>
+            <div style={{display:'flex', justifyContent:'space-between', marginBottom:5*m}}>
+              <div>&bull;</div>
+              <div>&bull;</div>
             </div>
             <Lbutton link={inTrash ? "/delete" : "/editheaders"} text={inTrash ? "Delete (This is Permanent)" : "Edit 'Applying for:' Options"} />
           </div>
@@ -238,6 +169,80 @@ export function Rentap({message, viewOnly, icon, ap, searchField, foundFullNames
       </body>
     </>
   );
+}
+
+export function EditHeaders ({headers, icon, trash, message, editOption, phone, n}:
+  {headers:{[key:string]:any}, icon:string, trash:string, message:string, editOption:string, phone:boolean, n:number}) {
+  // m is the global magnification factor
+  m=n;
+  const fieldsetStyle={display:'inline-block', width:300*m, border:'none', fontSize:fS.p*m};
+  const legendStyle={width:'auto', marginLeft:'auto', marginRight:'auto', color:rGray};
+  const maxWidth = phone ? 400*m : 1200*m; // force single-column on phone
+  const headerNames = headers.map((header:any) => header.Name);
+  headerNames[0] = "Select Option to Edit"
+  const editRow = editOption ? headerNames.indexOf(editOption) : 0;
+  return (
+    <>
+      <meta charSet="utf-8" />
+      <title>Rentap Options</title>
+      <link rel="icon" href={`data:image/x-icon;base64,${icon}`} />
+      <header >
+        <Banner icon={icon} trash={trash} marginLeft={m} minWidth={400*m} maxWidth={maxWidth+m} inTrash={false} message={message} />
+      </header>
+      <body style={{backgroundColor:rLightBlue, maxWidth: maxWidth }} >
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Delete Option</legend>
+          <form action="/delheader" method="post" encType="multipart/form-data" style={{display:'flex', justifyContent:'center'}} >
+            <Submit name="X"/>
+            <Field type= "number" name="Row" placeholder="Row" width="30%" viewOnly={false}/>
+          </form>
+        </fieldset>
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Edit Option</legend>
+          <form action="/editheader" method="post" encType="multipart/form-data" style={{display:'flex'}}  >
+            <select name="select" id="select" style={{fontSize:fS.a*m, width:'100%'}}  value={headerNames[editRow]} onChange={function(){}} >
+              {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
+            </select>
+            <Submit name="Edit"/>
+          </form>
+          <form action="/saveheader" method="post" encType="multipart/form-data">
+            <div style={{display:'flex'}}>
+              <Submit name="Save"/>
+              <Field type= "text" name="Name" placeholder="" width="100%" ap={headers[editRow]} viewOnly={true} />
+            </div>
+            <Field type= "text" name="StreetAddress" placeholder="Street Address" width="100%" ap={headers[editRow]} viewOnly={false} />
+            <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="100%" ap={headers[editRow]} viewOnly={false} />
+            <Field type= "text" name="Title" placeholder="Title" width="100%" ap={headers[editRow]} viewOnly={false} />
+          </form>
+        </fieldset>
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Add Option</legend>
+          <form action="/addheader" method="post" encType="multipart/form-data">
+            <div style={{display:'flex'}}>
+              <Submit name="+" />
+              <Field type= "text" name="Name" placeholder="Unique Option Name" width="100%" viewOnly={false} />
+            </div>
+            <Field type= "text" name="StreetAddress" placeholder="Street Address" width="100%" viewOnly={false} />
+            <Field type= "text" name="CityStateZip" placeholder="City State Zip" width="100%" viewOnly={false} />
+            <Field type= "text" name="Title" placeholder="Title" width="100%" viewOnly={false} />
+          </form>
+        </fieldset>
+        <table style={{backgroundColor:'black'}}>
+          <thead>
+            <tr> <Th text="Row" /> <Th text="Unique Option Name" /> <Th text="Street Address" /> <Th text="City State Zip" /> <Th text="Title" /> </tr>
+          </thead>
+          <tbody> {
+            headers.map (
+              (h:any) => h.Name && //skip headers[0] which has all blank entries
+              <tr key={h.Name}>
+                <TdR text={headers.indexOf(h)} /> <Td text={h.Name} /> <Td text={h.StreetAddress} /> <Td text={h.CityStateZip} /> <Td text={h.Title} />
+              </tr>
+            )
+          } </tbody>
+        </table>
+      </body>
+    </>
+  )
 }
 
 function Label({forId, labelText}: {forId:string, labelText:string}) {

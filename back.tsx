@@ -7,6 +7,8 @@ const phone = !(process.argv.length === 2);
 
 const iconfile = Bun.file("icon.txt");
 const base64icon = await iconfile.text();
+const trashfile = Bun.file("trash.txt");
+const base64trash = await trashfile.text();
 const storefile = Bun.file("store.json");
 //sJfT short for storeJSONfileText.
 const sJfT = storefile.size ? await storefile.text() : "";
@@ -320,14 +322,14 @@ const server = Bun.serve({
 
   if (url.pathname.includes("header")) {
     const stream =
-      await renderToReadableStream(<EditHeaders icon={base64icon}
+      await renderToReadableStream(<EditHeaders icon={base64icon} trash={base64trash}
         headers={headers} message={messageEditHeaders} editOption={editOption} phone={phone} n={phone?2:1}/>);
     return new Response(stream, {
       headers: { "Content-Type": "text/html" },
     });
   } else {
     const stream =
-      await renderToReadableStream(<Rentap icon={base64icon}
+      await renderToReadableStream(<Rentap icon={base64icon} trash={base64trash}
         message={message} viewOnly={viewOnly} inTrash={inTrash}
         ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} phone={phone} n={phone?2:1} />);
