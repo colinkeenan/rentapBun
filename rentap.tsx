@@ -104,7 +104,7 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
         </fieldset>
         <fieldset style={fieldsetStyle}>
           <legend style={legendStyle}>Actions</legend>
-          <div style={{display:'flex', justifyContent:'right'}}>
+          <div style={{display:'flex', justifyContent:'center'}}>
           <div style={{display:'block'}}>
             <div style={{display:'flex', justifyContent:'space-between', marginBottom:5*m}}>
               <Lbutton link="/" text="New" />
@@ -156,11 +156,13 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
           <TextArea rows={15} name="Felonies"          placeholder="Felonies/Drug Convictions, or other notes" ap={ap} viewOnly={viewOnly}  />
         </fieldset>
         <br />
-        <div style={{display:'flex', justifyContent:'space-between', minWidth:446*m, maxWidth:maxWidth-20}}>
+        <div style={{display:'flex', justifyContent:'space-between', minWidth:472*m, maxWidth:maxWidth-20}}>
           <fieldset style={fieldsetStyle}>
             <legend style={legendStyle}>Agreement Dates</legend>
-            <Label forId="datestart" labelText="Start | Stop" /> <Field type="date" name="dateStart" placeholder="" width={150*m} ap={ap} viewOnly={viewOnly}  />
-                                                                <Field type="date" name="dateStop"  placeholder="" width={150*m} ap={ap} viewOnly={viewOnly}  />
+            <Label forId="datestart" labelText="Start | Stop" />
+            {phone ? <br/> :""}
+            <Field type="date" name="dateStart" placeholder="" width="auto" ap={ap} viewOnly={viewOnly}  />
+            <Field type="date" name="dateStop"  placeholder="" width="auto" ap={ap} viewOnly={viewOnly}  />
           </fieldset >
           <div style={{display:'block'}}> <Label forId="dateapplied" labelText="Applied" /> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly}  /> </div>
         </div>
