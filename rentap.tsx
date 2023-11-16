@@ -264,7 +264,7 @@ function Field({type, name, placeholder, width, ap, viewOnly}: { type: string, n
 function TextArea({rows, name, placeholder, ap, viewOnly}: { rows:number, name:string, placeholder:string, ap: {[key:string]: any}, viewOnly: boolean}) {
   return (
     <textarea rows={rows} name={name} placeholder={placeholder}
-      style={{width:'100%', marginBottom:2*m, backgroundColor:viewOnly?rDisabled:'white', fontSize:fS.a*m}}
+      style={{width:'100%', marginBottom:2*m, backgroundColor:viewOnly?rDisabled:'white', fontSize:fS.a*m, textSizeAdjust:'none'}}
       defaultValue={ap[name]} readOnly={viewOnly} onChange={function(){}} />
   )
 }
