@@ -1,6 +1,6 @@
 {
   "name": "rentapBun",
-  "version": "1.07",
+  "version": "1.08",
   "description": "Create and Fill-in Application Forms offline on your own computer. Faster than npm, but doesn't work in Termux on Android.",
   "module": "back.tsx",
   "type": "module",
