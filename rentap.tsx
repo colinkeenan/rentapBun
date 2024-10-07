@@ -128,8 +128,8 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
           <legend style={legendStyle}>Identity</legend>
           <Label forId="fullname"  labelText="Full Name"  />     <Field type="text"  name="FullName"      placeholder="First Middle Last" width='73%' ap={ap} viewOnly={viewOnly}  />
           <Label forId="ssn"  labelText="Social Security"  />    <Field type="text"  name="SSN"           placeholder="555-55-5555" width='73%' ap={ap} viewOnly={viewOnly}  />
-          <Label forId="birthdate" labelText="Birth Date"  />    <Field type="date"  name="BirthDate"     placeholder="" width='36.5%' ap={ap} viewOnly={viewOnly}  />
-                                                                <Field type="text"  name="MaritalStatus" placeholder="Marital Status" width='36.5%' ap={ap} viewOnly={viewOnly}  />
+          <Label forId="birthdate" labelText="Birth Date"  />    <Field type="date"  name="BirthDate"     placeholder="" width='38%' ap={ap} viewOnly={viewOnly}  />
+                                                                <Field type="text"  name="MaritalStatus" placeholder="Marital Status" width='35%' ap={ap} viewOnly={viewOnly}  />
           <Label forId="email" labelText="Email"  />             <Field type="email" name="Email"         placeholder="youremail@provider.com" width='73%' ap={ap} viewOnly={viewOnly}  />
           <Label forId="stateid" labelText="State ID#"  />       <Field type="text"  name="StateID"       placeholder="MO 123456789 1/2/2034" width='73%' ap={ap} viewOnly={viewOnly}  />
           <Label forId="phone1" labelText="Phones"  />           <Field type="tel"   name="Phone1"        placeholder="Phone 1" width='36.5%' ap={ap} viewOnly={viewOnly}  />
