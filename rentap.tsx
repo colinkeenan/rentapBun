@@ -161,8 +161,8 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
             <legend style={legendStyle}>Agreement Dates</legend>
             <Label forId="datestart" labelText="Start | Stop" />
             {phone ? <br/> :""}
-            <Field type="date" name="dateStart" placeholder="" width="auto" ap={ap} viewOnly={viewOnly}  />
-            <Field type="date" name="dateStop"  placeholder="" width="auto" ap={ap} viewOnly={viewOnly}  />
+            <Field type="date" name="dateStart" placeholder="" width="37.5%" ap={ap} viewOnly={viewOnly}  />
+            <Field type="date" name="dateStop"  placeholder="" width="37.5%" ap={ap} viewOnly={viewOnly}  />
           </fieldset >
           <div style={{display:'block'}}> <Label forId="dateapplied" labelText="Applied" /> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly}  /> </div>
         </div>
