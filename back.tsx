@@ -1,5 +1,5 @@
 // {{{ za to toggle fold which includes all the imports and global variables
-import { renderToReadableStream } from "react-dom/server";
+import { renderToReadableStream } from "react-dom/server.browser";
 import { Rentap, EditHeaders } from "./rentap"
 
 // argv: [ 'path/to/node', 'path/to/back.tsx', 'arguements' ], so length of 2 means no args. Any args, then phone is true.
