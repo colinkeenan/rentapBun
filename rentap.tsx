@@ -7,6 +7,17 @@ let m = 1;
 
 function AutoSubmit() {
   return <script dangerouslySetInnerHTML={{__html: `
+    // 1. Submit a dropdown's form as soon as something is chosen
+    document.querySelectorAll('select[data-autosubmit]').forEach(function (s) {
+      s.addEventListener('change', function () {
+        // the search dropdown only submits if there is search text, since an empty search just resets the list
+        var box = s.dataset.autosubmit === 'search' ? document.getElementById('search') : null;
+        if (box && !box.value) return;
+        if (s.form) s.form.requestSubmit();
+      });
+    });
+
+    // 2. Before the top "Applying for:" form submits, copy in what has been typed in the main form
     document.querySelectorAll('form[data-carry]').forEach(function (f) {
       f.addEventListener('submit', function () {
         var src = document.getElementById(f.dataset.carry);
