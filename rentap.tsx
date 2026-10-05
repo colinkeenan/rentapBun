@@ -7,12 +7,15 @@ let m = 1;
 
 function AutoSubmit() {
   return <script dangerouslySetInnerHTML={{__html: `
-    document.querySelectorAll('select[data-autosubmit]').forEach(function (s) {
-      s.addEventListener('change', function () {
-        // the search dropdown only submits if there is search text, since an empty search just resets the list
-        var box = s.dataset.autosubmit === 'search' ? document.getElementById('search') : null;
-        if (box && !box.value) return;
-        if (s.form) s.form.requestSubmit();
+    document.querySelectorAll('form[data-carry]').forEach(function (f) {
+      f.addEventListener('submit', function () {
+        var src = document.getElementById(f.dataset.carry);
+        if (!src) return;
+        new FormData(src).forEach(function (v, k) {
+          var h = document.createElement('input');
+          h.type = 'hidden'; h.name = k; h.value = v;
+          f.appendChild(h);
+        });
       });
     });
   `}} />
@@ -106,7 +109,7 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
                 {header.StreetAddress ? header.StreetAddress : "Street Address"}
                 <br/> {header.CityStateZip ? header.CityStateZip : "City, ST Zip"}
               </p>
-              <form action="/selectapplyingfor" method="post" encType="multipart/form-data" style={{margin:'0', marginBottom:5*m, display:'flex', justifyContent:'space-between'}} >
+              <form action="/selectapplyingfor" method="post" encType="multipart/form-data" data-carry="ap" style={{margin:'0', marginBottom:5*m, display:'flex', justifyContent:'space-between'}} >
                 <select name="selectApplyingFor" id="selectapplyingfor" data-autosubmit="yes" style={{ display:'inline-block', width:'73%', fontSize:fS.a*m }} value={header.Name} onChange={function(){}} required>
                   {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
                 </select>

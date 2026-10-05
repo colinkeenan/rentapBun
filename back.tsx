@@ -18,6 +18,7 @@ const aps = sJfT ? storeArray.aps : [{"FullName":"","SSN":"","BirthDate":"","Mar
 const trash = sJfT ? storeArray.trash : [{"discardedRow":0}];
 const deleted = sJfT ? storeArray.deleted : [{"deletedRow":0}];
 const trashMessage="Viewing Discarded Applications in Trash"
+let draft: {[key:string]:any} | null = null; // typed-but-unsaved values, shown once and never stored in aps
 let apHasUndefined = false;
 let sort = false;
 
@@ -84,8 +85,11 @@ const server = Bun.serve({
       const headerEntry = await getFormData(req);
       const headerNameSelected = headerEntry.selectApplyingFor.toString();
       if (foundFullNames.length === 1) foundFullNamesUpdate();
-      aps[apID].headerName = headerNameSelected;
-      headerID = matchHeader(aps[apID].headerName);
+      // Show what was typed so far with the new header, but don't store it in aps.
+      // Everything is stored only when Save is clicked.
+      const { selectApplyingFor, ...typed } = headerEntry;
+      draft = { ...aps[apID], ...typed, headerName: headerNameSelected };
+      headerID = matchHeader(headerNameSelected);
       break;
     case '/sort':
       message = inTrash ? trashMessage : "View";
@@ -322,6 +326,9 @@ const server = Bun.serve({
   }
 // }}}
 
+  const apToShow = draft ?? aps[apID];
+  draft = null;
+
   if (url.pathname.includes("header")) {
     const stream =
       await renderToReadableStream(<EditHeaders icon={base64icon} trash={base64trash}
@@ -333,7 +340,7 @@ const server = Bun.serve({
     const stream =
       await renderToReadableStream(<Rentap icon={base64icon} trash={base64trash}
         message={message} viewOnly={viewOnly} inTrash={inTrash}
-        ap={aps[apID]} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
+        ap={apToShow} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} phone={phone} n={phone?2:1} />);
     return new Response(stream, {
       headers: { "Content-Type": "text/html" },
