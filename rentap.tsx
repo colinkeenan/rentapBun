@@ -255,6 +255,7 @@ export function EditHeaders ({headers, icon, trash, message, editOption, phone, 
             )
           } </tbody>
         </table>
+        <AutoSubmit />
       </body>
     </>
   )
