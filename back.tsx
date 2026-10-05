@@ -49,7 +49,7 @@ let headerID = 0;
 // }}}
 
 const server = Bun.serve({
-  port: 3000, async fetch(req) {
+  hostname: "127.0.0.1", port: 3000, async fetch(req) {
   const url = new URL(req.url);
 
   // A bunch of path-handlers for the Rentap page follows. After those, the rest are for the
