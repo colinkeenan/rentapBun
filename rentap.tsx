@@ -5,6 +5,19 @@ const requiredFields = ["FullName", "dateApplied"]; // possibilities: FullName, 
 const fS = {"lbl":14,"a":21, "tbl":22, "p":23.5, "h3":28}; // font sizes
 let m = 1;
 
+function AutoSubmit() {
+  return <script dangerouslySetInnerHTML={{__html: `
+    document.querySelectorAll('select[data-autosubmit]').forEach(function (s) {
+      s.addEventListener('change', function () {
+        // the search dropdown only submits if there is search text, since an empty search just resets the list
+        var box = s.dataset.autosubmit === 'search' ? document.getElementById('search') : null;
+        if (box && !box.value) return;
+        if (s.form) s.form.requestSubmit();
+      });
+    });
+  `}} />
+}
+
 function Banner ({icon, trash, marginLeft, minWidth, maxWidth, inTrash, message}:
   {icon:string, trash:string, marginLeft:number, minWidth:number, maxWidth:number, inTrash:boolean, message:string}) {
   return (
@@ -66,7 +79,7 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
               <div style={{display:'flex', justifyContent:'space-between', marginBottom:5*m}} >
                 <input type="text" name="search" id="search" placeholder="search" style={{width:'45%', fontSize:fS.a*m}} />
                 <Submit name="&#10003;" />
-                <select name="searchFields" id="searchfields" value={searchField} style={{width:'45%', fontSize:fS.a*m }} onChange={function(){}} >
+                <select name="searchFields" id="searchfields" data-autosubmit="search" value={searchField} style={{width:'45%', fontSize:fS.a*m }} onChange={function(){}} >
                   <option value="selectSearchFields" key="selectSearchFields"> All /choose one </option>
                   {Object.keys(ap).map( (key:string) => <option value={key} key={key}>{camelCaseToWords(key)}</option> )}
                 </select>
@@ -75,7 +88,7 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
             <form action="/select" method="post" encType="multipart/form-data"  style={{margin:'0'}}>
               <div style={{display:'flex', justifyContent:'space-between'}} >
                 <Lbutton link="/sort" text={sorted ? "Unsort" : "Sort"} />
-                <select name="select" id="select" value={ap.FullName ? ap.FullName : foundFullNames[0]} style={{width:'60%', fontSize:fS.a*m}} onChange={function(){}} >
+                <select name="select" id="select" data-autosubmit="yes" value={ap.FullName ? ap.FullName : foundFullNames[0]} style={{width:'60%', fontSize:fS.a*m}} onChange={function(){}} >
                   {foundFullNames.map( (name:any) => <option value={name} key={name}>{name}</option> )}
                 </select>
                 <Submit name="View" />
@@ -94,7 +107,7 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
                 <br/> {header.CityStateZip ? header.CityStateZip : "City, ST Zip"}
               </p>
               <form action="/selectapplyingfor" method="post" encType="multipart/form-data" style={{margin:'0', marginBottom:5*m, display:'flex', justifyContent:'space-between'}} >
-                <select name="selectApplyingFor" id="selectapplyingfor" style={{ display:'inline-block', width:'73%', fontSize:fS.a*m }} value={header.Name} onChange={function(){}} required>
+                <select name="selectApplyingFor" id="selectapplyingfor" data-autosubmit="yes" style={{ display:'inline-block', width:'73%', fontSize:fS.a*m }} value={header.Name} onChange={function(){}} required>
                   {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
                 </select>
                 <Submit name="Update" />
@@ -167,6 +180,7 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
           <div style={{display:'block'}}> <Label forId="dateapplied" labelText="Applied" /> <Field type="date" name="dateApplied" placeholder="" width='auto' ap={ap} viewOnly={viewOnly}  /> </div>
         </div>
       </form>
+      <AutoSubmit />
       </body>
     </>
   );
@@ -201,7 +215,7 @@ export function EditHeaders ({headers, icon, trash, message, editOption, phone, 
         <fieldset style={fieldsetStyle}>
           <legend style={legendStyle}>Edit Option</legend>
           <form action="/editheader" method="post" encType="multipart/form-data" style={{display:'flex'}}  >
-            <select name="select" id="select" style={{fontSize:fS.a*m, width:'100%'}}  value={headerNames[editRow]} onChange={function(){}} >
+            <select name="select" id="select" data-autosubmit="yes" style={{fontSize:fS.a*m, width:'100%'}}  value={headerNames[editRow]} onChange={function(){}} >
               {headerNames.map( (name:string) => <option value={name} key={name}>{name}</option> )}
             </select>
             <Submit name="Edit"/>
