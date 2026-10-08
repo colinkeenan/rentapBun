@@ -1,3 +1,4 @@
+import { h, Fragment } from "./jsx"
 const rGray = '#57606F';
 const rDisabled = '#b4cefb'
 const rLightBlue = '#77aaff'
@@ -262,9 +263,9 @@ export function EditHeaders ({headers, icon, trash, message, editOption, phone, 
           </thead>
           <tbody> {
             headers.map (
-              (h:any) => h.Name && //skip headers[0] which has all blank entries
-              <tr key={h.Name}>
-                <TdR text={headers.indexOf(h)} /> <Td text={h.Name} /> <Td text={h.StreetAddress} /> <Td text={h.CityStateZip} /> <Td text={h.Title} />
+              (opt:any) => opt.Name && //skip headers[0] which has all blank entries
+              <tr key={opt.Name}>
+                <TdR text={headers.indexOf(opt)} /> <Td text={opt.Name} /> <Td text={opt.StreetAddress} /> <Td text={opt.CityStateZip} /> <Td text={opt.Title} />
               </tr>
             )
           } </tbody>

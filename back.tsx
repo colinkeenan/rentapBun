@@ -1,5 +1,5 @@
 // {{{ za to toggle fold which includes all the imports and global variables
-import { renderToReadableStream } from "react-dom/server.browser";
+import { h, render } from "./jsx"
 import { Rentap, EditHeaders } from "./rentap"
 
 // argv: [ 'path/to/node', 'path/to/back.tsx', 'arguements' ], so length of 2 means no args. Any args, then phone is true.
@@ -313,7 +313,7 @@ const server = Bun.serve({
     case '/addheader':
       messageEditHeaders = "Option Added";
       const headerAdd = await getFormData(req);
-      if (headers.some((h:any) => h.Name === headerAdd.Name))
+      if (headers.some((hd:any) => hd.Name === headerAdd.Name))
         messageEditHeaders = "Choose a unique name for the new option.";
       else {
         headers.push(headerAdd);
@@ -330,20 +330,20 @@ const server = Bun.serve({
   draft = null;
 
   if (url.pathname.includes("header")) {
-    const stream =
-      await renderToReadableStream(<EditHeaders icon={base64icon} trash={base64trash}
+    const html =
+      render(<EditHeaders icon={base64icon} trash={base64trash}
         headers={headers} message={messageEditHeaders} editOption={editOption} phone={phone} n={phone?2:1}/>);
-    return new Response(stream, {
-      headers: { "Content-Type": "text/html" },
+    return new Response(html, {
+      headers: { "Content-Type": "text/html; charset=utf-8" },
     });
   } else {
-    const stream =
-      await renderToReadableStream(<Rentap icon={base64icon} trash={base64trash}
+    const html =
+      render(<Rentap icon={base64icon} trash={base64trash}
         message={message} viewOnly={viewOnly} inTrash={inTrash}
         ap={apToShow} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
         header={headers[headerID]} headerNames={headerNames} phone={phone} n={phone?2:1} />);
-    return new Response(stream, {
-      headers: { "Content-Type": "text/html" },
+    return new Response(html, {
+      headers: { "Content-Type": "text/html; charset=utf-8" },
     });
   }},
 });
@@ -358,7 +358,7 @@ function formatArray(arrObj:Array<Object>) {
 };
 
 function matchHeader(name:string) {
-  const headerID = headers.map((h:any) => h.Name).indexOf(name);
+  const headerID = headers.map((hd:any) => hd.Name).indexOf(name);
   return headerID > 0 ? headerID : 0;
 }
 

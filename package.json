@@ -1,21 +1,10 @@
 {
   "name": "rentapBun",
-  "version": "1.09",
-  "description": "Create and Fill-in Application Forms offline on your own computer. Faster than npm, but doesn't work in Termux on Android.",
+  "version": "1.10",
+  "description": "Create and Fill-in Application Forms offline on your own computer. No dependencies besides Bun.",
   "module": "back.tsx",
   "type": "module",
-  "scripts": {
-    "start": "bun run back.tsx& xdg-open http://localhost:3000/",
-    "stop": "pkill bun"
-  },
   "devDependencies": {
-    "@types/react-dom": "^18.2.8",
     "bun-types": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "react-dom": "^18.2.0"
   }
 }
