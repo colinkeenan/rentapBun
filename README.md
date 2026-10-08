@@ -1,6 +1,8 @@
 # rentapBun
 
-`bun 1.09` fixed the broken version 1.08.
+`rentapBun 1.10` has the following improvements written by Claude free (https://claude.ai/new): choosing items from dropdown menus auto-submits so it's not necessary to click a button to show the selected item, changing the "Applying for:" field doesn't erase previously entered but unsaved information and doesn't save the form until "Save" is clicked, and bun is the only dependency now. Also, since bun can now run in Termux, there's no need to use rentapTermux so I'm not updating that version with these improvements but I've removed the start and stop scripts since those can be handled with aliases and are different in Termux and the computer.
+
+`rentapBun 1.09` fixed the broken version 1.08.
 
 ~~WARNING: `bun upgrade` from 1.07 to 1.08 is broken and won't run rentapBun. Stay with `bun 1.07` until issue is resolved~~.
 
@@ -16,6 +18,7 @@ I've included two files to help convert the sqlite3 data in `store.db` to JSON d
 ./createStoreTables.bat
 bun run combineStoreTables.tsx
 ```
+
 The final result will be `store.json` containing the data from `store.db`. However, some data may be missing or some discarded aps might not be discarded and vise versa due to rentap.js having not properly stored data from the browser's local storage into `store.db` (the issue that rentapBun solves). In addition, some dates may not show up correctly. After conversion, manual edits may be needed to get everything the way it was in rentap.js. To edit what's in `store.json`, just start rentapBun:
 
 ```
