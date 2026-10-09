@@ -470,3 +470,6 @@ async function getFormData(req:any) {
 }
 
 console.log(`Listening on http://localhost:${server.port}`);
+// Exit normally on stop signals so Bun can tidy up the terminal before it quits
+for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"] as const)
+ process.on(sig, () => process.exit(0));
