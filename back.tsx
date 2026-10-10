@@ -2,8 +2,27 @@
 import { h, render } from "./jsx"
 import { Rentap, EditHeaders } from "./rentap"
 
-// argv: [ 'path/to/node', 'path/to/back.tsx', 'arguements' ], so length of 2 means no args. Any args, then phone is true.
-const phone = !(process.argv.length === 2);
+// Optional command-line arguments: columns (1 to 3), then magnification (0.5 to 4).
+//   bun run back.tsx        3 columns, magnification 1 (the computer layout)
+//   bun run back.tsx 1 2    1 column, magnification 2 (the old phone layout)
+// argv is [ 'path/to/bun', 'path/to/back.tsx', ...your arguments ]
+const [columnsArg, magnificationArg] = process.argv.slice(2);
+const columns = columnsArg === undefined ? 3 : Number(columnsArg);
+const magnification = magnificationArg === undefined ? 1 : Number(magnificationArg);
+if (
+  process.argv.length > 4 ||
+  !Number.isInteger(columns) ||
+  columns < 1 ||
+  columns > 3 ||
+  !(magnification >= 0.5 && magnification <= 4)
+) {
+  console.error(
+    "Usage: bun run back.tsx [columns 1-3] [magnification 0.5-4]\n" +
+      "  bun run back.tsx         computer: 3 columns, magnification 1\n" +
+      "  bun run back.tsx 1 2     phone: 1 column, magnification 2",
+  );
+  process.exit(1);
+}
 
 const iconfile = Bun.file("icon.txt");
 const base64icon = await iconfile.text();
@@ -332,7 +351,8 @@ const server = Bun.serve({
   if (url.pathname.includes("header")) {
     const html =
       render(<EditHeaders icon={base64icon} trash={base64trash}
-        headers={headers} message={messageEditHeaders} editOption={editOption} phone={phone} n={phone?2:1}/>);
+        headers={headers} message={messageEditHeaders} editOption={editOption}
+        columns={columns} n={magnification}} />);
     return new Response(html, {
       headers: { "Content-Type": "text/html; charset=utf-8" },
     });
@@ -341,7 +361,7 @@ const server = Bun.serve({
       render(<Rentap icon={base64icon} trash={base64trash}
         message={message} viewOnly={viewOnly} inTrash={inTrash}
         ap={apToShow} searchField={searchField} foundFullNames={foundFullNames} apID={apID}
-        header={headers[headerID]} headerNames={headerNames} phone={phone} n={phone?2:1} />);
+        header={headers[headerID]} headerNames={headerNames} columns={columns} n={magnification} />);
     return new Response(html, {
       headers: { "Content-Type": "text/html; charset=utf-8" },
     });
@@ -469,7 +489,9 @@ async function getFormData(req:any) {
   return Object.fromEntries(reqSubmit.entries());
 }
 
-console.log(`Listening on http://localhost:${server.port}`);
+console.log(
+  `Listening on http://localhost:${server.port}  (${columns} column${columns === 1 ? "" : "s"}, magnification ${magnification})`,
+);
 // Exit normally on stop signals so Bun can tidy up the terminal before it quits
 for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"] as const)
  process.on(sig, () => process.exit(0));

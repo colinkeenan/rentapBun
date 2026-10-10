@@ -52,10 +52,10 @@ function Banner ({icon, trash, marginLeft, minWidth, maxWidth, inTrash, message}
   )
 }
 
-export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFullNames, apID, header, headerNames, inTrash, phone, n }:
+export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFullNames, apID, header, headerNames, inTrash, columns, n }:
   {message:string, viewOnly:boolean, inTrash:boolean
    icon:string, trash:string, ap:{[key:string]:any}, searchField:string, foundFullNames:Array<string>
-   apID:number, header:{[key:string]:any}, headerNames:Array<string>, phone:boolean, n:number} ) {
+   apID:number, header:{[key:string]:any}, headerNames:Array<string>, columns:number, n:number} ) {
 
   // m is the global maginification factor
   m=n;
@@ -63,7 +63,11 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
   const legendStyle={width:'auto', marginLeft:'auto', marginRight:'auto', color:rGray};
   // when toggling Sort/Unsort button, check whether or not "Sorted:" was inserted at top of list
   const sorted = foundFullNames[0].substring(0,7) === "Sorted:";
-  const maxWidth = phone ? 427*m : 1394*m; // force single-column on phone
+  // A fieldset takes up its width, plus 2 x 0.75em of padding (em = fS.p*m), plus 4px of margin.
+  // The page is made just wide enough for the requested number of them side by side.
+  // (1 column keeps the original 427*m, and 3 columns works out to the original 1394 when m is 1.)
+  const fieldsetSlot = (425 + 1.5 * fS.p) * m + 4;
+  const maxWidth = columns === 1 ? 427 * m : columns * fieldsetSlot + 1.25;
 
   return (
     <>
@@ -188,7 +192,7 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
           <fieldset style={fieldsetStyle}>
             <legend style={legendStyle}>Agreement Dates</legend>
             <Label forId="datestart" labelText="Start | Stop" />
-            {phone ? <br/> :""}
+            {columns === 1 ? <br/> :""}
             <Field type="date" name="dateStart" placeholder="" width="37.5%" ap={ap} viewOnly={viewOnly}  />
             <Field type="date" name="dateStop"  placeholder="" width="37.5%" ap={ap} viewOnly={viewOnly}  />
           </fieldset >
@@ -201,13 +205,13 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
   );
 }
 
-export function EditHeaders ({headers, icon, trash, message, editOption, phone, n}:
-  {headers:{[key:string]:any}, icon:string, trash:string, message:string, editOption:string, phone:boolean, n:number}) {
+export function EditHeaders ({headers, icon, trash, message, editOption, columns, n}:
+  {headers:{[key:string]:any}, icon:string, trash:string, message:string, editOption:string, columns:number, n:number}) {
   // m is the global magnification factor
   m=n;
   const fieldsetStyle={display:'inline-block', width:300*m, border:'none', fontSize:fS.p*m};
   const legendStyle={width:'auto', marginLeft:'auto', marginRight:'auto', color:rGray};
-  const maxWidth = phone ? 400*m : 1200*m; // force single-column on phone
+  const maxWidth = 400*columns*m; // 400 per column, times the magnification
   const headerNames = headers.map((header:any) => header.Name);
   headerNames[0] = "Select Option to Edit"
   const editRow = editOption ? headerNames.indexOf(editOption) : 0;
