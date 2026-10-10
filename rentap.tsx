@@ -188,8 +188,8 @@ export function Rentap({message, viewOnly, icon, trash, ap, searchField, foundFu
           <TextArea rows={15} name="Felonies"          placeholder="Felonies/Drug Convictions, or other notes" ap={ap} viewOnly={viewOnly}  />
         </fieldset>
         <br />
-        <div style={{display:'flex', justifyContent:'space-between', minWidth:472*m, maxWidth:maxWidth-20}}>
-          <fieldset style={fieldsetStyle}>
+        <div style={{display:'flex', flexWrap:'wrap', justifyContent:'space-between', minWidth:472*m, maxWidth:maxWidth-20}}>
+          <fieldset style={{...fieldsetStyle, flexShrink:0}}>
             <legend style={legendStyle}>Agreement Dates</legend>
             <Label forId="datestart" labelText="Start | Stop" />
             {columns === 1 ? <br/> :""}
