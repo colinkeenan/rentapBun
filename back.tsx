@@ -352,7 +352,7 @@ const server = Bun.serve({
     const html =
       render(<EditHeaders icon={base64icon} trash={base64trash}
         headers={headers} message={messageEditHeaders} editOption={editOption}
-        columns={columns} n={magnification}} />);
+        columns={columns} n={magnification} />);
     return new Response(html, {
       headers: { "Content-Type": "text/html; charset=utf-8" },
     });
